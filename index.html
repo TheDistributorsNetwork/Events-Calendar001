@@ -6,8 +6,10 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: #fff9f6;
+      margin: 0;
+      padding: 40px;
+      background-color: #000; /* Full black background */
+      color: #fff;
     }
     header {
       text-align: center;
@@ -19,18 +21,19 @@
       margin: 0 auto 15px auto;
     }
     header h1 {
-      color: #800000; /* Maroon */
+      color: #FFD700; /* Gold */
       font-size: 2em;
       margin: 0;
     }
     table {
-      width: 100%;
+      width: 90%;
+      margin: 0 auto;
       border-collapse: collapse;
-      margin-top: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background-color: #1a1a1a; /* Dark grey for contrast */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
     }
     th, td {
-      border: 1px solid #ddd;
+      border: 1px solid #333;
       padding: 14px;
       text-align: left;
     }
@@ -40,15 +43,19 @@
       text-transform: uppercase;
     }
     tr:nth-child(even) {
-      background-color: #fdf3f0;
+      background-color: #262626; /* Alternate dark rows */
+    }
+    tr:nth-child(odd) {
+      background-color: #1a1a1a;
     }
     a {
-      color: #800000;
+      color: #FFD700; /* Gold */
       font-weight: bold;
       text-decoration: none;
     }
     a:hover {
       text-decoration: underline;
+      color: #fff;
     }
   </style>
 </head>
@@ -56,7 +63,7 @@
   <header>
     <!-- Replace logo.png with your own file or a public logo URL -->
     <img src="logo.png" alt="Logo">
-    <h1>Message Believer's Network Calendar DBN| RSA</h1>
+    <h1>Upcoming Events</h1>
   </header>
 
   <table>
@@ -64,31 +71,35 @@
       <th>Date</th>
       <th>Event</th>
       <th>Details</th>
-      <th>Link</th>
       <th>Host Church</th>
+      <th>Invitation</th>
     </tr>
     <tr>
-      <td>15 August 2025</td>
-      <td>Special Service</td>
-      <td>Combined Service</td>
-      <th>Restoration Tabernacle</th>
-      <td><a href="https://drive.google.com/file/d/1bzKGv8nDCxjgGg7AMAokwVFoMtLXUlXF/view?usp=drivesdk">View Invite</a></td>
+      <td>25 August 2025</td>
+      <td>Thanksgiving Service</td>
+      <td>Family gathering with special program</td>
+      <td>Faith Tabernacle</td>
+      <td><a href="https://example.com/invite1" target="_blank">View Invite</a></td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td><a href=".">.</a></td>
+      <td>15 September 2025</td>
+      <td>Community Outreach</td>
+      <td>Book & pamphlet distribution</td>
+      <td>Durban Christian Assembly</td>
+      <td><a href="https://example.com/invite2" target="_blank">More Info</a></td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td><a href="." target="_blank">.</a></td>
+      <td>10 October 2025</td>
+      <td>Youth Meeting</td>
+      <td>Special evening service with guest speaker</td>
+      <td>End Time Fellowship</td>
+      <td><a href="https://example.com/invite3" target="_blank">Details</a></td>
     </tr>
   </table>
 </body>
 </html>
+
+
 
 
 
