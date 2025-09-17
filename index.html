@@ -75,11 +75,13 @@
       text-decoration: underline;
       color: #fff;
     }
+
+    /* Request and Live button container */
     .request-form {
       text-align: center;
       margin-top: 30px;
     }
-    .request-form a {
+    .btn {
       display: inline-block;
       background-color: #FFD700;
       color: #000;
@@ -88,47 +90,34 @@
       border-radius: 6px;
       text-decoration: none;
       transition: 0.3s;
+      margin: 5px;
+      cursor: pointer;
     }
-    .request-form a:hover {
+    .btn:hover {
       background-color: #fff;
       color: #800000;
     }
 
-    /* Dropdown Button */
+    /* Dropdown style */
     .dropdown {
       position: relative;
       display: inline-block;
-      margin-top: 20px;
-    }
-    .dropbtn {
-      background-color: #FFD700;
-      color: #000;
-      padding: 12px 24px;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .dropbtn:hover {
-      background-color: #fff;
-      color: #800000;
     }
     .dropdown-content {
       display: none;
       position: absolute;
       background-color: #1a1a1a;
       min-width: 200px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.6);
       border-radius: 6px;
       z-index: 1;
+      margin-top: 5px;
     }
     .dropdown-content a {
       color: #FFD700;
-      padding: 12px 16px;
+      padding: 10px 16px;
       text-decoration: none;
       display: block;
-      transition: 0.3s;
     }
     .dropdown-content a:hover {
       background-color: #333;
@@ -149,25 +138,25 @@
     <img src="logo.png" alt="Center Logo" class="logo-center">
     <h1>Message Believer's Network Calendar</h1>
     <h2>By The Distributor</h2>
-
-    <!-- Live Streaming Dropdown -->
-    <div class="dropdown">
-      <button class="dropbtn">Live</button>
-      <div class="dropdown-content">
-        <a href="https://www.youtube.com" target="_blank">YouTube</a>
-        <a href="https://www.facebook.com" target="_blank">Facebook Live</a>
-        <a href="https://www.zoom.us" target="_blank">Zoom</a>
-        <a href="https://livestream.com" target="_blank">Livestream</a>
-      </div>
-    </div>
   </header>
 
-  <!-- Request Form Section -->
+  <!-- Request Form + Live Button Section -->
   <div class="request-form">
     <p>Request To Add Event?</p>
-    <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__jsUs6JUOVFCSUNaSzRFSjVRTUY0VkQ3N0dEWE9YVi4u" target="_blank">
+    <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__jsUs6JUOVFCSUNaSzRFSjVRTUY0VkQ3N0dEWE9YVi4u" target="_blank" class="btn">
       Request Event
     </a>
+
+    <!-- Live Dropdown -->
+    <div class="dropdown">
+      <span class="btn">Live</span>
+      <div class="dropdown-content">
+        <a href="https://youtube.com" target="_blank">YouTube</a>
+        <a href="https://facebook.com" target="_blank">Facebook Live</a>
+        <a href="https://livestream.com" target="_blank">Livestream</a>
+        <a href="https://twitch.tv" target="_blank">Twitch</a>
+      </div>
+    </div>
   </div>
 
   <table>
@@ -190,7 +179,14 @@
       <td></td>
       <td></td>
       <td></td>
-      <td><a href="#" target="_blank">More Info</a></td>
+      <td><a href="..." target="_blank">More Info</a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td><a href="..." target="_blank">More Info</a></td>
     </tr>
   </table>
 </body>
