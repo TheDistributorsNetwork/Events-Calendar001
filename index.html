@@ -13,191 +13,67 @@
     }
 
     header {
-      text-align: center;
-      margin-bottom: 30px;
       position: relative;
+      text-align: center;
+      padding: 20px;
     }
 
-    /* Version at top Left */
+    /* Version text top-left */
     .version {
-      font-size: 0.7em;
-      color: #aaa; /* light grey */
+      position: absolute;
+      top: 5px;
+      left: 10px;
+      font-size: 0.8em;
+      color: #aaa;
       font-style: italic;
-      margin-bottom: 8px;
-      display: block;
     }
 
-    header img.logo-left {
-      width: 120px;
+    .logo-left {
       position: absolute;
-      left: 0;
-      top: 25px; /* pushed down so version shows above */
-    }
-    header img.logo-right {
-      width: 120px;
-      position: absolute;
-      right: 0;
-      top: 25px;
-    }
-    header img.logo-center {
-      width: 160px;
-      display: block;
-      margin: 25px auto 15px auto; /* space for version text */
-    }
-    header h1 {
-      color: #FFD700; /* Gold */
-      font-size: 2em;
-      margin: 0;
-    }
-    header h2 {
-      color: #FFD700; /* Gold */
-      font-size: 1em;
-      margin: 0;
+      left: 20px;
+      top: 40px;
+      height: 50px;
     }
 
-    table {
-      width: 90%;
+    .logo-right {
+      position: absolute;
+      right: 20px;
+      top: 40px;
+      height: 50px;
+    }
+
+    .logo-center {
+      height: 80px;
+      display: block;
       margin: 0 auto;
-      border-collapse: collapse;
-      background-color: #1a1a1a; /* Dark grey for contrast */
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-    }
-    th, td {
-      border: 1px solid #333;
-      padding: 14px;
-      text-align: left;
-    }
-    th {
-      background-color: #800000; /* Maroon */
-      color: #FFD700; /* Gold */
-      text-transform: uppercase;
-    }
-    tr:nth-child(even) {
-      background-color: #262626; /* Alternate dark rows */
-    }
-    tr:nth-child(odd) {
-      background-color: #1a1a1a;
-    }
-    a {
-      color: #FFD700; /* Gold */
-      font-weight: bold;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-      color: #fff;
     }
 
-    /* Request and dropdown buttons container */
-    .request-form {
-      text-align: center;
-      margin-top: 30px;
-    }
-    .btn {
-      display: inline-block;
-      background-color: #FFD700;
-      color: #000;
-      font-weight: bold;
-      padding: 12px 24px;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: 0.3s;
-      margin: 5px;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background-color: #fff;
-      color: #800000;
+    h1 {
+      margin: 10px 0 5px 0;
+      font-size: 24px;
     }
 
-    /* Dropdown style */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #1a1a1a;
-      min-width: 200px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-      border-radius: 6px;
-      z-index: 1;
-      margin-top: 5px;
-    }
-    .dropdown-content a {
-      color: #FFD700;
-      padding: 10px 16px;
-      text-decoration: none;
-      display: block;
-    }
-    .dropdown-content a:hover {
-      background-color: #333;
-      color: #fff;
-    }
-    .dropdown:hover .dropdown-content {
-      display: block;
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #ccc;
     }
   </style>
 </head>
 <body>
   <header>
-    <span class="version">Version 1.0PRI</span>
+    <!-- Version top-left -->
+    <div class="version">Version 1.0PRI</div>
+
     <!-- Left-side logo -->
     <img src="logo-left.png" alt="Left Logo" class="logo-left">
     <!-- Right-side logo -->
     <img src="logo-right.png" alt="Right Logo" class="logo-right">
     <!-- Center logo -->
     <img src="logo.png" alt="Center Logo" class="logo-center">
+
     <h1>Message Believer's Network Calendar</h1>
     <h2>By The Distributor</h2>
   </header>
-
-  <!-- Request, Live, Support Accounts Section -->
-  <div class="request-form">
-    <p>Request To Add Event?</p>
-    <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__jsUs6JUOVFCSUNaSzRFSjVRTUY0VkQ3N0dEWE9YVi4u" target="_blank" class="btn">
-      Request Event
-    </a>
-
-    <!-- Live Dropdown -->
-    <div class="dropdown">
-      <span class="btn">Live</span>
-      <div class="dropdown-content">
-        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube (COMING SOON!)</a>
-        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live (COMING SOON!)</a>
-        <a href="https://www.podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
-      </div>
-    </div>
-
-    <!-- Support Accounts Dropdown -->
-    <div class="dropdown">
-      <span class="btn">Support Accounts</span>
-      <div class="dropdown-content">
-        <a href="#" target="_blank">WhatsApp (COMING SOON!)</a>
-        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook (COMING SOON!)</a>
-        <a href="https://tiktok.com" target="_blank">TikTok (COMING SOON!)</a>
-        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
-      </div>
-    </div>
-  </div>
-
-  <table>
-    <tr>
-      <th>Date</th>
-      <th>Event</th>
-      <th>Details</th>
-      <th>Host Church</th>
-      <th>Invitation</th>
-    </tr>
-    <tr>
-      <td>02 October 2025</td>
-      <td>Combined Meeting</td>
-      <td>Combined Fellowship Communion Service</td>
-      <td>Bible Believer's Tabernacle</td>
-      <td><a href="https://drive.google.com/file/d/1Ah26TsXCnCa5OLT81QZnYoVhcJ9KxIhR/view?usp=drivesdk" target="_blank">View Invite</a></td>
-    </tr>
-  </table>
 </body>
 </html>
-
