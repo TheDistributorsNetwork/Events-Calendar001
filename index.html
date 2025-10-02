@@ -11,27 +11,47 @@
       background-color: #000; /* Full black background */
       color: #fff;
     }
+
     header {
       text-align: center;
       margin-bottom: 30px;
       position: relative;
     }
+
+    /* Version badge */
+    .version {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      z-index: 1000;               /* ensure it sits above other elements */
+      font-size: 12px;            /* small */
+      color: #FFD700;             /* gold for contrast */
+      background: rgba(0,0,0,0.25);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-style: italic;
+      pointer-events: none;       /* won't interfere with clicks */
+    }
+
     header img.logo-left {
       width: 120px;
       position: absolute;
       left: 0;
       top: 0;
+      z-index: 100; /* keep logos behind the version badge */
     }
     header img.logo-right {
       width: 120px;
       position: absolute;
       right: 0;
       top: 0;
+      z-index: 100;
     }
     header img.logo-center {
       width: 160px;
       display: block;
       margin: 0 auto 15px auto;
+      z-index: 50;
     }
     header h1 {
       color: #FFD700; /* Gold */
@@ -43,15 +63,7 @@
       font-size: 1em;
       margin: 0;
     }
-    .version {
-      position: absolute;
-      top: 5px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.8em;
-      color: #aaa; /* Light grey */
-      font-style: italic;
-    }
+
     table {
       width: 90%;
       margin: 0 auto;
@@ -139,7 +151,7 @@
 </head>
 <body>
   <header>
-    <div class="version">Version 1.0</div>
+    <div class="version">v1.0</div> <!-- version badge -->
     <!-- Left-side logo -->
     <img src="logo-left.png" alt="Left Logo" class="logo-left">
     <!-- Right-side logo -->
@@ -161,10 +173,9 @@
     <div class="dropdown">
       <span class="btn">Live</span>
       <div class="dropdown-content">
-        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX">YouTube (COMING SOON!)</a>
-        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live(COMING SOON!)</a>
+        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube (COMING SOON!)</a>
+        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live (COMING SOON!)</a>
         <a href="https://www.podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
-        <a href="..."_blank"></a>
       </div>
     </div>
 
@@ -172,7 +183,7 @@
     <div class="dropdown">
       <span class="btn">Support Accounts</span>
       <div class="dropdown-content">
-        <a href="..."_blank">WhatsApp (COMING SOON!)</a>
+        <a href="#" target="_blank">WhatsApp (COMING SOON!)</a>
         <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook (COMING SOON!)</a>
         <a href="https://tiktok.com" target="_blank">TikTok (COMING SOON!)</a>
         <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
@@ -200,14 +211,14 @@
       <td></td>
       <td></td>
       <td></td>
-      <td><a href="..." target="_blank"></a></td>
+      <td><a href="#" target="_blank"></a></td>
     </tr>
     <tr>
       <td></td>
       <td></td>
       <td></td>
       <td></td>
-      <td><a href="..." target="_blank"></a></td>
+      <td><a href="#" target="_blank"></a></td>
     </tr>
   </table>
 </body>
