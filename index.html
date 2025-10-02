@@ -13,71 +13,145 @@
     }
 
     header {
-      position: relative;
       text-align: center;
-      padding: 20px;
+      margin-bottom: 30px;
+      position: relative;
     }
 
-    /* Version text top-left */
+    /* Version at top center */
     .version {
-      position: absolute;
-      top: 5px;
-      left: 10px;
       font-size: 0.8em;
-      color: #aaa;
+      color: #aaa; /* light grey */
       font-style: italic;
-    }
-
-    .logo-left {
-      position: absolute;
-      left: 20px;
-      top: 40px;
-      height: 50px;
-    }
-
-    .logo-right {
-      position: absolute;
-      right: 20px;
-      top: 40px;
-      height: 50px;
-    }
-
-    .logo-center {
-      height: 80px;
+      margin-bottom: 8px;
       display: block;
-      margin: 0 auto;
     }
 
-    h1 {
-      margin: 10px 0 5px 0;
-      font-size: 24px;
+    header img.logo-left {
+      width: 120px;
+      position: absolute;
+      left: 0;
+      top: 25px; /* pushed down so version shows above */
     }
-
-    h2 {
+    header img.logo-right {
+      width: 120px;
+      position: absolute;
+      right: 0;
+      top: 25px;
+    }
+    header img.logo-center {
+      width: 160px;
+      display: block;
+      margin: 25px auto 15px auto; /* space for version text */
+    }
+    header h1 {
+      color: #FFD700; /* Gold */
+      font-size: 2em;
       margin: 0;
-      font-size: 18px;
-      color: #ccc;
+    }
+    header h2 {
+      color: #FFD700; /* Gold */
+      font-size: 1em;
+      margin: 0;
+    }
+
+    table {
+      width: 90%;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background-color: #1a1a1a; /* Dark grey for contrast */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #800000; /* Maroon */
+      color: #FFD700; /* Gold */
+      text-transform: uppercase;
+    }
+    tr:nth-child(even) {
+      background-color: #262626; /* Alternate dark rows */
+    }
+    tr:nth-child(odd) {
+      background-color: #1a1a1a;
+    }
+    a {
+      color: #FFD700; /* Gold */
+      font-weight: bold;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+      color: #fff;
+    }
+
+    /* Request and dropdown buttons container */
+    .request-form {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #FFD700;
+      color: #000;
+      font-weight: bold;
+      padding: 12px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: 0.3s;
+      margin: 5px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #fff;
+      color: #800000;
+    }
+
+    /* Dropdown style */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #1a1a1a;
+      min-width: 200px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+      border-radius: 6px;
+      z-index: 1;
+      margin-top: 5px;
+    }
+    .dropdown-content a {
+      color: #FFD700;
+      padding: 10px 16px;
+      text-decoration: none;
+      display: block;
+    }
+    .dropdown-content a:hover {
+      background-color: #333;
+      color: #fff;
+    }
+    .dropdown:hover .dropdown-content {
+      display: block;
     }
   </style>
 </head>
 <body>
   <header>
-    <!-- Version top-left -->
-    <div class="version">Version 1.0</div>
-
+    <span class="version">Version 1.0</span>
     <!-- Left-side logo -->
     <img src="logo-left.png" alt="Left Logo" class="logo-left">
     <!-- Right-side logo -->
     <img src="logo-right.png" alt="Right Logo" class="logo-right">
     <!-- Center logo -->
     <img src="logo.png" alt="Center Logo" class="logo-center">
-
     <h1>Message Believer's Network Calendar</h1>
     <h2>By The Distributor</h2>
   </header>
-</body>
-</html>
-
 
   <!-- Request, Live, Support Accounts Section -->
   <div class="request-form">
