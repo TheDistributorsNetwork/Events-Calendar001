@@ -82,7 +82,7 @@ input {
   <h1>Members Area</h1>
 </header>
 
-<!-- LOGIN STAGE -->
+<!-- LOGIN -->
 <div id="loginStage">
   <h2>Member Login</h2>
   <input id="username" placeholder="Username">
@@ -90,11 +90,11 @@ input {
   <button class="btn" onclick="login()">Login</button>
 </div>
 
-<!-- MEMBERS STAGE -->
+<!-- MEMBERS -->
 <div id="membersStage" style="display:none;">
   <button class="btn" onclick="logout()">Log Out</button>
 
-  <!-- ADMIN CONTROLS -->
+  <!-- ADMIN ONLY -->
   <div id="adminControls" style="display:none;">
     <h3>Add Member</h3>
     <input id="mName" placeholder="Name">
@@ -136,31 +136,48 @@ function logout() {
   loginStage.style.display = "block";
 }
 
-/* DATA */
+/* STORAGE */
 function getMembers() {
   return JSON.parse(localStorage.getItem("members") || "[]");
 }
 
-function saveMembers(data) {
-  localStorage.setItem("members", JSON.stringify(data));
+function saveMembers(members) {
+  localStorage.setItem("members", JSON.stringify(members));
 }
 
-/* ADD */
+/* ADD MEMBER – FIXED */
 function addMember() {
+  const photoInput = document.getElementById("mPhoto");
+
+  if (!photoInput.files || !photoInput.files[0]) {
+    alert("Please select a member photo.");
+    return;
+  }
+
   const reader = new FileReader();
-  reader.onload = () => {
+  reader.onload = function () {
     const members = getMembers();
+
     members.push({
-      name: mName.value,
-      surname: mSurname.value,
-      number: mNumber.value,
-      title: mTitle.value,
+      name: mName.value.trim(),
+      surname: mSurname.value.trim(),
+      number: mNumber.value.trim(),
+      title: mTitle.value.trim(),
       photo: reader.result
     });
+
     saveMembers(members);
     loadMembers();
+
+    /* Clear form */
+    mName.value = "";
+    mSurname.value = "";
+    mNumber.value = "";
+    mTitle.value = "";
+    photoInput.value = "";
   };
-  reader.readAsDataURL(mPhoto.files[0]);
+
+  reader.readAsDataURL(photoInput.files[0]);
 }
 
 /* DELETE */
@@ -177,13 +194,11 @@ function editMember(index) {
   const members = getMembers();
   const m = members[index];
 
-  memberGrid.innerHTML += "";
-
   members[index] = {
-    name: prompt("Name:", m.name),
-    surname: prompt("Surname:", m.surname),
-    number: prompt("Member Number:", m.number),
-    title: prompt("Title / Function:", m.title),
+    name: prompt("Name:", m.name) || m.name,
+    surname: prompt("Surname:", m.surname) || m.surname,
+    number: prompt("Member Number:", m.number) || m.number,
+    title: prompt("Title / Function:", m.title) || m.title,
     photo: m.photo
   };
 
@@ -207,9 +222,9 @@ function loadMembers() {
         ${
           role === "admin"
             ? `<div>
-                 <button class="btn" onclick="editMember(${i})">Edit</button>
-                 <button class="btn btn-danger" onclick="deleteMember(${i})">Remove</button>
-               </div>`
+                <button class="btn" onclick="editMember(${i})">Edit</button>
+                <button class="btn btn-danger" onclick="deleteMember(${i})">Remove</button>
+              </div>`
             : ""
         }
       </div>`;
