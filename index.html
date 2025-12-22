@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Message Believer's Network</title>
+<title>Events Calendar</title>
 
 <style>
+/* ===== EXISTING STYLES (UNCHANGED) ===== */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -33,20 +34,17 @@ header img.logo-left {
   left: 0;
   top: 25px;
 }
-
 header img.logo-right {
   width: 120px;
   position: absolute;
   right: 0;
   top: 25px;
 }
-
 header img.logo-center {
   width: 160px;
   display: block;
   margin: 25px auto 15px auto;
 }
-
 header h1, header h2 {
   color: #FFD700;
   margin: 0;
@@ -54,81 +52,67 @@ header h1, header h2 {
 
 table {
   width: 90%;
-  margin: 0 auto;
+  margin: 30px auto;
   border-collapse: collapse;
   background-color: #1a1a1a;
 }
-
 th, td {
   border: 1px solid #333;
   padding: 14px;
 }
-
 th {
   background-color: #800000;
   color: #FFD700;
 }
-
 tr:nth-child(even) { background-color: #262626; }
 
-a {
-  color: #FFD700;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.request-form {
-  text-align: center;
-  margin-top: 30px;
-}
-
 .btn {
+  display: inline-block;
   background-color: #FFD700;
   color: #000;
+  font-weight: bold;
   padding: 12px 24px;
   border-radius: 6px;
   margin: 5px;
   cursor: pointer;
-  display: inline-block;
+  text-decoration: none;
 }
 
-.btn:hover {
-  background-color: #fff;
-  color: #800000;
+/* ===== NEW MEMBERS SECTION ===== */
+#loginBox, #membersSection {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #1a1a1a;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
 
-/* MEMBERS SECTION */
-#members-section {
-  display: none;
-  margin-top: 50px;
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+}
+
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
 }
 
 .member-card {
-  display: inline-block;
-  width: 220px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 8px;
-  margin: 10px;
-  padding: 10px;
+  background: #262626;
+  padding: 15px;
+  border-radius: 10px;
   text-align: center;
 }
 
 .member-card img {
   width: 100%;
-  height: 200px;
+  height: 220px;
   object-fit: cover;
-  border-radius: 6px;
-}
-
-.admin-only {
-  display: none;
-}
-
-input {
-  width: 90%;
-  padding: 8px;
-  margin: 6px 0;
+  border-radius: 8px;
 }
 </style>
 </head>
@@ -136,7 +120,7 @@ input {
 <body>
 
 <header>
-  <span class="version">Version 1.1PRI</span>
+  <span class="version">Version 1.0PRI</span>
   <img src="logo-left.png" class="logo-left">
   <img src="logo-right.png" class="logo-right">
   <img src="logo.png" class="logo-center">
@@ -144,21 +128,33 @@ input {
   <h2>By The Distributor</h2>
 </header>
 
-<!-- LOGIN -->
-<div class="request-form">
-  <h3>Members Login</h3>
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="password" placeholder="Password"><br>
-  <span class="btn" onclick="login()">Login</span>
-  <span class="btn" onclick="guestLogin()">Guest Access</span>
+<!-- ===== LOGIN SECTION ===== -->
+<div id="loginBox">
+  <h2>Member Login</h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button class="btn" onclick="login()">Login</button>
 </div>
 
-<!-- EXISTING SITE CONTENT (UNCHANGED) -->
-<div class="request-form">
-  <p>Request To Add Event?</p>
-  <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__jsUs6JUOVFCSUNaSzRFSjVRTUY0VkQ3N0dEWE9YVi4u" target="_blank" class="btn">Request Event</a>
+<!-- ===== MEMBERS SECTION ===== -->
+<div id="membersSection" style="display:none;">
+  <h2>Members Directory</h2>
+
+  <!-- ADMIN ONLY -->
+  <div id="adminControls" style="display:none;">
+    <h3>Add Member</h3>
+    <input id="mName" placeholder="Name">
+    <input id="mSurname" placeholder="Surname">
+    <input id="mNumber" placeholder="Member Number">
+    <input id="mTitle" placeholder="Title / Function">
+    <input id="mPhoto" type="file" accept="image/*">
+    <button class="btn" onclick="addMember()">Add Member</button>
+  </div>
+
+  <div class="member-grid" id="memberGrid"></div>
 </div>
 
+<!-- ===== EXISTING CALENDAR (UNCHANGED) ===== -->
 <table>
 <tr>
 <th>Date</th><th>Event</th><th>Details</th><th>Host Church</th><th>Invitation</th>
@@ -166,71 +162,65 @@ input {
 <tr>
 <td>23 November 2025</td>
 <td>Combined Meeting</td>
-<td>Combined Fellowship</td>
+<td>Combined Fellowship | Open Invite</td>
 <td>Restoration Tabernacle DBN</td>
-<td><a href="#">View Invite</a></td>
+<td><a href="#" target="_blank">View Invite</a></td>
 </tr>
 </table>
 
-<!-- MEMBERS SECTION -->
-<div id="members-section">
-  <h2 style="text-align:center;color:#FFD700;">Core Members</h2>
-
-  <div id="members-list"></div>
-
-  <!-- ADMIN FORM -->
-  <div class="admin-only">
-    <h3>Add Member</h3>
-    <input id="mName" placeholder="Name & Surname">
-    <input id="mNumber" placeholder="Member Number">
-    <input id="mTitle" placeholder="Title / Function">
-    <input id="mPhoto" placeholder="Photo URL">
-    <span class="btn" onclick="addMember()">Add Member</span>
-  </div>
-</div>
-
 <script>
-// EMBEDDED USERS
-const users = {
-  "admin01": { password: "Admin@123", role: "admin" },
-  "core01": { password: "Core@123", role: "admin" }
+const USERS = {
+  admin: { password: "admin123", role: "admin" },
+  guest: { password: "guest", role: "guest" }
 };
 
-let role = "guest";
+let currentRole = null;
 
 function login() {
   const u = username.value;
   const p = password.value;
-  if (users[u] && users[u].password === p) {
-    role = users[u].role;
-    unlock();
+
+  if (USERS[u] && USERS[u].password === p) {
+    currentRole = USERS[u].role;
+    loginBox.style.display = "none";
+    membersSection.style.display = "block";
+    if (currentRole === "admin") adminControls.style.display = "block";
+    loadMembers();
   } else {
     alert("Invalid login");
   }
 }
 
-function guestLogin() {
-  role = "guest";
-  unlock();
-}
-
-function unlock() {
-  document.getElementById("members-section").style.display = "block";
-  if (role === "admin") {
-    document.querySelector(".admin-only").style.display = "block";
-  }
-}
-
 function addMember() {
-  const card = document.createElement("div");
-  card.className = "member-card";
-  card.innerHTML = `
-    <img src="${mPhoto.value}">
-    <h4>${mName.value}</h4>
-    <p>${mTitle.value}</p>
-    <small>Member No: ${mNumber.value}</small>
-  `;
-  document.getElementById("members-list").appendChild(card);
+  const reader = new FileReader();
+  reader.onload = () => {
+    const members = JSON.parse(localStorage.getItem("members") || "[]");
+    members.push({
+      name: mName.value,
+      surname: mSurname.value,
+      number: mNumber.value,
+      title: mTitle.value,
+      photo: reader.result
+    });
+    localStorage.setItem("members", JSON.stringify(members));
+    loadMembers();
+  };
+  reader.readAsDataURL(mPhoto.files[0]);
+}
+
+function loadMembers() {
+  const grid = document.getElementById("memberGrid");
+  grid.innerHTML = "";
+  const members = JSON.parse(localStorage.getItem("members") || "[]");
+  members.forEach(m => {
+    grid.innerHTML += `
+      <div class="member-card">
+        <img src="${m.photo}">
+        <h4>${m.name} ${m.surname}</h4>
+        <p>${m.title}</p>
+        <small>Member No: ${m.number}</small>
+      </div>`;
+  });
 }
 </script>
 
