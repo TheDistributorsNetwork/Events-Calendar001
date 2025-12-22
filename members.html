@@ -76,6 +76,10 @@ input {
   border-radius: 8px;
 }
 </style>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -87,13 +91,9 @@ input {
 <!-- LOGIN STAGE -->
 <div id="loginStage">
   <h2>Member Login</h2>
-
   <input id="username" placeholder="Username">
   <input id="password" type="password" placeholder="Password">
-
   <button class="btn" onclick="login()">Login</button>
-
-  <!-- BACK TO CALENDAR -->
   <a href="index.html" class="btn">Back to Calendar</a>
 </div>
 
@@ -120,14 +120,36 @@ input {
 </div>
 
 <script>
+// -----------------------
+// Firebase Config
+// -----------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyBATPb88IE5lWWg5UzBEM0WsXmtdUkBA2A",
+  authDomain: "thedistributorsnetwork-adf98.firebaseapp.com",
+  projectId: "thedistributorsnetwork-adf98",
+  storageBucket: "thedistributorsnetwork-adf98.firebasestorage.app",
+  messagingSenderId: "983881698720",
+  appId: "1:983881698720:web:ab8e9f94787ed51a17e8c5",
+  measurementId: "G-2YMSELW19F"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const membersCollection = db.collection("members");
+
+// -----------------------
+// Users
+// -----------------------
 const USERS = {
   admin: { password: "admin123", role: "admin" },
   guest: { password: "guest", role: "guest" }
 };
-
 let role = null;
 
-/* AUTH */
+// -----------------------
+// AUTH
+// -----------------------
 function login() {
   if (USERS[username.value] && USERS[username.value].password === password.value) {
     role = USERS[username.value].role;
@@ -147,100 +169,88 @@ function logout() {
   loginStage.style.display = "block";
 }
 
-/* STORAGE */
-function getMembers() {
-  return JSON.parse(localStorage.getItem("members") || "[]");
-}
-
-function saveMembers(members) {
-  localStorage.setItem("members", JSON.stringify(members));
-}
-
-/* ADD */
+// -----------------------
+// ADD MEMBER
+// -----------------------
 function addMember() {
   const photoInput = document.getElementById("mPhoto");
-
   if (!photoInput.files || !photoInput.files[0]) {
-    alert("Please select a member photo.");
+    alert("Please select a photo.");
     return;
   }
 
   const reader = new FileReader();
   reader.onload = function () {
-    const members = getMembers();
-
-    members.push({
+    membersCollection.add({
       name: mName.value.trim(),
       surname: mSurname.value.trim(),
       number: mNumber.value.trim(),
       title: mTitle.value.trim(),
       photo: reader.result
+    }).then(() => {
+      loadMembers();
+      mName.value = "";
+      mSurname.value = "";
+      mNumber.value = "";
+      mTitle.value = "";
+      photoInput.value = "";
     });
-
-    saveMembers(members);
-    loadMembers();
-
-    mName.value = "";
-    mSurname.value = "";
-    mNumber.value = "";
-    mTitle.value = "";
-    photoInput.value = "";
   };
-
   reader.readAsDataURL(photoInput.files[0]);
 }
 
-/* DELETE */
-function deleteMember(index) {
-  if (!confirm("Remove this member?")) return;
-  const members = getMembers();
-  members.splice(index, 1);
-  saveMembers(members);
-  loadMembers();
-}
-
-/* EDIT */
-function editMember(index) {
-  const members = getMembers();
-  const m = members[index];
-
-  members[index] = {
-    name: prompt("Name:", m.name) || m.name,
-    surname: prompt("Surname:", m.surname) || m.surname,
-    number: prompt("Member Number:", m.number) || m.number,
-    title: prompt("Title / Function:", m.title) || m.title,
-    photo: m.photo
-  };
-
-  saveMembers(members);
-  loadMembers();
-}
-
-/* LOAD */
+// -----------------------
+// LOAD MEMBERS
+// -----------------------
 function loadMembers() {
   const grid = document.getElementById("memberGrid");
   grid.innerHTML = "";
-  const members = getMembers();
+  membersCollection.get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const m = doc.data();
+      const i = doc.id;
 
-  members.forEach((m, i) => {
-    grid.innerHTML += `
-      <div class="member-card">
-        <img src="${m.photo}">
-        <h4>${m.name} ${m.surname}</h4>
-        <p>${m.title}</p>
-        <small>Member No: ${m.number}</small>
-        ${
-          role === "admin"
-            ? `<div>
-                <button class="btn" onclick="editMember(${i})">Edit</button>
-                <button class="btn btn-danger" onclick="deleteMember(${i})">Remove</button>
-              </div>`
-            : ""
-        }
-      </div>`;
+      grid.innerHTML += `
+        <div class="member-card">
+          <img src="${m.photo}">
+          <h4>${m.name} ${m.surname}</h4>
+          <p>${m.title}</p>
+          <small>Member No: ${m.number}</small>
+          ${
+            role === "admin"
+              ? `<div>
+                   <button class="btn" onclick="editMember('${i}')">Edit</button>
+                   <button class="btn btn-danger" onclick="deleteMember('${i}')">Remove</button>
+                 </div>`
+              : ""
+          }
+        </div>`;
+    });
   });
 }
-</script>
 
+// -----------------------
+// EDIT MEMBER
+// -----------------------
+function editMember(id) {
+  membersCollection.doc(id).get().then(doc => {
+    const m = doc.data();
+    membersCollection.doc(id).update({
+      name: prompt("Name:", m.name) || m.name,
+      surname: prompt("Surname:", m.surname) || m.surname,
+      number: prompt("Member Number:", m.number) || m.number,
+      title: prompt("Title / Function:", m.title) || m.title
+    }).then(loadMembers);
+  });
+}
+
+// -----------------------
+// DELETE MEMBER
+// -----------------------
+function deleteMember(id) {
+  if (!confirm("Remove this member?")) return;
+  membersCollection.doc(id).delete().then(loadMembers);
+}
+</script>
 </body>
 </html>
