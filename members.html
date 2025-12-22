@@ -31,6 +31,8 @@ h1, h2, h3 {
   border: none;
   cursor: pointer;
   margin: 5px 3px;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .btn-danger {
@@ -82,19 +84,27 @@ input {
   <h1>Members Area</h1>
 </header>
 
-<!-- LOGIN -->
+<!-- LOGIN STAGE -->
 <div id="loginStage">
   <h2>Member Login</h2>
+
   <input id="username" placeholder="Username">
   <input id="password" type="password" placeholder="Password">
+
   <button class="btn" onclick="login()">Login</button>
+
+  <!-- BACK TO CALENDAR -->
+  <a href="index.html" class="btn">Back to Calendar</a>
 </div>
 
-<!-- MEMBERS -->
+<!-- MEMBERS STAGE -->
 <div id="membersStage" style="display:none;">
-  <button class="btn" onclick="logout()">Log Out</button>
+  <div style="margin-bottom:15px;">
+    <button class="btn" onclick="logout()">Log Out</button>
+    <a href="index.html" class="btn">Back to Calendar</a>
+  </div>
 
-  <!-- ADMIN ONLY -->
+  <!-- ADMIN CONTROLS -->
   <div id="adminControls" style="display:none;">
     <h3>Add Member</h3>
     <input id="mName" placeholder="Name">
@@ -133,6 +143,7 @@ function login() {
 function logout() {
   role = null;
   membersStage.style.display = "none";
+  adminControls.style.display = "none";
   loginStage.style.display = "block";
 }
 
@@ -145,7 +156,7 @@ function saveMembers(members) {
   localStorage.setItem("members", JSON.stringify(members));
 }
 
-/* ADD MEMBER – FIXED */
+/* ADD */
 function addMember() {
   const photoInput = document.getElementById("mPhoto");
 
@@ -169,7 +180,6 @@ function addMember() {
     saveMembers(members);
     loadMembers();
 
-    /* Clear form */
     mName.value = "";
     mSurname.value = "";
     mNumber.value = "";
