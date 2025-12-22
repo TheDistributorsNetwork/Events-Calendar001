@@ -8,7 +8,7 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 40px;
-      background-color: #002147; /* Full black background */
+      background-color: #002147;
       color: #fff;
     }
 
@@ -18,10 +18,9 @@
       position: relative;
     }
 
-    /* Version at top center */
     .version {
       font-size: 0.8em;
-      color: #aaa; /* light grey */
+      color: #aaa;
       font-style: italic;
       margin-bottom: 8px;
       display: block;
@@ -31,7 +30,7 @@
       width: 120px;
       position: absolute;
       left: 0;
-      top: 25px; /* pushed down so version shows above */
+      top: 25px;
     }
     header img.logo-right {
       width: 120px;
@@ -42,15 +41,15 @@
     header img.logo-center {
       width: 160px;
       display: block;
-      margin: 25px auto 15px auto; /* space for version text */
+      margin: 25px auto 15px auto;
     }
     header h1 {
-      color: #FFD700; /* Gold */
+      color: #FFD700;
       font-size: 2em;
       margin: 0;
     }
     header h2 {
-      color: #FFD700; /* Gold */
+      color: #FFD700;
       font-size: 1em;
       margin: 0;
     }
@@ -59,7 +58,7 @@
       width: 90%;
       margin: 0 auto;
       border-collapse: collapse;
-      background-color: #1a1a1a; /* Dark grey for contrast */
+      background-color: #1a1a1a;
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
     }
     th, td {
@@ -68,18 +67,18 @@
       text-align: left;
     }
     th {
-      background-color: #800000; /* Maroon */
-      color: #FFD700; /* Gold */
+      background-color: #800000;
+      color: #FFD700;
       text-transform: uppercase;
     }
     tr:nth-child(even) {
-      background-color: #262626; /* Alternate dark rows */
+      background-color: #262626;
     }
     tr:nth-child(odd) {
       background-color: #1a1a1a;
     }
     a {
-      color: #FFD700; /* Gold */
+      color: #FFD700;
       font-weight: bold;
       text-decoration: none;
     }
@@ -88,7 +87,6 @@
       color: #fff;
     }
 
-    /* Request and dropdown buttons container */
     .request-form {
       text-align: center;
       margin-top: 30px;
@@ -110,7 +108,6 @@
       color: #800000;
     }
 
-    /* Dropdown style */
     .dropdown {
       position: relative;
       display: inline-block;
@@ -140,25 +137,28 @@
     }
   </style>
 </head>
+
 <body>
   <header>
     <span class="version">Version 1.0PRI</span>
-    <!-- Left-side logo -->
     <img src="logo-left.png" alt="Left Logo" class="logo-left">
-    <!-- Right-side logo -->
     <img src="logo-right.png" alt="Right Logo" class="logo-right">
-    <!-- Center logo -->
     <img src="logo.png" alt="Center Logo" class="logo-center">
     <h1>Message Believer's Network Calendar</h1>
     <h2>By The Distributor</h2>
   </header>
 
-  <!-- Request, Live, Support Accounts Section -->
+  <!-- Buttons Section -->
   <div class="request-form">
     <p>Request To Add Event?</p>
-    <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__jsUs6JUOVFCSUNaSzRFSjVRTUY0VkQ3N0dEWE9YVi4u" target="_blank" class="btn">
+
+    <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__jsUs6JUOVFCSUNaSzRFSjVRTUY0VkQ3N0dEWE9YVi4u"
+       target="_blank" class="btn">
       Request Event
     </a>
+
+    <!-- MEMBERS BUTTON (ADDED) -->
+    <a href="members.html" class="btn">Members</a>
 
     <!-- Live Dropdown -->
     <div class="dropdown">
@@ -182,6 +182,7 @@
     </div>
   </div>
 
+  <!-- Calendar Table -->
   <table>
     <tr>
       <th>Date</th>
@@ -194,15 +195,10 @@
       <td>23 November 2025</td>
       <td>Combined Meeting</td>
       <td>Combined Fellowship | Open Invite</td>
-      <td>Restoration Tabernacle DBN | Pst Mervin Munsamy</td>
-      <td><a href="https://drive.google.com/file/d/1Mhe9XCCI0tKZYVd5Hed28TEJx6OGkSLD/view?usp=drivesdk" target="_blank">View Invite</a></td>
-    </tr>
-    <td>26 November 2025</td>
-      <td>LiveStreamed Meeting</td>
-      <td>Midweek Service</td>
-      <td>Bible Believer's Tabernacle DBN | Visiting Minister</td>
-      <td><a href="https://youtube.com/live/cN5SirvEWZ4?feature=share" target="_blank">View Live</a></td>
+      <td>Restoration Tabernacle DBN | Pst Mervin Munsamy</td>
+      <td><a href="#" target="_blank">View Invite</a></td>
     </tr>
   </table>
+
 </body>
 </html>
