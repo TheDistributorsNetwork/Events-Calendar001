@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <title>Members Area</title>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -76,10 +80,6 @@ input {
   border-radius: 8px;
 }
 </style>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -120,9 +120,7 @@ input {
 </div>
 
 <script>
-// -----------------------
-// Firebase Config
-// -----------------------
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBATPb88IE5lWWg5UzBEM0WsXmtdUkBA2A",
   authDomain: "thedistributorsnetwork-adf98.firebaseapp.com",
@@ -132,24 +130,19 @@ const firebaseConfig = {
   appId: "1:983881698720:web:ab8e9f94787ed51a17e8c5",
   measurementId: "G-2YMSELW19F"
 };
-
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const membersCollection = db.collection("members");
 
-// -----------------------
-// Users
-// -----------------------
+// Users for login
 const USERS = {
   admin: { password: "admin123", role: "admin" },
   guest: { password: "guest", role: "guest" }
 };
+
 let role = null;
 
-// -----------------------
 // AUTH
-// -----------------------
 function login() {
   if (USERS[username.value] && USERS[username.value].password === password.value) {
     role = USERS[username.value].role;
@@ -169,18 +162,15 @@ function logout() {
   loginStage.style.display = "block";
 }
 
-// -----------------------
 // ADD MEMBER
-// -----------------------
 function addMember() {
   const photoInput = document.getElementById("mPhoto");
   if (!photoInput.files || !photoInput.files[0]) {
     alert("Please select a photo.");
     return;
   }
-
   const reader = new FileReader();
-  reader.onload = function () {
+  reader.onload = function() {
     membersCollection.add({
       name: mName.value.trim(),
       surname: mSurname.value.trim(),
@@ -199,17 +189,14 @@ function addMember() {
   reader.readAsDataURL(photoInput.files[0]);
 }
 
-// -----------------------
 // LOAD MEMBERS
-// -----------------------
 function loadMembers() {
   const grid = document.getElementById("memberGrid");
   grid.innerHTML = "";
   membersCollection.get().then(snapshot => {
     snapshot.forEach(doc => {
       const m = doc.data();
-      const i = doc.id;
-
+      const id = doc.id;
       grid.innerHTML += `
         <div class="member-card">
           <img src="${m.photo}">
@@ -217,11 +204,11 @@ function loadMembers() {
           <p>${m.title}</p>
           <small>Member No: ${m.number}</small>
           ${
-            role === "admin"
+            role === "admin" 
               ? `<div>
-                   <button class="btn" onclick="editMember('${i}')">Edit</button>
-                   <button class="btn btn-danger" onclick="deleteMember('${i}')">Remove</button>
-                 </div>`
+                  <button class="btn" onclick="editMember('${id}')">Edit</button>
+                  <button class="btn btn-danger" onclick="deleteMember('${id}')">Remove</button>
+                </div>` 
               : ""
           }
         </div>`;
@@ -229,9 +216,7 @@ function loadMembers() {
   });
 }
 
-// -----------------------
 // EDIT MEMBER
-// -----------------------
 function editMember(id) {
   membersCollection.doc(id).get().then(doc => {
     const m = doc.data();
@@ -244,13 +229,12 @@ function editMember(id) {
   });
 }
 
-// -----------------------
 // DELETE MEMBER
-// -----------------------
 function deleteMember(id) {
   if (!confirm("Remove this member?")) return;
   membersCollection.doc(id).delete().then(loadMembers);
 }
 </script>
+
 </body>
 </html>
