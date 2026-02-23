@@ -54,12 +54,6 @@ input,select{
   object-fit:cover;
   border-radius:8px;
 }
-.edit-box{
-  background:#333;
-  padding:15px;
-  margin-top:10px;
-  border-radius:8px;
-}
 </style>
 </head>
 
@@ -169,6 +163,9 @@ function addUser(){
   if(!newUsername.value || !newPassword.value){ alert("Required"); return; }
   users[newUsername.value]={password:newPassword.value,role:newRole.value,active:true};
   saveUsers(users);
+  newUsername.value="";
+  newPassword.value="";
+  newRole.value="member";
   loadUsers();
 }
 
@@ -176,7 +173,6 @@ function editUser(username){
   const users=getUsers();
   const newName=prompt("New Username:",username);
   if(!newName) return;
-
   const newRoleValue=prompt("Role (admin/member):",users[username].role);
   if(!newRoleValue) return;
 
@@ -269,6 +265,7 @@ function saveMember(){
 }
 
 function commitMember(memberData){
+
   let members=getMembers();
 
   if(editingMemberId){
@@ -278,8 +275,11 @@ function commitMember(memberData){
   }
 
   saveMembers(members);
+
   editingMemberId=null;
+
   clearForm();
+
   loadMembers();
 }
 
@@ -351,4 +351,3 @@ function loadMembers(){
 </script>
 </body>
 </html>
-
