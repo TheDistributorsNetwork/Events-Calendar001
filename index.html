@@ -3,45 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <title>Events Calendar</title>
+
 <style>
 body{
-  font-family:Arial;
+  font-family:Arial,sans-serif;
   margin:0;
   padding:40px;
   background:#002147;
   color:#fff;
 }
 header{text-align:center;margin-bottom:30px;position:relative;}
-.version{font-size:0.8em;color:#aaa;font-style:italic;margin-bottom:8px;display:block;}
-header img.logo-left{width:120px;position:absolute;left:0;top:25px;}
-header img.logo-right{width:120px;position:absolute;right:0;top:25px;}
-header img.logo-center{width:160px;display:block;margin:25px auto 15px auto;}
+.version{font-size:.8em;color:#aaa;font-style:italic;display:block;margin-bottom:8px;}
 header h1{color:#FFD700;margin:0;}
-header h2{color:#FFD700;margin:0;}
+header h2{color:#FFD700;margin:0;font-size:1em;}
 
 table{
   width:90%;
   margin:0 auto;
   border-collapse:collapse;
   background:#1a1a1a;
-  box-shadow:0 4px 12px rgba(0,0,0,0.6);
 }
-th,td{border:1px solid #333;padding:14px;text-align:left;}
-th{background:#800000;color:#FFD700;text-transform:uppercase;}
+th,td{border:1px solid #333;padding:12px;}
+th{background:#800000;color:#FFD700;}
 tr:nth-child(even){background:#262626;}
-tr:nth-child(odd){background:#1a1a1a;}
-a{color:#FFD700;font-weight:bold;text-decoration:none;}
-a:hover{color:#fff;}
 
 .btn{
-  display:inline-block;
   background:#FFD700;
   color:#000;
   font-weight:bold;
-  padding:12px 24px;
+  padding:10px 18px;
+  border:none;
   border-radius:6px;
-  text-decoration:none;
+  cursor:pointer;
   margin:5px;
+}
+.btn-danger{background:#800000;color:#fff;}
+.request-form{text-align:center;margin-top:30px;}
+
+.form-box{
+  display:none;
+  background:#1a1a1a;
+  padding:20px;
+  max-width:600px;
+  margin:20px auto;
+  border-radius:10px;
+}
+input,textarea{
+  width:100%;
+  padding:8px;
+  margin:6px 0;
+}
+.envelope{
+  text-align:center;
+  margin-top:20px;
+  font-size:40px;
   cursor:pointer;
 }
 </style>
@@ -50,19 +65,40 @@ a:hover{color:#fff;}
 <body>
 
 <header>
-<span class="version">Version 2.0PRI</span>
-<img src="logo-left.png" class="logo-left">
-<img src="logo-right.png" class="logo-right">
-<img src="logo.png" class="logo-center">
+<span class="version">Version 2.0 Approval System</span>
 <h1>Message Believer's Network Calendar</h1>
 <h2>By The Distributor</h2>
 </header>
 
-<div style="text-align:center;margin-bottom:30px;">
+<div class="request-form">
+<p>Request To Add Event?</p>
+<button class="btn" onclick="openForm()">Request Event</button>
 <a href="members.html" class="btn">Members</a>
 </div>
 
-<table id="calendarTable">
+<!-- EVENT REQUEST FORM -->
+<div class="form-box" id="eventFormBox">
+<h3>Event Request Form</h3>
+
+<input id="evDate" type="date">
+<input id="evTitle" placeholder="Event Title">
+<input id="evDetails" placeholder="Details">
+<input id="evHost" placeholder="Host Church / Pastor">
+<input id="evImage" type="file" accept="image/*">
+
+<button class="btn" onclick="submitEvent()">Submit Request</button>
+<button class="btn btn-danger" onclick="closeForm()">Cancel</button>
+</div>
+
+<!-- PENDING ENVELOPE -->
+<div id="pendingSection" style="display:none;">
+<div class="envelope" onclick="togglePending()">📩</div>
+<div id="pendingList" style="display:none;"></div>
+</div>
+
+<!-- LIVE CALENDAR -->
+<table>
+<thead>
 <tr>
 <th>Date</th>
 <th>Event</th>
@@ -70,32 +106,149 @@ a:hover{color:#fff;}
 <th>Host Church</th>
 <th>Invitation</th>
 </tr>
+</thead>
+<tbody id="calendarBody"></tbody>
 </table>
 
 <script>
-function getApprovedEvents(){
-  return JSON.parse(localStorage.getItem("approvedEvents")||"[]");
+
+/* STORAGE */
+function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}");}
+function getEvents(){return JSON.parse(localStorage.getItem("approvedEvents")||"[]");}
+function getPending(){return JSON.parse(localStorage.getItem("pendingEvents")||"[]");}
+function saveEvents(e){localStorage.setItem("approvedEvents",JSON.stringify(e));}
+function savePending(p){localStorage.setItem("pendingEvents",JSON.stringify(p));}
+
+/* ROLE CHECK */
+let currentUser=null;
+let currentRole=null;
+
+function checkLogin(){
+  const users=getUsers();
+  for(let u in users){
+    if(users[u].active){
+      currentUser=u;
+      currentRole=users[u].role;
+    }
+  }
+}
+checkLogin();
+
+/* FORM */
+function openForm(){
+  eventFormBox.style.display="block";
+}
+function closeForm(){
+  eventFormBox.style.display="none";
 }
 
-function loadCalendar(){
-  const table=document.getElementById("calendarTable");
-  const events=getApprovedEvents();
+/* SUBMIT REQUEST */
+function submitEvent(){
 
-  events.forEach(e=>{
-    table.innerHTML+=`
+  if(!evDate.value||!evTitle.value){alert("Date & Title required");return;}
+
+  const newEvent={
+    id:Date.now(),
+    date:evDate.value,
+    title:evTitle.value,
+    details:evDetails.value,
+    host:evHost.value,
+    image:null
+  };
+
+  if(evImage.files[0]){
+    const reader=new FileReader();
+    reader.onload=function(){
+      newEvent.image=reader.result;
+      savePendingEvent(newEvent);
+    };
+    reader.readAsDataURL(evImage.files[0]);
+  }else{
+    savePendingEvent(newEvent);
+  }
+}
+
+function savePendingEvent(ev){
+  const pending=getPending();
+  pending.push(ev);
+  savePending(pending);
+  alert("Event request submitted for approval.");
+  closeForm();
+  loadPending();
+}
+
+/* LOAD PENDING (ADMIN ONLY) */
+function loadPending(){
+  if(currentRole!=="admin") return;
+
+  pendingSection.style.display="block";
+
+  const pending=getPending();
+  let html="";
+  pending.forEach(ev=>{
+    html+=`
+      <div style="background:#1a1a1a;padding:10px;margin:10px;border-radius:6px;">
+        <strong>${ev.date}</strong> - ${ev.title}
+        <br>${ev.details}
+        <br>${ev.host}
+        <br>
+        <button class="btn" onclick="approveEvent(${ev.id})">Approve</button>
+        <button class="btn btn-danger" onclick="rejectEvent(${ev.id})">Reject</button>
+      </div>
+    `;
+  });
+  pendingList.innerHTML=html;
+}
+
+function togglePending(){
+  pendingList.style.display=
+  pendingList.style.display==="none"?"block":"none";
+}
+
+/* APPROVE */
+function approveEvent(id){
+  let pending=getPending();
+  const approved=getEvents();
+
+  const ev=pending.find(e=>e.id===id);
+  approved.push(ev);
+
+  pending=pending.filter(e=>e.id!==id);
+
+  saveEvents(approved);
+  savePending(pending);
+
+  loadCalendar();
+  loadPending();
+}
+
+/* REJECT */
+function rejectEvent(id){
+  let pending=getPending().filter(e=>e.id!==id);
+  savePending(pending);
+  loadPending();
+}
+
+/* LOAD LIVE CALENDAR */
+function loadCalendar(){
+  const events=getEvents();
+  calendarBody.innerHTML="";
+  events.forEach(ev=>{
+    calendarBody.innerHTML+=`
       <tr>
-        <td>${e.date}</td>
-        <td>${e.title}</td>
-        <td>${e.details}</td>
-        <td>${e.host}</td>
-        <td><a href="${e.invite}" target="_blank">View Invite</a></td>
+        <td>${ev.date}</td>
+        <td>${ev.title}</td>
+        <td>${ev.details}</td>
+        <td>${ev.host}</td>
+        <td>${ev.image?`<a href="${ev.image}" target="_blank">View Invite</a>`:"-"}</td>
       </tr>
     `;
   });
 }
 
 loadCalendar();
-</script>
+loadPending();
 
+</script>
 </body>
 </html>
