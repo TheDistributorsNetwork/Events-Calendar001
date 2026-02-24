@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Members Area</title>
-
 <style>
 body{
   font-family:Arial;
@@ -11,6 +10,7 @@ body{
   padding:40px;
   background:#002147;
   color:#fff;
+  text-align:center;
 }
 h1,h2,h3{color:#FFD700;}
 .container{
@@ -20,73 +20,41 @@ h1,h2,h3{color:#FFD700;}
   padding:30px;
   border-radius:12px;
 }
-.btn{
-  background:#FFD700;
-  color:#000;
-  border:none;
-  padding:8px 14px;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:bold;
-  margin:4px 2px;
-}
+input, select { width:100%; padding:8px; margin:6px 0; }
+.btn{background:#FFD700;color:#000;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px;}
 .btn-danger{background:#800000;color:#fff;}
-input,select{
-  width:100%;
-  padding:8px;
-  margin:6px 0;
-}
-.member-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
-  gap:20px;
-  margin-top:20px;
-}
-.member-card{
-  background:#262626;
-  padding:15px;
-  border-radius:10px;
-  text-align:center;
-}
-.member-card img{
-  width:100%;
-  height:220px;
-  object-fit:cover;
-  border-radius:8px;
-}
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:20px;margin-top:20px;}
+.member-card{background:#262626;padding:15px;border-radius:10px;text-align:center;}
+.member-card img{width:100%;height:220px;object-fit:cover;border-radius:8px;}
 </style>
 </head>
-
 <body>
 <div class="container">
-
 <h1>Members Area</h1>
 
-<!-- LOGIN -->
+<!-- Login Stage -->
 <div id="loginStage">
-  <h2>Login</h2>
-  <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
-  <button class="btn" onclick="login()">Login</button>
-  <button class="btn" onclick="goToCalendar()">Back to Calendar</button>
+<h2>Login</h2>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<button class="btn" onclick="login()">Login</button>
+<br>
+<a href="index.html" class="btn">Back to Calendar</a>
 </div>
 
-<!-- MEMBERS -->
+<!-- Members Stage -->
 <div id="membersStage" style="display:none;">
-
 <button class="btn" onclick="logout()">Logout</button>
 
 <div id="adminControls" style="display:none;">
-
 <h3>Add / Edit Member</h3>
-
 <input id="mName" placeholder="Name">
 <input id="mSurname" placeholder="Surname">
 <input id="mNumber" placeholder="Member Number">
 <input id="mTitle" placeholder="Title">
 <input id="mPhoto" type="file" accept="image/*">
 
-<h4>Visibility</h4>
+<h4>Visibility & Permissions</h4>
 <label><input type="checkbox" id="vName" checked> Show Name</label><br>
 <label><input type="checkbox" id="vSurname" checked> Show Surname</label><br>
 <label><input type="checkbox" id="vTitle" checked> Show Title</label><br>
@@ -95,30 +63,22 @@ input,select{
 <label><input type="checkbox" id="vRequestEvent"> Can Request Event</label><br>
 
 <button class="btn" onclick="saveMember()">Save Member</button>
-
 <hr>
 
 <h3>User Management</h3>
-
 <input id="newUsername" placeholder="Username">
 <input id="newPassword" placeholder="Password">
-<label>User Rights:</label><br>
-<label><input type="checkbox" id="rightAdmin"> Admin</label>
-<label><input type="checkbox" id="rightRequest"> Can Request Event</label><br>
+<select id="newRole"><option value="member">Member</option><option value="admin">Admin</option></select>
+<label><input type="checkbox" id="newCanRequest"> Can Request Event</label>
 <button class="btn" onclick="addUser()">Add User</button>
-
 <div id="userList"></div>
-
 <hr>
 </div>
 
 <div class="member-grid" id="memberGrid"></div>
-
-</div>
 </div>
 
 <script>
-
 /* STORAGE */
 function getUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
 function saveUsers(u){ localStorage.setItem("users",JSON.stringify(u)); }
@@ -128,8 +88,8 @@ function saveMembers(m){ localStorage.setItem("members",JSON.stringify(m)); }
 /* INIT ADMINS */
 if(!localStorage.getItem("users")){
   saveUsers({
-    admin1:{password:"admin123",role:"admin",canRequestEvent:true,active:true},
-    admin2:{password:"admin456",role:"admin",canRequestEvent:true,active:true}
+    admin1:{password:"admin123",role:"admin",active:true,canRequestEvent:true},
+    admin2:{password:"admin456",role:"admin",active:true,canRequestEvent:true}
   });
 }
 
@@ -147,54 +107,34 @@ function login(){
     adminControls.style.display=role==="admin"?"block":"none";
     if(role==="admin") loadUsers();
     loadMembers();
-  } else {
-    alert("Invalid or disabled account");
-  }
+  } else alert("Invalid or disabled account");
 }
+
 function logout(){
   role=null;
   membersStage.style.display="none";
   loginStage.style.display="block";
 }
-function goToCalendar(){
-  window.location.href="index.html";
-}
 
 /* USER MANAGEMENT */
 function addUser(){
   const users=getUsers();
+  const canRequest = newCanRequest.checked;
   if(!newUsername.value || !newPassword.value){ alert("Required"); return; }
-
-  users[newUsername.value]={
-    password:newPassword.value,
-    role:rightAdmin.checked?"admin":"member",
-    canRequestEvent:rightRequest.checked,
-    active:true
-  };
+  users[newUsername.value]={password:newPassword.value,role:newRole.value,active:true,canRequestEvent:canRequest};
   saveUsers(users);
-  newUsername.value="";
-  newPassword.value="";
-  rightAdmin.checked=false;
-  rightRequest.checked=false;
+  newUsername.value=""; newPassword.value=""; newRole.value="member"; newCanRequest.checked=false;
   loadUsers();
 }
 
 function editUser(username){
   const users=getUsers();
-  const newName=prompt("New Username:",username);
-  if(!newName) return;
-  const newRoleValue=prompt("Role (admin/member):",users[username].role);
-  if(!newRoleValue) return;
-
-  const userData=users[username];
+  const u=users[username];
+  newUsername.value=username;
+  newPassword.value=u.password;
+  newRole.value=u.role;
+  newCanRequest.checked=u.canRequestEvent;
   delete users[username];
-
-  users[newName]={
-    password:userData.password,
-    role:newRoleValue,
-    canRequestEvent:userData.canRequestEvent,
-    active:userData.active
-  };
   saveUsers(users);
   loadUsers();
 }
@@ -205,6 +145,7 @@ function resetPassword(username){
   const users=getUsers();
   users[username].password=newPass;
   saveUsers(users);
+  loadUsers();
 }
 
 function toggleUser(username){
@@ -226,15 +167,13 @@ function loadUsers(){
   const users=getUsers();
   let html="<h4>Existing Users</h4>";
   Object.keys(users).forEach(u=>{
-    html+=`
-    <div>
-      <strong>${u}</strong> (${users[u].role}) - ${users[u].active?"Active":"Disabled"} - Request Event: ${users[u].canRequestEvent?"Yes":"No"}
+    html+=`<div>
+      <strong>${u}</strong> (${users[u].role}) - ${users[u].active?"Active":"Disabled"}
       <button class="btn" onclick="editUser('${u}')">Edit</button>
       <button class="btn" onclick="resetPassword('${u}')">Reset</button>
       <button class="btn btn-danger" onclick="toggleUser('${u}')">${users[u].active?"Disable":"Enable"}</button>
       <button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>
-    </div>
-    `;
+    </div>`;
   });
   userList.innerHTML=html;
 }
@@ -244,25 +183,21 @@ function saveMember(){
   const members=getMembers();
   const memberData={
     id: editingMemberId || Date.now(),
-    name:mName.value.trim(),
-    surname:mSurname.value.trim(),
-    number:mNumber.value.trim(),
-    title:mTitle.value.trim(),
+    name:mName.value.trim(), surname:mSurname.value.trim(),
+    number:mNumber.value.trim(), title:mTitle.value.trim(),
     visibility:{
       name:vName.checked,
       surname:vSurname.checked,
       title:vTitle.checked,
       number:vNumber.checked,
       photo:vPhoto.checked,
-      canRequestEvent: vRequestEvent.checked
+      canRequestEvent:vRequestEvent.checked
     }
   };
+
   if(mPhoto.files[0]){
     const reader=new FileReader();
-    reader.onload=function(){
-      memberData.photo=reader.result;
-      commitMember(memberData);
-    };
+    reader.onload=function(){ memberData.photo=reader.result; commitMember(memberData); };
     reader.readAsDataURL(mPhoto.files[0]);
   } else {
     const existing=members.find(m=>m.id===editingMemberId);
@@ -273,11 +208,8 @@ function saveMember(){
 
 function commitMember(memberData){
   let members=getMembers();
-  if(editingMemberId){
-    members=members.map(m=>m.id===editingMemberId?memberData:m);
-  } else {
-    members.push(memberData);
-  }
+  if(editingMemberId) members=members.map(m=>m.id===editingMemberId?memberData:m);
+  else members.push(memberData);
   saveMembers(members);
   editingMemberId=null;
   clearForm();
@@ -288,16 +220,10 @@ function editMember(id){
   const members=getMembers();
   const m=members.find(x=>x.id===id);
   editingMemberId=id;
-  mName.value=m.name;
-  mSurname.value=m.surname;
-  mNumber.value=m.number;
-  mTitle.value=m.title;
-  vName.checked=m.visibility.name;
-  vSurname.checked=m.visibility.surname;
-  vTitle.checked=m.visibility.title;
-  vNumber.checked=m.visibility.number;
-  vPhoto.checked=m.visibility.photo;
-  vRequestEvent.checked=m.visibility.canRequestEvent;
+  mName.value=m.name; mSurname.value=m.surname; mNumber.value=m.number; mTitle.value=m.title;
+  vName.checked=m.visibility.name; vSurname.checked=m.visibility.surname;
+  vTitle.checked=m.visibility.title; vNumber.checked=m.visibility.number;
+  vPhoto.checked=m.visibility.photo; vRequestEvent.checked=m.visibility.canRequestEvent;
 }
 
 function deleteMember(id){
@@ -308,38 +234,26 @@ function deleteMember(id){
 }
 
 function clearForm(){
-  mName.value="";
-  mSurname.value="";
-  mNumber.value="";
-  mTitle.value="";
-  mPhoto.value="";
-  vName.checked=true;
-  vSurname.checked=true;
-  vTitle.checked=true;
-  vNumber.checked=true;
-  vPhoto.checked=true;
-  vRequestEvent.checked=false;
+  mName.value=""; mSurname.value=""; mNumber.value=""; mTitle.value=""; mPhoto.value="";
+  vName.checked=true; vSurname.checked=true; vTitle.checked=true; vNumber.checked=true; vPhoto.checked=true; vRequestEvent.checked=false;
 }
 
 function loadMembers(){
   memberGrid.innerHTML="";
   getMembers().forEach(m=>{
-    const show=role==="admin"? {name:true,surname:true,title:true,number:true,photo:true} : m.visibility;
+    const show=role==="admin"?{name:true,surname:true,title:true,number:true,photo:true}:m.visibility;
     let content="";
     if(show.photo && m.photo) content+=`<img src="${m.photo}">`;
     if(show.name||show.surname) content+=`<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>`;
     if(show.title) content+=`<p>${m.title}</p>`;
     if(show.number) content+=`<small>${m.number}</small>`;
-
-    memberGrid.innerHTML+=`
-      <div class="member-card">
-        ${content || "<p>No visible fields</p>"}
-        ${role==="admin" ? `<button class="btn" onclick="editMember(${m.id})">Edit</button>
-                             <button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>` : ""}
+    if(show.canRequestEvent) content+=`<p>Can request event</p>`;
+    memberGrid.innerHTML+=`<div class="member-card">${content}
+      ${role==="admin"?`<button class="btn" onclick="editMember(${m.id})">Edit</button>
+      <button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`:""}
       </div>`;
   });
 }
-
 </script>
 </body>
 </html>
