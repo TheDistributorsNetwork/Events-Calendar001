@@ -2,155 +2,283 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Members Area</title>
+<title>Events Calendar</title>
+
 <style>
-body{font-family:Arial;margin:0;padding:40px;background:#002147;color:#fff;}
-h1,h2,h3{color:#FFD700;}
-.container{max-width:1100px;margin:auto;background:#1a1a1a;padding:30px;border-radius:12px;}
-.btn{background:#FFD700;color:#000;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px 2px;}
+/* --- YOUR ORIGINAL STYLING KEPT --- */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 40px;
+  background-color: #002147;
+  color: #fff;
+}
+header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+.version {
+  font-size: 0.8em;
+  color: #aaa;
+  font-style: italic;
+  margin-bottom: 8px;
+  display: block;
+}
+header img.logo-left {
+  width: 120px;
+  position: absolute;
+  left: 0;
+  top: 25px;
+}
+header img.logo-right {
+  width: 120px;
+  position: absolute;
+  right: 0;
+  top: 25px;
+}
+header img.logo-center {
+  width: 160px;
+  display: block;
+  margin: 25px auto 15px auto;
+}
+header h1 {
+  color: #FFD700;
+  font-size: 2em;
+  margin: 0;
+}
+header h2 {
+  color: #FFD700;
+  font-size: 1em;
+  margin: 0;
+}
+table {
+  width: 90%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+th, td {
+  border: 1px solid #333;
+  padding: 14px;
+  text-align: left;
+}
+th {
+  background-color: #800000;
+  color: #FFD700;
+  text-transform: uppercase;
+}
+tr:nth-child(even){background-color:#262626;}
+tr:nth-child(odd){background-color:#1a1a1a;}
+
+.btn {
+  display: inline-block;
+  background-color: #FFD700;
+  color: #000;
+  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 6px;
+  margin: 5px;
+  cursor: pointer;
+  border: none;
+}
 .btn-danger{background:#800000;color:#fff;}
-input,select{width:100%;padding:8px;margin:6px 0;}
+
+.form-box{
+  display:none;
+  background:#1a1a1a;
+  padding:20px;
+  max-width:600px;
+  margin:20px auto;
+  border-radius:10px;
+}
+.form-box input{
+  width:100%;
+  padding:8px;
+  margin:6px 0;
+}
+
+.envelope{
+  text-align:center;
+  font-size:40px;
+  margin-top:15px;
+  cursor:pointer;
+  display:none;
+}
+.pending-box{
+  display:none;
+  max-width:800px;
+  margin:10px auto;
+}
 </style>
 </head>
 
 <body>
-<div class="container">
 
-<h1>Members Area</h1>
+<header>
+  <span class="version">Version 2.0PRI</span>
+  <img src="logo-left.png" class="logo-left">
+  <img src="logo-right.png" class="logo-right">
+  <img src="logo.png" class="logo-center">
+  <h1>Message Believer's Network Calendar</h1>
+  <h2>By The Distributor</h2>
+</header>
 
-<div id="loginStage">
-<h2>Login</h2>
-<input id="username" placeholder="Username">
-<input id="password" type="password" placeholder="Password">
-<button class="btn" onclick="login()">Login</button>
+<div style="text-align:center;">
+  <button class="btn" onclick="openForm()">Request Event</button>
+  <a href="members.html" class="btn">Members</a>
 </div>
 
-<div id="membersStage" style="display:none;">
-<button class="btn" onclick="logout()">Logout</button>
-
-<!-- EVENT REQUEST FORM (Pastors + Admins) -->
-<h3>Create Event Request</h3>
-<input id="eDate" placeholder="Date (e.g. 23 Nov 2025)">
-<input id="eTitle" placeholder="Event Title">
-<input id="eDetails" placeholder="Details">
-<input id="eHost" placeholder="Host Church">
-<input id="eInvite" placeholder="Invitation Link">
-<button class="btn" onclick="submitEvent()">Submit Request</button>
-
-<hr>
-
-<!-- ADMIN APPROVAL SECTION -->
-<div id="adminApproval" style="display:none;">
-<h3>Pending Event Requests</h3>
-<div id="pendingList"></div>
-<hr>
+<!-- EVENT FORM -->
+<div class="form-box" id="eventForm">
+<h3>Event Request</h3>
+<input type="date" id="evDate">
+<input type="text" id="evTitle" placeholder="Event Title">
+<input type="text" id="evDetails" placeholder="Details">
+<input type="text" id="evHost" placeholder="Host Church / Pastor">
+<input type="file" id="evImage" accept="image/*">
+<button class="btn" onclick="submitEvent()">Submit</button>
+<button class="btn btn-danger" onclick="closeForm()">Cancel</button>
 </div>
 
-</div>
-</div>
+<div class="envelope" id="envelope" onclick="togglePending()">📩</div>
+<div class="pending-box" id="pendingBox"></div>
+
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Event</th>
+<th>Details</th>
+<th>Host Church</th>
+<th>Invitation</th>
+</tr>
+</thead>
+<tbody id="calendarBody"></tbody>
+</table>
 
 <script>
 
-/* STORAGE */
-function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}");}
-function saveUsers(u){localStorage.setItem("users",JSON.stringify(u));}
-function getPending(){return JSON.parse(localStorage.getItem("pendingEvents")||"[]");}
-function savePending(p){localStorage.setItem("pendingEvents",JSON.stringify(p));}
-function getApproved(){return JSON.parse(localStorage.getItem("approvedEvents")||"[]");}
-function saveApproved(a){localStorage.setItem("approvedEvents",JSON.stringify(a));}
+/* SESSION */
+const currentUser = localStorage.getItem("currentUser");
+const currentRole = localStorage.getItem("currentRole");
 
-/* INIT */
-if(!localStorage.getItem("users")){
-  saveUsers({
-    admin1:{password:"admin123",role:"admin",active:true},
-    pastor1:{password:"pastor123",role:"pastor",active:true}
-  });
+/* STORAGE */
+function getApproved(){return JSON.parse(localStorage.getItem("approvedEvents")||"[]");}
+function getPending(){return JSON.parse(localStorage.getItem("pendingEvents")||"[]");}
+function saveApproved(d){localStorage.setItem("approvedEvents",JSON.stringify(d));}
+function savePending(d){localStorage.setItem("pendingEvents",JSON.stringify(d));}
+
+/* ADMIN ENVELOPE */
+if(currentRole==="admin"){
+  document.getElementById("envelope").style.display="block";
+  loadPending();
 }
 
-let role=null;
+/* FORM CONTROL */
+function openForm(){
+  if(!currentUser){
+    alert("You must login in Members section first.");
+    return;
+  }
+  eventForm.style.display="block";
+}
+function closeForm(){eventForm.style.display="none";}
 
-/* LOGIN */
-function login(){
-  const users=getUsers();
-  const user=users[username.value];
-  if(user && user.password===password.value && user.active){
-    role=user.role;
-    loginStage.style.display="none";
-    membersStage.style.display="block";
-    if(role==="admin"){
-      adminApproval.style.display="block";
-      loadPending();
-    }
+/* SUBMIT */
+function submitEvent(){
+  if(!evDate.value||!evTitle.value){alert("Date and Title required");return;}
+
+  const ev={
+    id:Date.now(),
+    date:evDate.value,
+    title:evTitle.value,
+    details:evDetails.value,
+    host:evHost.value,
+    submittedBy:currentUser,
+    image:null
+  };
+
+  if(evImage.files[0]){
+    const reader=new FileReader();
+    reader.onload=function(){
+      ev.image=reader.result;
+      savePendingEvent(ev);
+    };
+    reader.readAsDataURL(evImage.files[0]);
   } else {
-    alert("Invalid login");
+    savePendingEvent(ev);
   }
 }
 
-function logout(){
-  role=null;
-  membersStage.style.display="none";
-  loginStage.style.display="block";
+function savePendingEvent(ev){
+  const list=getPending();
+  list.push(ev);
+  savePending(list);
+  alert("Submitted for admin approval.");
+  closeForm();
 }
 
-/* PASTOR SUBMIT EVENT */
-function submitEvent(){
-  const event={
-    id:Date.now(),
-    date:eDate.value,
-    title:eTitle.value,
-    details:eDetails.value,
-    host:eHost.value,
-    invite:eInvite.value
-  };
-
-  const pending=getPending();
-  pending.push(event);
-  savePending(pending);
-
-  eDate.value="";
-  eTitle.value="";
-  eDetails.value="";
-  eHost.value="";
-  eInvite.value="";
-
-  alert("Event request submitted for admin approval.");
-}
-
-/* ADMIN APPROVAL */
+/* PENDING */
 function loadPending(){
-  const pending=getPending();
+  if(currentRole!=="admin") return;
+
+  const list=getPending();
   let html="";
-  pending.forEach(e=>{
+  list.forEach(ev=>{
     html+=`
-      <div style="background:#262626;padding:10px;margin:10px 0;">
-        <strong>${e.date} - ${e.title}</strong><br>
-        ${e.details}<br>
-        ${e.host}<br>
-        <button class="btn" onclick="approveEvent(${e.id})">Approve</button>
-        <button class="btn btn-danger" onclick="rejectEvent(${e.id})">Reject</button>
-      </div>
-    `;
+    <div style="background:#1a1a1a;padding:10px;margin:10px;border-radius:6px;">
+      <strong>${ev.date}</strong> - ${ev.title}<br>
+      ${ev.details}<br>
+      ${ev.host}<br>
+      Submitted by: ${ev.submittedBy}<br>
+      <button class="btn" onclick="approve(${ev.id})">Approve</button>
+      <button class="btn btn-danger" onclick="reject(${ev.id})">Reject</button>
+    </div>`;
   });
-  pendingList.innerHTML=html || "<p>No pending requests.</p>";
+  pendingBox.innerHTML=html;
 }
 
-function approveEvent(id){
-  const pending=getPending();
+function togglePending(){
+  pendingBox.style.display=
+  pendingBox.style.display==="block"?"none":"block";
+}
+
+function approve(id){
+  let pending=getPending();
   const approved=getApproved();
-  const event=pending.find(e=>e.id===id);
-
-  approved.push(event);
+  const ev=pending.find(e=>e.id===id);
+  approved.push(ev);
+  pending=pending.filter(e=>e.id!==id);
   saveApproved(approved);
-
-  savePending(pending.filter(e=>e.id!==id));
+  savePending(pending);
+  loadCalendar();
   loadPending();
 }
 
-function rejectEvent(id){
-  const pending=getPending().filter(e=>e.id!==id);
+function reject(id){
+  let pending=getPending().filter(e=>e.id!==id);
   savePending(pending);
   loadPending();
 }
+
+/* LOAD LIVE */
+function loadCalendar(){
+  const events=getApproved();
+  calendarBody.innerHTML="";
+  events.forEach(ev=>{
+    calendarBody.innerHTML+=`
+    <tr>
+      <td>${ev.date}</td>
+      <td>${ev.title}</td>
+      <td>${ev.details}</td>
+      <td>${ev.host}</td>
+      <td>${ev.image?`<a href="${ev.image}" target="_blank">View Invite</a>`:"-"}</td>
+    </tr>`;
+  });
+}
+loadCalendar();
 
 </script>
 </body>
