@@ -62,6 +62,7 @@ input,select{
 
 <h1>Members Area</h1>
 
+<!-- LOGIN -->
 <div id="loginStage">
   <h2>Login</h2>
   <input id="username" placeholder="Username">
@@ -69,6 +70,7 @@ input,select{
   <button class="btn" onclick="login()">Login</button>
 </div>
 
+<!-- MEMBERS AREA -->
 <div id="membersStage" style="display:none;">
 <button class="btn" onclick="logout()">Logout</button>
 
@@ -130,7 +132,7 @@ function savePendingEvents(e){ localStorage.setItem("pendingEvents",JSON.stringi
 function getApprovedEvents(){ return JSON.parse(localStorage.getItem("approvedEvents")||"[]"); }
 function saveApprovedEvents(e){ localStorage.setItem("approvedEvents",JSON.stringify(e)); }
 
-/* INIT ADMINS */
+/* INIT DEFAULT ADMINS */
 if(!localStorage.getItem("users")){
   saveUsers({
     admin1:{password:"admin123",role:"admin",active:true},
@@ -145,15 +147,18 @@ let editingMemberId=null;
 function login(){
   const users=getUsers();
   const user=users[username.value];
+
   if(user && user.password===password.value && user.active){
     role=user.role;
     loginStage.style.display="none";
     membersStage.style.display="block";
     adminControls.style.display=role==="admin"?"block":"none";
+
     if(role==="admin"){
       loadUsers();
       loadEventPanels();
     }
+
     loadMembers();
   } else {
     alert("Invalid or disabled account");
@@ -161,35 +166,213 @@ function login(){
 }
 
 function logout(){
-  role=null;
-  membersStage.style.display="none";
-  loginStage.style.display="block";
+  location.reload();
 }
 
-/* EVENT ADMIN */
-function loadEventPanels(){
-  if(role!=="admin") return;
+/* ================= USER MANAGEMENT ================= */
 
-  const pending=getPendingEvents();
-  pendingRequests.innerHTML = pending.length===0
-    ? "<p>No pending requests</p>"
-    : pending.map(ev=>`
+function addUser(){
+  const users=getUsers();
+
+  if(!newUsername.value.trim() || !newPassword.value.trim()){
+    alert("Username and password required");
+    return;
+  }
+
+  users[newUsername.value.trim()] = {
+    password:newPassword.value.trim(),
+    role:newRole.value,
+    active:true
+  };
+
+  saveUsers(users);
+
+  newUsername.value="";
+  newPassword.value="";
+  newRole.value="member";
+
+  loadUsers();
+}
+
+function loadUsers(){
+  const users=getUsers();
+  let html="<h4>Existing Users</h4>";
+
+  Object.keys(users).forEach(u=>{
+    html+=`
       <div>
-        <strong>${ev.date}</strong> - ${ev.title}
-        <button class="btn" onclick="approveEvent(${ev.id})">Approve</button>
-        <button class="btn btn-danger" onclick="declineEvent(${ev.id})">Decline</button>
+        <strong>${u}</strong> (${users[u].role}) - ${users[u].active?"Active":"Disabled"}
+        <button class="btn" onclick="resetPassword('${u}')">Reset</button>
+        <button class="btn" onclick="toggleUser('${u}')">${users[u].active?"Disable":"Enable"}</button>
+        <button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>
       </div>
-    `).join("");
+    `;
+  });
+
+  userList.innerHTML=html;
+}
+
+function resetPassword(username){
+  const newPass=prompt("Enter new password:");
+  if(!newPass) return;
+
+  const users=getUsers();
+  users[username].password=newPass;
+  saveUsers(users);
+
+  alert("Password updated.");
+}
+
+function toggleUser(username){
+  const users=getUsers();
+  users[username].active=!users[username].active;
+  saveUsers(users);
+  loadUsers();
+}
+
+function deleteUser(username){
+  if(!confirm("Delete permanently?")) return;
+
+  const users=getUsers();
+  delete users[username];
+  saveUsers(users);
+  loadUsers();
+}
+
+/* ================= MEMBER MANAGEMENT ================= */
+
+function saveMember(){
+
+  if(!mName.value.trim()) return alert("Name required");
+
+  let members=getMembers();
+
+  const memberData={
+    id: editingMemberId || Date.now(),
+    name:mName.value.trim(),
+    surname:mSurname.value.trim(),
+    number:mNumber.value.trim(),
+    title:mTitle.value.trim(),
+    visibility:{
+      name:vName.checked,
+      surname:vSurname.checked,
+      title:vTitle.checked,
+      number:vNumber.checked,
+      photo:vPhoto.checked
+    }
+  };
+
+  if(mPhoto.files[0]){
+    const reader=new FileReader();
+    reader.onload=function(){
+      memberData.photo=reader.result;
+      commitMember(memberData);
+    };
+    reader.readAsDataURL(mPhoto.files[0]);
+  } else {
+    const existing=members.find(m=>m.id===editingMemberId);
+    memberData.photo=existing?existing.photo:"";
+    commitMember(memberData);
+  }
+}
+
+function commitMember(memberData){
+  let members=getMembers();
+
+  if(editingMemberId){
+    members=members.map(m=>m.id===editingMemberId?memberData:m);
+  } else {
+    members.push(memberData);
+  }
+
+  saveMembers(members);
+
+  editingMemberId=null;
+  clearForm();
+  loadMembers();
+}
+
+function editMember(id){
+  const members=getMembers();
+  const m=members.find(x=>x.id===id);
+
+  editingMemberId=id;
+
+  mName.value=m.name;
+  mSurname.value=m.surname;
+  mNumber.value=m.number;
+  mTitle.value=m.title;
+  vName.checked=m.visibility.name;
+  vSurname.checked=m.visibility.surname;
+  vTitle.checked=m.visibility.title;
+  vNumber.checked=m.visibility.number;
+  vPhoto.checked=m.visibility.photo;
+}
+
+function deleteMember(id){
+  if(!confirm("Delete member?")) return;
+  saveMembers(getMembers().filter(m=>m.id!==id));
+  loadMembers();
+}
+
+function clearForm(){
+  mName.value="";
+  mSurname.value="";
+  mNumber.value="";
+  mTitle.value="";
+  mPhoto.value="";
+  vName.checked=true;
+  vSurname.checked=true;
+  vTitle.checked=true;
+  vNumber.checked=true;
+  vPhoto.checked=true;
+}
+
+function loadMembers(){
+  memberGrid.innerHTML="";
+
+  getMembers().forEach(m=>{
+    const show=role==="admin"?m.visibility:m.visibility;
+
+    let content="";
+
+    if(show.photo && m.photo) content+=`<img src="${m.photo}">`;
+    if(show.name||show.surname)
+      content+=`<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>`;
+    if(show.title) content+=`<p>${m.title}</p>`;
+    if(show.number) content+=`<small>${m.number}</small>`;
+
+    memberGrid.innerHTML+=`
+      <div class="member-card">
+        ${content || "<p>No visible fields</p>"}
+        ${role==="admin"
+          ? `<button class="btn" onclick="editMember(${m.id})">Edit</button>
+             <button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`
+          : ""}
+      </div>
+    `;
+  });
+}
+
+/* ================= EVENT ADMIN ================= */
+
+function loadEventPanels(){
+  const pending=getPendingEvents();
+  pendingRequests.innerHTML=pending.map(ev=>`
+    <div>
+      ${ev.date} - ${ev.title}
+      <button class="btn" onclick="approveEvent(${ev.id})">Approve</button>
+      <button class="btn btn-danger" onclick="declineEvent(${ev.id})">Decline</button>
+    </div>
+  `).join("") || "<p>No pending</p>";
 
   const approved=getApprovedEvents();
-  approvedEvents.innerHTML = approved.length===0
-    ? "<p>No approved events</p>"
-    : approved.map(ev=>`
-      <div>
-        <strong>${ev.date}</strong> - ${ev.title}
-        <button class="btn btn-danger" onclick="removeApproved(${ev.id})">Remove</button>
-      </div>
-    `).join("");
+  approvedEvents.innerHTML=approved.map(ev=>`
+    <div>
+      ${ev.date} - ${ev.title}
+      <button class="btn btn-danger" onclick="removeApproved(${ev.id})">Remove</button>
+    </div>
+  `).join("") || "<p>No approved</p>";
 }
 
 function approveEvent(id){
@@ -209,63 +392,9 @@ function declineEvent(id){
 }
 
 function removeApproved(id){
-  if(!confirm("Remove approved event?")) return;
+  if(!confirm("Remove event?")) return;
   saveApprovedEvents(getApprovedEvents().filter(e=>e.id!==id));
   loadEventPanels();
-}
-
-/* ===== EXISTING MEMBER + USER CODE BELOW (UNCHANGED LOGIC) ===== */
-/* (Same as your original — no behaviour removed) */
-
-/* USER MANAGEMENT */
-function addUser(){
-  const users=getUsers();
-  if(!newUsername.value || !newPassword.value){ alert("Required"); return; }
-  users[newUsername.value]={password:newPassword.value,role:newRole.value,active:true};
-  saveUsers(users);
-  newUsername.value="";
-  newPassword.value="";
-  newRole.value="member";
-  loadUsers();
-}
-
-function loadUsers(){
-  const users=getUsers();
-  let html="<h4>Existing Users</h4>";
-  Object.keys(users).forEach(u=>{
-    html+=`
-    <div>
-      <strong>${u}</strong> (${users[u].role}) - ${users[u].active?"Active":"Disabled"}
-      <button class="btn btn-danger" onclick="toggleUser('${u}')">${users[u].active?"Disable":"Enable"}</button>
-      <button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>
-    </div>`;
-  });
-  userList.innerHTML=html;
-}
-
-function toggleUser(username){
-  const users=getUsers();
-  users[username].active=!users[username].active;
-  saveUsers(users);
-  loadUsers();
-}
-function deleteUser(username){
-  if(!confirm("Delete user permanently?")) return;
-  const users=getUsers();
-  delete users[username];
-  saveUsers(users);
-  loadUsers();
-}
-
-/* MEMBER DISPLAY */
-function loadMembers(){
-  memberGrid.innerHTML="";
-  getMembers().forEach(m=>{
-    let content="";
-    if(m.photo) content+=`<img src="${m.photo}">`;
-    content+=`<h4>${m.name||""} ${m.surname||""}</h4>`;
-    memberGrid.innerHTML+=`<div class="member-card">${content}</div>`;
-  });
 }
 
 </script>
