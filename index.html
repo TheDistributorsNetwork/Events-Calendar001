@@ -4,182 +4,192 @@
 <meta charset="UTF-8">
 <title>Events Calendar</title>
 <style>
-  body { font-family: Arial, sans-serif; margin:0; padding:40px; background:#002147; color:#fff;}
-  header { text-align:center; margin-bottom:30px; position:relative;}
-  .version { font-size:0.8em; color:#aaa; font-style:italic; margin-bottom:8px; display:block;}
-  header img.logo-left { width:120px; position:absolute; left:0; top:25px;}
-  header img.logo-right { width:120px; position:absolute; right:0; top:25px;}
-  header img.logo-center { width:160px; display:block; margin:25px auto 15px auto;}
-  header h1 { color:#FFD700; font-size:2em; margin:0;}
-  header h2 { color:#FFD700; font-size:1em; margin:0;}
-  table { width:90%; margin:0 auto; border-collapse: collapse; background:#1a1a1a; box-shadow:0 4px 12px rgba(0,0,0,0.6);}
-  th, td { border:1px solid #333; padding:14px; text-align:left;}
-  th { background:#800000; color:#FFD700; text-transform:uppercase;}
-  tr:nth-child(even){background:#262626;}
-  tr:nth-child(odd){background:#1a1a1a;}
-  a { color:#FFD700; font-weight:bold; text-decoration:none;}
-  a:hover { color:#fff; text-decoration:underline;}
-  .btn { display:inline-block; background:#FFD700; color:#000; font-weight:bold; padding:12px 24px; border-radius:6px; margin:5px; cursor:pointer; transition:.3s; text-decoration:none;}
-  .btn:hover { background:#fff; color:#800000;}
-  .dropdown { position:relative; display:inline-block;}
-  .dropdown-content { display:none; position:absolute; background:#1a1a1a; min-width:200px; box-shadow:0 4px 8px rgba(0,0,0,0.6); border-radius:6px; z-index:1; margin-top:5px;}
-  .dropdown-content a { color:#FFD700; padding:10px 16px; text-decoration:none; display:block;}
-  .dropdown-content a:hover { background:#333; color:#fff;}
-  .dropdown:hover .dropdown-content { display:block;}
-  #loginRequestForm { display:none; text-align:center; margin:20px;}
-  #requestForm { display:none; text-align:center; margin:20px; background:#262626; padding:15px; border-radius:10px;}
-  input, select { padding:8px; margin:6px 0; width:90%;}
+body {
+  font-family: Arial;
+  margin: 0;
+  padding: 40px;
+  background-color: #002147;
+  color: #fff;
+  text-align: center;
+}
+header {
+  position: relative;
+  margin-bottom: 30px;
+}
+header img.logo-left, header img.logo-right, header img.logo-center {
+  width: 120px;
+  position: absolute;
+  top: 25px;
+}
+header img.logo-center {
+  position: relative;
+  display: block;
+  margin: 25px auto 15px auto;
+  width: 160px;
+}
+header h1, header h2 {
+  color: #FFD700;
+  margin: 0;
+}
+header .version {
+  font-size: 0.8em;
+  color: #aaa;
+  font-style: italic;
+  display: block;
+  margin-bottom: 8px;
+}
+table {
+  width: 90%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+th, td {
+  border: 1px solid #333;
+  padding: 14px;
+  text-align: left;
+}
+th {
+  background-color: #800000;
+  color: #FFD700;
+  text-transform: uppercase;
+}
+tr:nth-child(even){background:#262626;}
+tr:nth-child(odd){background:#1a1a1a;}
+a {color:#FFD700; font-weight:bold; text-decoration:none;}
+a:hover{color:#fff; text-decoration:underline;}
+.btn {
+  display:inline-block;
+  background-color:#FFD700;
+  color:#000;
+  font-weight:bold;
+  padding:12px 24px;
+  border-radius:6px;
+  margin:5px;
+  cursor:pointer;
+  text-decoration:none;
+}
+.btn:hover {
+  background:#fff;
+  color:#800000;
+}
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #1a1a1a;
+  min-width: 200px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+  border-radius: 6px;
+  z-index: 1;
+  margin-top: 5px;
+}
+.dropdown-content a {
+  color:#FFD700;
+  padding:10px 16px;
+  display:block;
+  text-decoration:none;
+}
+.dropdown-content a:hover {background:#333; color:#fff;}
+.dropdown:hover .dropdown-content {display:block;}
 </style>
 </head>
 <body>
 
 <header>
   <span class="version">Version 1.0PRI</span>
-  <img src="logo-left.png" class="logo-left" alt="Left Logo">
-  <img src="logo-right.png" class="logo-right" alt="Right Logo">
-  <img src="logo.png" class="logo-center" alt="Center Logo">
+  <img src="logo-left.png" class="logo-left">
+  <img src="logo-right.png" class="logo-right">
+  <img src="logo.png" class="logo-center">
   <h1>Message Believer's Network Calendar</h1>
   <h2>By The Distributor</h2>
 </header>
 
+<!-- Buttons Section -->
 <div class="request-form">
-  <div id="calendarButtons">
-    <a href="members.html" class="btn">Members</a>
-    <button class="btn" onclick="showLoginRequest()">Request Event</button>
+  <a href="members.html" class="btn">Members</a>
+  <a id="requestEventBtn" class="btn">Request Event</a>
 
-    <div class="dropdown">
-      <span class="btn">Live</span>
-      <div class="dropdown-content">
-        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube (COMING SOON!)</a>
-        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live (COMING SOON!)</a>
-        <a href="https://podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
-      </div>
+  <!-- Live Dropdown -->
+  <div class="dropdown">
+    <span class="btn">Live</span>
+    <div class="dropdown-content">
+      <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube (COMING SOON!)</a>
+      <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live (COMING SOON!)</a>
+      <a href="https://www.podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
+    </div>
+  </div>
+
+  <!-- Support Accounts Dropdown -->
+  <div class="dropdown">
+    <span class="btn">Support Accounts</span>
+    <div class="dropdown-content">
+      <a href="#" target="_blank">WhatsApp (COMING SOON!)</a>
+      <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook (COMING SOON!)</a>
+      <a href="https://tiktok.com" target="_blank">TikTok (COMING SOON!)</a>
+      <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
     </div>
   </div>
 </div>
 
-<!-- LOGIN FORM TO REQUEST EVENT -->
-<div id="loginRequestForm">
-  <h3>Login to Request Event</h3>
-  <input id="reqUsername" placeholder="Username">
-  <input id="reqPassword" type="password" placeholder="Password">
-  <button class="btn" onclick="loginRequest()">Login</button>
-  <button class="btn" onclick="cancelLoginRequest()">Cancel</button>
-</div>
-
-<!-- EVENT REQUEST FORM -->
-<div id="requestForm">
-  <h3>Request Event</h3>
-  <input id="eventDate" type="date" placeholder="Date"><br>
-  <input id="eventName" placeholder="Event Name"><br>
-  <input id="eventDetails" placeholder="Details"><br>
-  <input id="hostChurch" placeholder="Host Church"><br>
-  <input id="eventImage" type="file" accept="image/*"><br>
-  <button class="btn" onclick="submitEventRequest()">Submit Request</button>
-  <button class="btn" onclick="cancelEventRequest()">Cancel</button>
-</div>
-
-<!-- CALENDAR TABLE -->
-<table>
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Event</th>
-      <th>Details</th>
-      <th>Host Church</th>
-      <th>Invitation</th>
-    </tr>
-  </thead>
-  <tbody id="calendarBody">
-    <!-- Approved events will appear here -->
-  </tbody>
+<!-- Calendar Table -->
+<table id="calendarTable">
+  <tr>
+    <th>Date</th>
+    <th>Event</th>
+    <th>Details</th>
+    <th>Host Church</th>
+    <th>Invitation</th>
+  </tr>
 </table>
 
 <script>
-/* STORAGE */
-function getEvents(){ return JSON.parse(localStorage.getItem("events")||"[]"); }
-function saveEvents(ev){ localStorage.setItem("events",JSON.stringify(ev)); }
-function getEventRequests(){ return JSON.parse(localStorage.getItem("eventRequests")||"[]"); }
-function saveEventRequests(req){ localStorage.setItem("eventRequests",JSON.stringify(req)); }
-function getUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
+const members = JSON.parse(localStorage.getItem('members')||'[]');
+const users = JSON.parse(localStorage.getItem('users')||'{}');
+const events = JSON.parse(localStorage.getItem('events')||'[]'); // approved events
+const requests = JSON.parse(localStorage.getItem('requests')||'[]'); // pending events
 
-/* DISPLAY CALENDAR */
-function loadCalendar(){
-  const calendarBody=document.getElementById("calendarBody");
-  calendarBody.innerHTML="";
-  const events=getEvents();
+// Render calendar
+function renderCalendar() {
+  const table = document.getElementById('calendarTable');
+  table.innerHTML=`<tr>
+    <th>Date</th><th>Event</th><th>Details</th><th>Host Church</th><th>Invitation</th>
+  </tr>`;
   events.forEach(e=>{
-    calendarBody.innerHTML+=`
-      <tr>
-        <td>${e.date}</td>
-        <td>${e.name}</td>
-        <td>${e.details}</td>
-        <td>${e.host}</td>
-        <td>${e.image ? `<a href="${e.image}" target="_blank">View Invite</a>`:"No Invite"}</td>
-      </tr>`;
+    table.innerHTML+=`<tr>
+      <td>${e.date}</td>
+      <td>${e.event}</td>
+      <td>${e.details}</td>
+      <td>${e.host}</td>
+      <td>${e.invite || ''}</td>
+    </tr>`;
   });
 }
-loadCalendar();
+renderCalendar();
 
-/* LOGIN FOR REQUEST */
-let requestUser=null;
-function showLoginRequest(){
-  document.getElementById("calendarButtons").style.display="none";
-  document.getElementById("loginRequestForm").style.display="block";
-}
-function cancelLoginRequest(){
-  document.getElementById("calendarButtons").style.display="block";
-  document.getElementById("loginRequestForm").style.display="none";
-}
-function loginRequest(){
-  const users=getUsers();
-  const user=users[reqUsername.value];
-  if(user && user.password===reqPassword.value && user.active){
-    if(!user.canRequestEvent){ alert("You do not have rights to request events."); return; }
-    requestUser=reqUsername.value;
-    document.getElementById("loginRequestForm").style.display="none";
-    document.getElementById("requestForm").style.display="block";
-  } else {
-    alert("Invalid or disabled account");
-  }
-}
+// Request Event
+document.getElementById('requestEventBtn').addEventListener('click',()=>{
+  let username = prompt("Enter your username:");
+  let password = prompt("Enter your password:");
+  if(!username || !password){ alert("Required"); return; }
+  if(users[username] && users[username].password===password && users[username].active && users[username].canRequestEvent){
+    const date = prompt("Event Date:");
+    const event = prompt("Event Name:");
+    const details = prompt("Details:");
+    const host = prompt("Host Church:");
+    const invite = prompt("Invite URL (optional):");
 
-/* EVENT REQUESTS */
-function submitEventRequest(){
-  const requests=getEventRequests();
-  const imageFile=document.getElementById("eventImage").files[0];
-  const reader=new FileReader();
-  reader.onload=function(){
-    requests.push({
-      id:Date.now(),
-      user:requestUser,
-      date:document.getElementById("eventDate").value,
-      name:document.getElementById("eventName").value,
-      details:document.getElementById("eventDetails").value,
-      host:document.getElementById("hostChurch").value,
-      image:reader.result,
-      status:"pending"
-    });
-    saveEventRequests(requests);
-    alert("Event request submitted. Admin approval required.");
-    document.getElementById("requestForm").style.display="none";
-    document.getElementById("calendarButtons").style.display="block";
-    clearRequestForm();
-  };
-  if(imageFile){ reader.readAsDataURL(imageFile); } else { reader.onload(); }
-}
-function clearRequestForm(){
-  document.getElementById("eventDate").value="";
-  document.getElementById("eventName").value="";
-  document.getElementById("eventDetails").value="";
-  document.getElementById("hostChurch").value="";
-  document.getElementById("eventImage").value="";
-}
-function cancelEventRequest(){
-  document.getElementById("requestForm").style.display="none";
-  document.getElementById("calendarButtons").style.display="block";
-  clearRequestForm();
-}
+    let pending = JSON.parse(localStorage.getItem('requests')||'[]');
+    pending.push({date,event,details,host,invite});
+    localStorage.setItem('requests',JSON.stringify(pending));
+    alert("Event submitted for approval.");
+  } else alert("Invalid credentials or you don't have permission.");
+});
 </script>
+
 </body>
 </html>
