@@ -5,7 +5,7 @@
 <title>Members Area</title>
 <style>
 body{
-  font-family:Arial;
+  font-family:Arial, sans-serif;
   margin:0;
   padding:40px;
   background:#002147;
@@ -109,7 +109,6 @@ function login(){
     loadMembers();
   } else alert("Invalid or disabled account");
 }
-
 function logout(){
   role=null;
   membersStage.style.display="none";
@@ -126,43 +125,23 @@ function addUser(){
   newUsername.value=""; newPassword.value=""; newRole.value="member"; newCanRequest.checked=false;
   loadUsers();
 }
-
 function editUser(username){
   const users=getUsers();
   const u=users[username];
-  newUsername.value=username;
-  newPassword.value=u.password;
-  newRole.value=u.role;
-  newCanRequest.checked=u.canRequestEvent;
-  delete users[username];
-  saveUsers(users);
-  loadUsers();
+  newUsername.value=username; newPassword.value=u.password; newRole.value=u.role; newCanRequest.checked=u.canRequestEvent;
+  delete users[username]; saveUsers(users); loadUsers();
 }
-
 function resetPassword(username){
-  const newPass=prompt("Enter new password:");
-  if(!newPass) return;
-  const users=getUsers();
-  users[username].password=newPass;
-  saveUsers(users);
-  loadUsers();
+  const newPass=prompt("Enter new password:"); if(!newPass) return;
+  const users=getUsers(); users[username].password=newPass; saveUsers(users); loadUsers();
 }
-
 function toggleUser(username){
-  const users=getUsers();
-  users[username].active=!users[username].active;
-  saveUsers(users);
-  loadUsers();
+  const users=getUsers(); users[username].active=!users[username].active; saveUsers(users); loadUsers();
 }
-
 function deleteUser(username){
   if(!confirm("Delete user permanently?")) return;
-  const users=getUsers();
-  delete users[username];
-  saveUsers(users);
-  loadUsers();
+  const users=getUsers(); delete users[username]; saveUsers(users); loadUsers();
 }
-
 function loadUsers(){
   const users=getUsers();
   let html="<h4>Existing Users</h4>";
@@ -194,7 +173,6 @@ function saveMember(){
       canRequestEvent:vRequestEvent.checked
     }
   };
-
   if(mPhoto.files[0]){
     const reader=new FileReader();
     reader.onload=function(){ memberData.photo=reader.result; commitMember(memberData); };
@@ -205,17 +183,13 @@ function saveMember(){
     commitMember(memberData);
   }
 }
-
 function commitMember(memberData){
   let members=getMembers();
   if(editingMemberId) members=members.map(m=>m.id===editingMemberId?memberData:m);
   else members.push(memberData);
   saveMembers(members);
-  editingMemberId=null;
-  clearForm();
-  loadMembers();
+  editingMemberId=null; clearForm(); loadMembers();
 }
-
 function editMember(id){
   const members=getMembers();
   const m=members.find(x=>x.id===id);
@@ -225,19 +199,16 @@ function editMember(id){
   vTitle.checked=m.visibility.title; vNumber.checked=m.visibility.number;
   vPhoto.checked=m.visibility.photo; vRequestEvent.checked=m.visibility.canRequestEvent;
 }
-
 function deleteMember(id){
   if(!confirm("Delete member?")) return;
   const members=getMembers().filter(m=>m.id!==id);
-  saveMembers(members);
-  loadMembers();
+  saveMembers(members); loadMembers();
 }
-
 function clearForm(){
   mName.value=""; mSurname.value=""; mNumber.value=""; mTitle.value=""; mPhoto.value="";
-  vName.checked=true; vSurname.checked=true; vTitle.checked=true; vNumber.checked=true; vPhoto.checked=true; vRequestEvent.checked=false;
+  vName.checked=true; vSurname.checked=true; vTitle.checked=true; vNumber.checked=true;
+  vPhoto.checked=true; vRequestEvent.checked=false;
 }
-
 function loadMembers(){
   memberGrid.innerHTML="";
   getMembers().forEach(m=>{
