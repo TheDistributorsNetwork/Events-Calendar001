@@ -73,6 +73,7 @@ input,select{
 <!-- MEMBERS AREA -->
 <div id="membersStage" style="display:none;">
 <button class="btn" onclick="logout()">Logout</button>
+<button class="btn" onclick="backToCalendar()" style="margin-left:10px;">Back to Calendar</button>
 
 <div id="adminControls" style="display:none;">
 
@@ -89,6 +90,7 @@ input,select{
 <label><input type="checkbox" id="vTitle" checked> Show Title</label><br>
 <label><input type="checkbox" id="vNumber" checked> Show Number</label><br>
 <label><input type="checkbox" id="vPhoto" checked> Show Photo</label><br>
+<label><input type="checkbox" id="canRequestEvent"> Can Request Event</label><br>
 
 <button class="btn" onclick="saveMember()">Save Member</button>
 
@@ -101,6 +103,7 @@ input,select{
   <option value="member">Member</option>
   <option value="admin">Admin</option>
 </select>
+<label><input type="checkbox" id="newCanRequestEvent"> Can Request Event</label><br>
 <button class="btn" onclick="addUser()">Add User</button>
 
 <div id="userList"></div>
@@ -117,6 +120,18 @@ input,select{
 </div>
 
 <div class="member-grid" id="memberGrid"></div>
+
+<!-- Event Request Form for users with rights -->
+<div id="requestForm" style="display:none; margin-top:20px;">
+<h3>Request New Event</h3>
+<input id="eventTitle" placeholder="Event Title">
+<input id="eventDate" type="date">
+<input id="eventDetails" placeholder="Event Details">
+<input id="eventHost" placeholder="Host Church">
+<input id="eventInvite" type="file" accept="image/*">
+<button class="btn" onclick="submitEventRequest()">Submit Request</button>
+</div>
+
 </div>
 </div>
 
@@ -135,13 +150,14 @@ function saveApprovedEvents(e){ localStorage.setItem("approvedEvents",JSON.strin
 /* INIT DEFAULT ADMINS */
 if(!localStorage.getItem("users")){
   saveUsers({
-    admin1:{password:"admin123",role:"admin",active:true},
-    admin2:{password:"admin456",role:"admin",active:true}
+    admin1:{password:"admin123",role:"admin",active:true,canRequest:false},
+    admin2:{password:"admin456",role:"admin",active:true,canRequest:false}
   });
 }
 
 let role=null;
 let editingMemberId=null;
+let currentUser=null;
 
 /* LOGIN */
 function login(){
@@ -150,14 +166,19 @@ function login(){
 
   if(user && user.password===password.value && user.active){
     role=user.role;
+    currentUser=username.value;
     loginStage.style.display="none";
     membersStage.style.display="block";
-    adminControls.style.display=role==="admin"?"block":"none";
+
+    adminControls.style.display=(role==="admin")?"block":"none";
 
     if(role==="admin"){
       loadUsers();
       loadEventPanels();
     }
+
+    // Show request form only if allowed
+    requestForm.style.display=(role==="admin" || user.canRequest)?"block":"none";
 
     loadMembers();
   } else {
@@ -166,7 +187,14 @@ function login(){
 }
 
 function logout(){
-  location.reload();
+  currentUser=null;
+  role=null;
+  membersStage.style.display="none";
+  loginStage.style.display="block";
+}
+
+function backToCalendar(){
+  window.location.href="index.html";
 }
 
 /* ================= USER MANAGEMENT ================= */
@@ -182,7 +210,8 @@ function addUser(){
   users[newUsername.value.trim()] = {
     password:newPassword.value.trim(),
     role:newRole.value,
-    active:true
+    active:true,
+    canRequest:newCanRequestEvent.checked
   };
 
   saveUsers(users);
@@ -190,6 +219,7 @@ function addUser(){
   newUsername.value="";
   newPassword.value="";
   newRole.value="member";
+  newCanRequestEvent.checked=false;
 
   loadUsers();
 }
@@ -201,7 +231,7 @@ function loadUsers(){
   Object.keys(users).forEach(u=>{
     html+=`
       <div>
-        <strong>${u}</strong> (${users[u].role}) - ${users[u].active?"Active":"Disabled"}
+        <strong>${u}</strong> (${users[u].role}) - ${users[u].active?"Active":"Disabled"} | Can Request Event: ${users[u].canRequest?"Yes":"No"}
         <button class="btn" onclick="resetPassword('${u}')">Reset</button>
         <button class="btn" onclick="toggleUser('${u}')">${users[u].active?"Disable":"Enable"}</button>
         <button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>
@@ -215,11 +245,9 @@ function loadUsers(){
 function resetPassword(username){
   const newPass=prompt("Enter new password:");
   if(!newPass) return;
-
   const users=getUsers();
   users[username].password=newPass;
   saveUsers(users);
-
   alert("Password updated.");
 }
 
@@ -232,7 +260,6 @@ function toggleUser(username){
 
 function deleteUser(username){
   if(!confirm("Delete permanently?")) return;
-
   const users=getUsers();
   delete users[username];
   saveUsers(users);
@@ -242,11 +269,9 @@ function deleteUser(username){
 /* ================= MEMBER MANAGEMENT ================= */
 
 function saveMember(){
-
   if(!mName.value.trim()) return alert("Name required");
 
   let members=getMembers();
-
   const memberData={
     id: editingMemberId || Date.now(),
     name:mName.value.trim(),
@@ -259,7 +284,8 @@ function saveMember(){
       title:vTitle.checked,
       number:vNumber.checked,
       photo:vPhoto.checked
-    }
+    },
+    canRequestEvent:document.getElementById("canRequestEvent").checked
   };
 
   if(mPhoto.files[0]){
@@ -286,7 +312,6 @@ function commitMember(memberData){
   }
 
   saveMembers(members);
-
   editingMemberId=null;
   clearForm();
   loadMembers();
@@ -307,6 +332,7 @@ function editMember(id){
   vTitle.checked=m.visibility.title;
   vNumber.checked=m.visibility.number;
   vPhoto.checked=m.visibility.photo;
+  document.getElementById("canRequestEvent").checked=m.canRequestEvent||false;
 }
 
 function deleteMember(id){
@@ -326,16 +352,14 @@ function clearForm(){
   vTitle.checked=true;
   vNumber.checked=true;
   vPhoto.checked=true;
+  document.getElementById("canRequestEvent").checked=false;
 }
 
 function loadMembers(){
   memberGrid.innerHTML="";
-
   getMembers().forEach(m=>{
     const show=role==="admin"?m.visibility:m.visibility;
-
     let content="";
-
     if(show.photo && m.photo) content+=`<img src="${m.photo}">`;
     if(show.name||show.surname)
       content+=`<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>`;
@@ -354,7 +378,43 @@ function loadMembers(){
   });
 }
 
-/* ================= EVENT ADMIN ================= */
+/* ================= EVENT REQUEST ================= */
+
+function submitEventRequest(){
+  if(!eventTitle.value || !eventDate.value) return alert("Title and Date required");
+
+  const pending=getPendingEvents();
+  const reader=new FileReader();
+
+  const eventData={
+    id: Date.now(),
+    title:eventTitle.value,
+    date:eventDate.value,
+    details:eventDetails.value,
+    host:eventHost.value,
+    invite:""
+  };
+
+  if(eventInvite.files[0]){
+    reader.onload=function(){
+      eventData.invite=reader.result;
+      pending.push(eventData);
+      savePendingEvents(pending);
+      alert("Request submitted");
+      eventTitle.value=""; eventDate.value=""; eventDetails.value=""; eventHost.value=""; eventInvite.value="";
+      loadEventPanels();
+    };
+    reader.readAsDataURL(eventInvite.files[0]);
+  } else {
+    pending.push(eventData);
+    savePendingEvents(pending);
+    alert("Request submitted");
+    eventTitle.value=""; eventDate.value=""; eventDetails.value=""; eventHost.value=""; eventInvite.value="";
+    loadEventPanels();
+  }
+}
+
+/* ================= ADMIN EVENT PANELS ================= */
 
 function loadEventPanels(){
   const pending=getPendingEvents();
@@ -364,7 +424,7 @@ function loadEventPanels(){
       <button class="btn" onclick="approveEvent(${ev.id})">Approve</button>
       <button class="btn btn-danger" onclick="declineEvent(${ev.id})">Decline</button>
     </div>
-  `).join("") || "<p>No pending</p>";
+  `).join("") || "<p>No pending requests</p>";
 
   const approved=getApprovedEvents();
   approvedEvents.innerHTML=approved.map(ev=>`
@@ -372,7 +432,7 @@ function loadEventPanels(){
       ${ev.date} - ${ev.title}
       <button class="btn btn-danger" onclick="removeApproved(${ev.id})">Remove</button>
     </div>
-  `).join("") || "<p>No approved</p>";
+  `).join("") || "<p>No approved events</p>";
 }
 
 function approveEvent(id){
