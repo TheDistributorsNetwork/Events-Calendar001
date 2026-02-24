@@ -6,98 +6,36 @@
 <style>
 body {
   font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 40px;
-  background-color: #002147;
-  color: #fff;
+  margin: 0; padding: 40px;
+  background-color: #002147; color: #fff;
   text-align: center;
 }
 header {
   margin-bottom: 30px;
   position: relative;
 }
-header img.logo-left, header img.logo-right {
-  width: 100px;
-  position: absolute;
-  top: 20px;
-}
+header img.logo-left, header img.logo-right { width:100px; position: absolute; top: 20px; }
 header img.logo-left { left: 20px; }
 header img.logo-right { right: 20px; }
-header img.logo-center {
-  width: 160px;
-  margin: 0 auto 10px auto;
-  display: block;
-}
-header h1, header h2 {
-  color: #FFD700;
-  margin: 0;
-}
-header .version {
-  font-size: 0.8em;
-  color: #aaa;
-  font-style: italic;
-  display: block;
-  margin-bottom: 10px;
-}
-.buttons {
-  margin: 20px 0;
-}
-.btn {
-  display: inline-block;
-  background-color: #FFD700;
-  color: #000;
-  font-weight: bold;
-  padding: 12px 24px;
-  border-radius: 6px;
-  margin: 5px;
-  cursor: pointer;
-  text-decoration: none;
-}
-.btn:hover {
-  background: #fff;
-  color: #800000;
-}
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #1a1a1a;
-  min-width: 200px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-  border-radius: 6px;
-  z-index: 1;
-  margin-top: 5px;
-}
-.dropdown-content a {
-  color:#FFD700;
-  padding:10px 16px;
-  display:block;
-  text-decoration:none;
-}
-.dropdown-content a:hover {background:#333; color:#fff;}
-.dropdown:hover .dropdown-content {display:block;}
-table {
-  width: 90%;
-  margin: 20px auto;
-  border-collapse: collapse;
-  background-color: #1a1a1a;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-}
-th, td {
-  border: 1px solid #333;
-  padding: 12px;
-  text-align: left;
-}
-th {
-  background-color: #800000;
-  color: #FFD700;
-  text-transform: uppercase;
-}
+header img.logo-center { width:160px; display:block; margin:0 auto 10px auto; }
+header h1,h2 { color:#FFD700; margin:0; }
+header .version { font-size:0.8em; color:#aaa; font-style:italic; display:block; margin-bottom:10px; }
+.buttons { margin:20px 0; }
+.btn { display:inline-block; background-color:#FFD700; color:#000; font-weight:bold; padding:12px 24px; border-radius:6px; margin:5px; cursor:pointer; text-decoration:none; }
+.btn:hover { background:#fff; color:#800000; }
+.dropdown { position: relative; display: inline-block; }
+.dropdown-content { display: none; position: absolute; background-color: #1a1a1a; min-width: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.6); border-radius: 6px; z-index: 1; margin-top: 5px; }
+.dropdown-content a { color:#FFD700; padding:10px 16px; display:block; text-decoration:none; }
+.dropdown-content a:hover { background:#333; color:#fff; }
+.dropdown:hover .dropdown-content { display:block; }
+table { width:90%; margin:20px auto; border-collapse: collapse; background-color:#1a1a1a; box-shadow:0 4px 12px rgba(0,0,0,0.6); }
+th, td { border:1px solid #333; padding:12px; text-align:left; }
+th { background-color:#800000; color:#FFD700; text-transform:uppercase; }
 tr:nth-child(even){background:#262626;}
 tr:nth-child(odd){background:#1a1a1a;}
+form { background:#1a1a1a; padding:20px; margin:20px auto; border-radius:8px; width:90%; max-width:500px; }
+input, textarea { width:100%; padding:8px; margin:6px 0; border-radius:4px; border:none; }
+h3 { margin-top:20px; color:#FFD700; }
 </style>
 </head>
 <body>
@@ -113,7 +51,6 @@ tr:nth-child(odd){background:#1a1a1a;}
 
 <div class="buttons">
   <a href="members.html" class="btn">Members</a>
-  <a id="requestEventBtn" class="btn">Request Event</a>
 
   <div class="dropdown">
     <span class="btn">Live</span>
@@ -135,53 +72,94 @@ tr:nth-child(odd){background:#1a1a1a;}
   </div>
 </div>
 
+<h3>Calendar Events</h3>
 <table id="calendarTable">
-  <tr>
-    <th>Date</th>
-    <th>Event</th>
-    <th>Details</th>
-    <th>Host Church</th>
-    <th>Invitation</th>
-  </tr>
+  <tr><th>Date</th><th>Event</th><th>Details</th><th>Host Church</th><th>Invite</th></tr>
+</table>
+
+<h3>Request Event</h3>
+<form id="requestEventForm">
+  <input type="text" placeholder="Username" id="reqUser" required>
+  <input type="password" placeholder="Password" id="reqPass" required>
+  <input type="date" id="reqDate" required>
+  <input type="text" id="reqEvent" placeholder="Event Name" required>
+  <textarea id="reqDetails" placeholder="Details" required></textarea>
+  <input type="text" id="reqHost" placeholder="Host Church" required>
+  <input type="text" id="reqInvite" placeholder="Invite URL (optional)">
+  <button type="submit" class="btn">Submit Request</button>
+</form>
+
+<h3>Pending Requests (Admin Only)</h3>
+<table id="pendingTable">
+  <tr><th>User</th><th>Date</th><th>Event</th><th>Host</th><th>Action</th></tr>
 </table>
 
 <script>
-const users = JSON.parse(localStorage.getItem('users')||'{}');
-const events = JSON.parse(localStorage.getItem('events')||'[]');
+let users = JSON.parse(localStorage.getItem('users')||'{}');
+let events = JSON.parse(localStorage.getItem('events')||'[]');
+let requests = JSON.parse(localStorage.getItem('requests')||'[]');
 
 function renderCalendar() {
   const table = document.getElementById('calendarTable');
-  table.innerHTML=`<tr>
-    <th>Date</th><th>Event</th><th>Details</th><th>Host Church</th><th>Invitation</th>
-  </tr>`;
+  table.innerHTML=`<tr><th>Date</th><th>Event</th><th>Details</th><th>Host Church</th><th>Invite</th></tr>`;
   events.forEach(e=>{
     table.innerHTML+=`<tr>
       <td>${e.date}</td>
       <td>${e.event}</td>
       <td>${e.details}</td>
       <td>${e.host}</td>
-      <td>${e.invite || ''}</td>
+      <td>${e.invite||''}</td>
     </tr>`;
   });
 }
-renderCalendar();
 
-document.getElementById('requestEventBtn').addEventListener('click',()=>{
-  let username = prompt("Enter your username:");
-  let password = prompt("Enter your password:");
-  if(!username || !password){ alert("Required"); return; }
-  if(users[username] && users[username].password===password && users[username].active && users[username].canRequestEvent){
-    const date = prompt("Event Date:");
-    const event = prompt("Event Name:");
-    const details = prompt("Details:");
-    const host = prompt("Host Church:");
-    const invite = prompt("Invite URL (optional):");
-    let pending = JSON.parse(localStorage.getItem('requests')||'[]');
-    pending.push({date,event,details,host,invite});
-    localStorage.setItem('requests',JSON.stringify(pending));
-    alert("Event submitted for approval.");
-  } else alert("Invalid credentials or you don't have permission.");
+function renderRequests() {
+  const table = document.getElementById('pendingTable');
+  table.innerHTML=`<tr><th>User</th><th>Date</th><th>Event</th><th>Host</th><th>Action</th></tr>`;
+  requests.forEach((r,i)=>{
+    if(users[r.username]?.role==='admin'){
+      table.innerHTML+=`<tr>
+        <td>${r.username}</td>
+        <td>${r.date}</td>
+        <td>${r.event}</td>
+        <td>${r.host}</td>
+        <td>
+          <button onclick="approve(${i})" class="btn">Approve</button>
+          <button onclick="decline(${i})" class="btn btn-danger">Decline</button>
+        </td>
+      </tr>`;
+    }
+  });
+}
+
+function approve(index){
+  events.push(requests[index]);
+  requests.splice(index,1);
+  localStorage.setItem('events',JSON.stringify(events));
+  localStorage.setItem('requests',JSON.stringify(requests));
+  renderCalendar();
+  renderRequests();
+}
+
+function decline(index){
+  requests.splice(index,1);
+  localStorage.setItem('requests',JSON.stringify(requests));
+  renderRequests();
+}
+
+document.getElementById('requestEventForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const u = reqUser.value, p=reqPass.value;
+  if(!users[u] || users[u].password!==p || !users[u].canRequestEvent){ alert("Invalid or no permission"); return; }
+  requests.push({username:u,date:reqDate.value,event:reqEvent.value,details:reqDetails.value,host:reqHost.value,invite:reqInvite.value});
+  localStorage.setItem('requests',JSON.stringify(requests));
+  alert("Request submitted!");
+  this.reset();
+  renderRequests();
 });
+
+renderCalendar();
+renderRequests();
 </script>
 </body>
 </html>
