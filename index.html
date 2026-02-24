@@ -3,384 +3,183 @@
 <head>
 <meta charset="UTF-8">
 <title>Events Calendar</title>
-
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 40px;
-  background-color: #002147;
-  color: #fff;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 30px;
-  position: relative;
-}
-
-.version {
-  font-size: 0.8em;
-  color: #aaa;
-  font-style: italic;
-  margin-bottom: 8px;
-  display: block;
-}
-
-header img.logo-left {
-  width: 120px;
-  position: absolute;
-  left: 0;
-  top: 25px;
-}
-header img.logo-right {
-  width: 120px;
-  position: absolute;
-  right: 0;
-  top: 25px;
-}
-header img.logo-center {
-  width: 160px;
-  display: block;
-  margin: 25px auto 15px auto;
-}
-header h1 {
-  color: #FFD700;
-  font-size: 2em;
-  margin: 0;
-}
-header h2 {
-  color: #FFD700;
-  font-size: 1em;
-  margin: 0;
-}
-
-table {
-  width: 90%;
-  margin: 0 auto;
-  border-collapse: collapse;
-  background-color: #1a1a1a;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-}
-th, td {
-  border: 1px solid #333;
-  padding: 14px;
-  text-align: left;
-}
-th {
-  background-color: #800000;
-  color: #FFD700;
-  text-transform: uppercase;
-}
-tr:nth-child(even) { background-color: #262626; }
-tr:nth-child(odd) { background-color: #1a1a1a; }
-
-a {
-  color: #FFD700;
-  font-weight: bold;
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-  color: #fff;
-}
-
-.request-form {
-  text-align: center;
-  margin-top: 30px;
-}
-
-.btn {
-  display: inline-block;
-  background-color: #FFD700;
-  color: #000;
-  font-weight: bold;
-  padding: 12px 24px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: 0.3s;
-  margin: 5px;
-  cursor: pointer;
-  border: none;
-}
-.btn:hover {
-  background-color: #fff;
-  color: #800000;
-}
-
-.btn-danger {
-  background-color: #800000;
-  color: #fff;
-}
-
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #1a1a1a;
-  min-width: 200px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-  border-radius: 6px;
-  z-index: 1;
-  margin-top: 5px;
-}
-.dropdown-content a {
-  color: #FFD700;
-  padding: 10px 16px;
-  text-decoration: none;
-  display: block;
-}
-.dropdown-content a:hover {
-  background-color: #333;
-  color: #fff;
-}
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-.form-box{
-  display:none;
-  background:#1a1a1a;
-  padding:20px;
-  max-width:600px;
-  margin:20px auto;
-  border-radius:10px;
-}
-.form-box input{
-  width:100%;
-  padding:8px;
-  margin:6px 0;
-}
-
-.envelope{
-  text-align:center;
-  font-size:40px;
-  margin-top:15px;
-  cursor:pointer;
-  display:none;
-}
-.pending-box{
-  display:none;
-  max-width:800px;
-  margin:10px auto;
-}
+  body { font-family: Arial, sans-serif; margin:0; padding:40px; background:#002147; color:#fff;}
+  header { text-align:center; margin-bottom:30px; position:relative;}
+  .version { font-size:0.8em; color:#aaa; font-style:italic; margin-bottom:8px; display:block;}
+  header img.logo-left { width:120px; position:absolute; left:0; top:25px;}
+  header img.logo-right { width:120px; position:absolute; right:0; top:25px;}
+  header img.logo-center { width:160px; display:block; margin:25px auto 15px auto;}
+  header h1 { color:#FFD700; font-size:2em; margin:0;}
+  header h2 { color:#FFD700; font-size:1em; margin:0;}
+  table { width:90%; margin:0 auto; border-collapse: collapse; background:#1a1a1a; box-shadow:0 4px 12px rgba(0,0,0,0.6);}
+  th, td { border:1px solid #333; padding:14px; text-align:left;}
+  th { background:#800000; color:#FFD700; text-transform:uppercase;}
+  tr:nth-child(even){background:#262626;}
+  tr:nth-child(odd){background:#1a1a1a;}
+  a { color:#FFD700; font-weight:bold; text-decoration:none;}
+  a:hover { color:#fff; text-decoration:underline;}
+  .btn { display:inline-block; background:#FFD700; color:#000; font-weight:bold; padding:12px 24px; border-radius:6px; margin:5px; cursor:pointer; transition:.3s; text-decoration:none;}
+  .btn:hover { background:#fff; color:#800000;}
+  .dropdown { position:relative; display:inline-block;}
+  .dropdown-content { display:none; position:absolute; background:#1a1a1a; min-width:200px; box-shadow:0 4px 8px rgba(0,0,0,0.6); border-radius:6px; z-index:1; margin-top:5px;}
+  .dropdown-content a { color:#FFD700; padding:10px 16px; text-decoration:none; display:block;}
+  .dropdown-content a:hover { background:#333; color:#fff;}
+  .dropdown:hover .dropdown-content { display:block;}
+  #loginRequestForm { display:none; text-align:center; margin:20px;}
+  #requestForm { display:none; text-align:center; margin:20px; background:#262626; padding:15px; border-radius:10px;}
+  input, select { padding:8px; margin:6px 0; width:90%;}
 </style>
 </head>
-
 <body>
 
 <header>
-  <span class="version">Version 2.0PRI</span>
-  <img src="logo-left.png" alt="Left Logo" class="logo-left">
-  <img src="logo-right.png" alt="Right Logo" class="logo-right">
-  <img src="logo.png" alt="Center Logo" class="logo-center">
+  <span class="version">Version 1.0PRI</span>
+  <img src="logo-left.png" class="logo-left" alt="Left Logo">
+  <img src="logo-right.png" class="logo-right" alt="Right Logo">
+  <img src="logo.png" class="logo-center" alt="Center Logo">
   <h1>Message Believer's Network Calendar</h1>
   <h2>By The Distributor</h2>
 </header>
 
-<!-- Buttons Section -->
 <div class="request-form">
-  <p>Request To Add Event?</p>
+  <div id="calendarButtons">
+    <a href="members.html" class="btn">Members</a>
+    <button class="btn" onclick="showLoginRequest()">Request Event</button>
 
-  <button class="btn" onclick="openForm()">Request Event</button>
-  <a href="members.html" class="btn">Members</a>
-
-  <div class="dropdown">
-    <span class="btn">Live</span>
-    <div class="dropdown-content">
-      <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube (COMING SOON!)</a>
-      <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live (COMING SOON!)</a>
-      <a href="https://www.podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
+    <div class="dropdown">
+      <span class="btn">Live</span>
+      <div class="dropdown-content">
+        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube (COMING SOON!)</a>
+        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live (COMING SOON!)</a>
+        <a href="https://podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="dropdown">
-    <span class="btn">Support Accounts</span>
-    <div class="dropdown-content">
-      <a href="#">WhatsApp (COMING SOON!)</a>
-      <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook (COMING SOON!)</a>
-      <a href="https://tiktok.com" target="_blank">TikTok (COMING SOON!)</a>
-      <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
-    </div>
-  </div>
+<!-- LOGIN FORM TO REQUEST EVENT -->
+<div id="loginRequestForm">
+  <h3>Login to Request Event</h3>
+  <input id="reqUsername" placeholder="Username">
+  <input id="reqPassword" type="password" placeholder="Password">
+  <button class="btn" onclick="loginRequest()">Login</button>
+  <button class="btn" onclick="cancelLoginRequest()">Cancel</button>
 </div>
 
 <!-- EVENT REQUEST FORM -->
-<div class="form-box" id="eventForm">
-<h3>Event Request</h3>
-<input type="date" id="evDate">
-<input type="text" id="evTitle" placeholder="Event Title">
-<input type="text" id="evDetails" placeholder="Details">
-<input type="text" id="evHost" placeholder="Host Church / Pastor">
-<input type="file" id="evImage" accept="image/*">
-<button class="btn" onclick="submitEvent()">Submit</button>
-<button class="btn btn-danger" onclick="closeForm()">Cancel</button>
+<div id="requestForm">
+  <h3>Request Event</h3>
+  <input id="eventDate" type="date" placeholder="Date"><br>
+  <input id="eventName" placeholder="Event Name"><br>
+  <input id="eventDetails" placeholder="Details"><br>
+  <input id="hostChurch" placeholder="Host Church"><br>
+  <input id="eventImage" type="file" accept="image/*"><br>
+  <button class="btn" onclick="submitEventRequest()">Submit Request</button>
+  <button class="btn" onclick="cancelEventRequest()">Cancel</button>
 </div>
 
-<!-- Envelope -->
-<div class="envelope" id="envelope" onclick="togglePending()">📩</div>
-<div class="pending-box" id="pendingBox"></div>
-
-<!-- Calendar Table -->
+<!-- CALENDAR TABLE -->
 <table>
-<thead>
-<tr>
-<th>Date</th>
-<th>Event</th>
-<th>Details</th>
-<th>Host Church</th>
-<th>Invitation</th>
-</tr>
-</thead>
-<tbody id="calendarBody">
-
-<tr>
-<td>23 November 2025</td>
-<td>Combined Meeting</td>
-<td>Combined Fellowship | Open Invite</td>
-<td>Restoration Tabernacle DBN | Pst Mervin Munsamy</td>
-<td><a href="#">View Invite</a></td>
-</tr>
-
-</tbody>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Event</th>
+      <th>Details</th>
+      <th>Host Church</th>
+      <th>Invitation</th>
+    </tr>
+  </thead>
+  <tbody id="calendarBody">
+    <!-- Approved events will appear here -->
+  </tbody>
 </table>
 
 <script>
-
 /* STORAGE */
-function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}");}
-function getApproved(){return JSON.parse(localStorage.getItem("approvedEvents")||"[]");}
-function getPending(){return JSON.parse(localStorage.getItem("pendingEvents")||"[]");}
-function saveApproved(d){localStorage.setItem("approvedEvents",JSON.stringify(d));}
-function savePending(d){localStorage.setItem("pendingEvents",JSON.stringify(d));}
+function getEvents(){ return JSON.parse(localStorage.getItem("events")||"[]"); }
+function saveEvents(ev){ localStorage.setItem("events",JSON.stringify(ev)); }
+function getEventRequests(){ return JSON.parse(localStorage.getItem("eventRequests")||"[]"); }
+function saveEventRequests(req){ localStorage.setItem("eventRequests",JSON.stringify(req)); }
+function getUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
 
-/* ROLE CHECK */
-let role=null;
-function detectRole(){
-  const users=getUsers();
-  for(let u in users){
-    if(users[u].active){
-      role=users[u].role;
-    }
-  }
-  if(role==="admin"){
-    envelope.style.display="block";
-    loadPending();
-  }
-}
-detectRole();
-
-/* FORM */
-function openForm(){eventForm.style.display="block";}
-function closeForm(){eventForm.style.display="none";}
-
-/* SUBMIT */
-function submitEvent(){
-  if(!evDate.value||!evTitle.value){alert("Date and Title required");return;}
-
-  const ev={
-    id:Date.now(),
-    date:evDate.value,
-    title:evTitle.value,
-    details:evDetails.value,
-    host:evHost.value,
-    image:null
-  };
-
-  if(evImage.files[0]){
-    const reader=new FileReader();
-    reader.onload=function(){
-      ev.image=reader.result;
-      savePendingEvent(ev);
-    };
-    reader.readAsDataURL(evImage.files[0]);
-  } else {
-    savePendingEvent(ev);
-  }
-}
-
-function savePendingEvent(ev){
-  const list=getPending();
-  list.push(ev);
-  savePending(list);
-  alert("Event submitted for approval.");
-  closeForm();
-  clearForm();
-}
-
-/* CLEAR FORM */
-function clearForm(){
-  evDate.value="";
-  evTitle.value="";
-  evDetails.value="";
-  evHost.value="";
-  evImage.value="";
-}
-
-/* PENDING */
-function loadPending(){
-  if(role!=="admin") return;
-
-  const list=getPending();
-  let html="";
-  list.forEach(ev=>{
-    html+=`
-    <div style="background:#1a1a1a;padding:10px;margin:10px;border-radius:6px;">
-      <strong>${ev.date}</strong> - ${ev.title}<br>
-      ${ev.details}<br>
-      ${ev.host}<br>
-      <button class="btn" onclick="approve(${ev.id})">Approve</button>
-      <button class="btn btn-danger" onclick="reject(${ev.id})">Reject</button>
-    </div>
-    `;
-  });
-  pendingBox.innerHTML=html;
-}
-
-function togglePending(){
-  pendingBox.style.display=
-  pendingBox.style.display==="block"?"none":"block";
-}
-
-function approve(id){
-  let pending=getPending();
-  const approved=getApproved();
-  const ev=pending.find(e=>e.id===id);
-  approved.push(ev);
-  pending=pending.filter(e=>e.id!==id);
-  saveApproved(approved);
-  savePending(pending);
-  loadCalendar();
-  loadPending();
-}
-
-function reject(id){
-  let pending=getPending().filter(e=>e.id!==id);
-  savePending(pending);
-  loadPending();
-}
-
-/* LOAD CALENDAR */
+/* DISPLAY CALENDAR */
 function loadCalendar(){
-  const events=getApproved();
-  events.forEach(ev=>{
+  const calendarBody=document.getElementById("calendarBody");
+  calendarBody.innerHTML="";
+  const events=getEvents();
+  events.forEach(e=>{
     calendarBody.innerHTML+=`
       <tr>
-        <td>${ev.date}</td>
-        <td>${ev.title}</td>
-        <td>${ev.details}</td>
-        <td>${ev.host}</td>
-        <td>${ev.image?`<a href="${ev.image}" target="_blank">View Invite</a>`:"-"}</td>
-      </tr>
-    `;
+        <td>${e.date}</td>
+        <td>${e.name}</td>
+        <td>${e.details}</td>
+        <td>${e.host}</td>
+        <td>${e.image ? `<a href="${e.image}" target="_blank">View Invite</a>`:"No Invite"}</td>
+      </tr>`;
   });
 }
 loadCalendar();
 
-</script>
+/* LOGIN FOR REQUEST */
+let requestUser=null;
+function showLoginRequest(){
+  document.getElementById("calendarButtons").style.display="none";
+  document.getElementById("loginRequestForm").style.display="block";
+}
+function cancelLoginRequest(){
+  document.getElementById("calendarButtons").style.display="block";
+  document.getElementById("loginRequestForm").style.display="none";
+}
+function loginRequest(){
+  const users=getUsers();
+  const user=users[reqUsername.value];
+  if(user && user.password===reqPassword.value && user.active){
+    if(!user.canRequestEvent){ alert("You do not have rights to request events."); return; }
+    requestUser=reqUsername.value;
+    document.getElementById("loginRequestForm").style.display="none";
+    document.getElementById("requestForm").style.display="block";
+  } else {
+    alert("Invalid or disabled account");
+  }
+}
 
+/* EVENT REQUESTS */
+function submitEventRequest(){
+  const requests=getEventRequests();
+  const imageFile=document.getElementById("eventImage").files[0];
+  const reader=new FileReader();
+  reader.onload=function(){
+    requests.push({
+      id:Date.now(),
+      user:requestUser,
+      date:document.getElementById("eventDate").value,
+      name:document.getElementById("eventName").value,
+      details:document.getElementById("eventDetails").value,
+      host:document.getElementById("hostChurch").value,
+      image:reader.result,
+      status:"pending"
+    });
+    saveEventRequests(requests);
+    alert("Event request submitted. Admin approval required.");
+    document.getElementById("requestForm").style.display="none";
+    document.getElementById("calendarButtons").style.display="block";
+    clearRequestForm();
+  };
+  if(imageFile){ reader.readAsDataURL(imageFile); } else { reader.onload(); }
+}
+function clearRequestForm(){
+  document.getElementById("eventDate").value="";
+  document.getElementById("eventName").value="";
+  document.getElementById("eventDetails").value="";
+  document.getElementById("hostChurch").value="";
+  document.getElementById("eventImage").value="";
+}
+function cancelEventRequest(){
+  document.getElementById("requestForm").style.display="none";
+  document.getElementById("calendarButtons").style.display="block";
+  clearRequestForm();
+}
+</script>
 </body>
 </html>
