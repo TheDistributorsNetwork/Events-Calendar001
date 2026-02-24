@@ -2,284 +2,226 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Events Calendar</title>
+<title>Members Portal</title>
 
 <style>
-/* --- YOUR ORIGINAL STYLING KEPT --- */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 40px;
-  background-color: #002147;
-  color: #fff;
+body{
+  font-family:Arial;
+  background:#002147;
+  color:#fff;
+  padding:40px;
 }
-header {
-  text-align: center;
-  margin-bottom: 30px;
-  position: relative;
-}
-.version {
-  font-size: 0.8em;
-  color: #aaa;
-  font-style: italic;
-  margin-bottom: 8px;
-  display: block;
-}
-header img.logo-left {
-  width: 120px;
-  position: absolute;
-  left: 0;
-  top: 25px;
-}
-header img.logo-right {
-  width: 120px;
-  position: absolute;
-  right: 0;
-  top: 25px;
-}
-header img.logo-center {
-  width: 160px;
-  display: block;
-  margin: 25px auto 15px auto;
-}
-header h1 {
-  color: #FFD700;
-  font-size: 2em;
-  margin: 0;
-}
-header h2 {
-  color: #FFD700;
-  font-size: 1em;
-  margin: 0;
-}
-table {
-  width: 90%;
-  margin: 0 auto;
-  border-collapse: collapse;
-  background-color: #1a1a1a;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-}
-th, td {
-  border: 1px solid #333;
-  padding: 14px;
-  text-align: left;
-}
-th {
-  background-color: #800000;
-  color: #FFD700;
-  text-transform: uppercase;
-}
-tr:nth-child(even){background-color:#262626;}
-tr:nth-child(odd){background-color:#1a1a1a;}
-
-.btn {
-  display: inline-block;
-  background-color: #FFD700;
-  color: #000;
-  font-weight: bold;
-  padding: 12px 24px;
-  border-radius: 6px;
-  margin: 5px;
-  cursor: pointer;
-  border: none;
-}
-.btn-danger{background:#800000;color:#fff;}
-
-.form-box{
-  display:none;
-  background:#1a1a1a;
-  padding:20px;
-  max-width:600px;
-  margin:20px auto;
-  border-radius:10px;
-}
-.form-box input{
+h2{color:#FFD700;}
+input, select{
   width:100%;
   padding:8px;
   margin:6px 0;
 }
-
-.envelope{
-  text-align:center;
-  font-size:40px;
-  margin-top:15px;
+button{
+  padding:8px 14px;
+  margin:5px 2px;
   cursor:pointer;
-  display:none;
+  border:none;
+  border-radius:4px;
 }
-.pending-box{
-  display:none;
-  max-width:800px;
-  margin:10px auto;
+.btn{background:#FFD700;color:#000;font-weight:bold;}
+.btn-danger{background:#800000;color:#fff;}
+.box{
+  background:#1a1a1a;
+  padding:20px;
+  margin:20px 0;
+  border-radius:8px;
 }
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  border:1px solid #333;
+  padding:8px;
+}
+th{background:#800000;color:#FFD700;}
 </style>
 </head>
-
 <body>
 
-<header>
-  <span class="version">Version 2.0PRI</span>
-  <img src="logo-left.png" class="logo-left">
-  <img src="logo-right.png" class="logo-right">
-  <img src="logo.png" class="logo-center">
-  <h1>Message Believer's Network Calendar</h1>
-  <h2>By The Distributor</h2>
-</header>
+<h2>Members Login</h2>
 
-<div style="text-align:center;">
-  <button class="btn" onclick="openForm()">Request Event</button>
-  <a href="members.html" class="btn">Members</a>
+<div id="loginStage" class="box">
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button class="btn" onclick="login()">Login</button>
 </div>
 
-<!-- EVENT FORM -->
-<div class="form-box" id="eventForm">
-<h3>Event Request</h3>
-<input type="date" id="evDate">
-<input type="text" id="evTitle" placeholder="Event Title">
-<input type="text" id="evDetails" placeholder="Details">
-<input type="text" id="evHost" placeholder="Host Church / Pastor">
-<input type="file" id="evImage" accept="image/*">
-<button class="btn" onclick="submitEvent()">Submit</button>
-<button class="btn btn-danger" onclick="closeForm()">Cancel</button>
+<div id="membersStage" style="display:none;">
+
+  <div class="box">
+    <button class="btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div id="adminControls" class="box" style="display:none;">
+    <h3>Admin Controls</h3>
+
+    <input type="text" id="newUsername" placeholder="Username">
+    <input type="password" id="newPassword" placeholder="Password">
+    <select id="newRole">
+      <option value="member">Member</option>
+      <option value="admin">Admin</option>
+    </select>
+    <input type="text" id="memberDetails" placeholder="Membership Details">
+
+    <button class="btn" onclick="saveUser()">Save User</button>
+    <button class="btn btn-danger" onclick="clearForm()">Clear</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Details</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="usersTable"></tbody>
+    </table>
+  </div>
+
 </div>
-
-<div class="envelope" id="envelope" onclick="togglePending()">📩</div>
-<div class="pending-box" id="pendingBox"></div>
-
-<table>
-<thead>
-<tr>
-<th>Date</th>
-<th>Event</th>
-<th>Details</th>
-<th>Host Church</th>
-<th>Invitation</th>
-</tr>
-</thead>
-<tbody id="calendarBody"></tbody>
-</table>
 
 <script>
 
-/* SESSION */
-const currentUser = localStorage.getItem("currentUser");
-const currentRole = localStorage.getItem("currentRole");
-
 /* STORAGE */
-function getApproved(){return JSON.parse(localStorage.getItem("approvedEvents")||"[]");}
-function getPending(){return JSON.parse(localStorage.getItem("pendingEvents")||"[]");}
-function saveApproved(d){localStorage.setItem("approvedEvents",JSON.stringify(d));}
-function savePending(d){localStorage.setItem("pendingEvents",JSON.stringify(d));}
+function getUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
+function saveUsers(u){ localStorage.setItem("users",JSON.stringify(u)); }
 
-/* ADMIN ENVELOPE */
-if(currentRole==="admin"){
-  document.getElementById("envelope").style.display="block";
-  loadPending();
+/* INIT DEFAULT ADMINS */
+if(!localStorage.getItem("users")){
+  saveUsers({
+    admin1:{password:"admin123",role:"admin",active:true,details:"Super Admin"},
+    admin2:{password:"admin456",role:"admin",active:true,details:"Super Admin"}
+  });
 }
 
-/* FORM CONTROL */
-function openForm(){
-  if(!currentUser){
-    alert("You must login in Members section first.");
+/* SESSION */
+function setSession(user,role){
+  localStorage.setItem("currentUser",user);
+  localStorage.setItem("currentRole",role);
+}
+function clearSession(){
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("currentRole");
+}
+
+/* LOGIN */
+function login(){
+  const users=getUsers();
+  const user=users[username.value];
+
+  if(user && user.password===password.value && user.active){
+    setSession(username.value,user.role);
+
+    loginStage.style.display="none";
+    membersStage.style.display="block";
+
+    if(user.role==="admin"){
+      adminControls.style.display="block";
+      loadUsers();
+    }
+  } else {
+    alert("Invalid or disabled account.");
+  }
+}
+
+/* LOGOUT */
+function logout(){
+  clearSession();
+  location.reload();
+}
+
+/* CLEAR FORM */
+function clearForm(){
+  newUsername.value="";
+  newPassword.value="";
+  newRole.value="member";
+  memberDetails.value="";
+}
+
+/* SAVE OR UPDATE USER */
+function saveUser(){
+  const users=getUsers();
+
+  if(!newUsername.value || !newPassword.value){
+    alert("Username and Password required.");
     return;
   }
-  eventForm.style.display="block";
-}
-function closeForm(){eventForm.style.display="none";}
 
-/* SUBMIT */
-function submitEvent(){
-  if(!evDate.value||!evTitle.value){alert("Date and Title required");return;}
-
-  const ev={
-    id:Date.now(),
-    date:evDate.value,
-    title:evTitle.value,
-    details:evDetails.value,
-    host:evHost.value,
-    submittedBy:currentUser,
-    image:null
+  users[newUsername.value]={
+    password:newPassword.value,
+    role:newRole.value,
+    active:true,
+    details:memberDetails.value
   };
 
-  if(evImage.files[0]){
-    const reader=new FileReader();
-    reader.onload=function(){
-      ev.image=reader.result;
-      savePendingEvent(ev);
-    };
-    reader.readAsDataURL(evImage.files[0]);
-  } else {
-    savePendingEvent(ev);
-  }
+  saveUsers(users);
+  loadUsers();
+  clearForm();
 }
 
-function savePendingEvent(ev){
-  const list=getPending();
-  list.push(ev);
-  savePending(list);
-  alert("Submitted for admin approval.");
-  closeForm();
-}
+/* LOAD USERS TABLE */
+function loadUsers(){
+  const users=getUsers();
+  usersTable.innerHTML="";
 
-/* PENDING */
-function loadPending(){
-  if(currentRole!=="admin") return;
+  Object.keys(users).forEach(username=>{
+    const u=users[username];
 
-  const list=getPending();
-  let html="";
-  list.forEach(ev=>{
-    html+=`
-    <div style="background:#1a1a1a;padding:10px;margin:10px;border-radius:6px;">
-      <strong>${ev.date}</strong> - ${ev.title}<br>
-      ${ev.details}<br>
-      ${ev.host}<br>
-      Submitted by: ${ev.submittedBy}<br>
-      <button class="btn" onclick="approve(${ev.id})">Approve</button>
-      <button class="btn btn-danger" onclick="reject(${ev.id})">Reject</button>
-    </div>`;
-  });
-  pendingBox.innerHTML=html;
-}
-
-function togglePending(){
-  pendingBox.style.display=
-  pendingBox.style.display==="block"?"none":"block";
-}
-
-function approve(id){
-  let pending=getPending();
-  const approved=getApproved();
-  const ev=pending.find(e=>e.id===id);
-  approved.push(ev);
-  pending=pending.filter(e=>e.id!==id);
-  saveApproved(approved);
-  savePending(pending);
-  loadCalendar();
-  loadPending();
-}
-
-function reject(id){
-  let pending=getPending().filter(e=>e.id!==id);
-  savePending(pending);
-  loadPending();
-}
-
-/* LOAD LIVE */
-function loadCalendar(){
-  const events=getApproved();
-  calendarBody.innerHTML="";
-  events.forEach(ev=>{
-    calendarBody.innerHTML+=`
+    usersTable.innerHTML+=`
     <tr>
-      <td>${ev.date}</td>
-      <td>${ev.title}</td>
-      <td>${ev.details}</td>
-      <td>${ev.host}</td>
-      <td>${ev.image?`<a href="${ev.image}" target="_blank">View Invite</a>`:"-"}</td>
+      <td>${username}</td>
+      <td>${u.role}</td>
+      <td>${u.active?"Active":"Disabled"}</td>
+      <td>${u.details||""}</td>
+      <td>
+        <button class="btn" onclick="editUser('${username}')">Edit</button>
+        <button class="btn" onclick="toggleUser('${username}')">${u.active?"Disable":"Enable"}</button>
+        <button class="btn btn-danger" onclick="deleteUser('${username}')">Delete</button>
+      </td>
     </tr>`;
   });
 }
-loadCalendar();
+
+/* EDIT USER */
+function editUser(username){
+  const users=getUsers();
+  const u=users[username];
+
+  newUsername.value=username;
+  newPassword.value=u.password;
+  newRole.value=u.role;
+  memberDetails.value=u.details||"";
+}
+
+/* ENABLE / DISABLE */
+function toggleUser(username){
+  const users=getUsers();
+  users[username].active=!users[username].active;
+  saveUsers(users);
+  loadUsers();
+}
+
+/* DELETE USER */
+function deleteUser(username){
+  if(!confirm("Delete user permanently?")) return;
+
+  const users=getUsers();
+  delete users[username];
+  saveUsers(users);
+  loadUsers();
+}
 
 </script>
+
 </body>
 </html>
