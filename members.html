@@ -2,23 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Members Area</title>
+<title>Members Administration</title>
 <style>
 body{font-family:Arial;margin:0;padding:40px;background:#002147;color:#fff;text-align:center;}
 .container{max-width:1100px;margin:auto;background:#1a1a1a;padding:30px;border-radius:12px;text-align:left;}
-h1,h2,h3{color:#FFD700;}
-.btn{background:#FFD700;color:#000;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;margin:4px;}
+h1,h3{color:#FFD700;}
+.btn{background:#FFD700;color:#000;padding:8px 14px;border-radius:6px;border:none;margin:4px;cursor:pointer;font-weight:bold;}
 .btn-danger{background:#800000;color:#fff;}
-input,select{width:100%;padding:8px;margin:6px 0;border:none;border-radius:4px;}
-table{width:100%;border-collapse:collapse;margin-top:10px;}
+input,select{width:100%;padding:8px;margin:6px 0;border-radius:4px;border:none;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
 th,td{border:1px solid #333;padding:8px;}
 th{background:#800000;color:#FFD700;}
 </style>
 </head>
 <body>
+
 <div class="container">
 
-<h1>Members Area</h1>
+<h1>Members Administration</h1>
 
 <div id="loginStage">
 <input id="username" placeholder="Username">
@@ -27,20 +28,22 @@ th{background:#800000;color:#FFD700;}
 <a href="index.html" class="btn">Back to Calendar</a>
 </div>
 
-<div id="membersStage" style="display:none;">
+<div id="adminPanel" style="display:none;">
+
 <button class="btn" onclick="logout()">Logout</button>
 <a href="index.html" class="btn">Back to Calendar</a>
 
 <h3>Add / Edit User</h3>
-<input id="editUsername" placeholder="Username">
-<input id="editPassword" placeholder="Password">
-<select id="editRole">
+<input id="uName" placeholder="Username">
+<input id="uPass" placeholder="Password">
+<select id="uRole">
 <option value="member">Member</option>
 <option value="admin">Admin</option>
 </select>
-<label><input type="checkbox" id="editRequest"> Can Request Event</label>
+<label><input type="checkbox" id="uRequest"> Can Request Event</label>
 <button class="btn" onclick="saveUser()">Save User</button>
 
+<h3>Existing Users</h3>
 <div id="userList"></div>
 
 <h3>Pending Event Requests</h3>
@@ -52,28 +55,22 @@ th{background:#800000;color:#FFD700;}
 </div>
 
 <script>
-if(!localStorage.getItem("users")){
-localStorage.setItem("users",JSON.stringify({
-admin1:{password:"admin123",role:"admin",active:true,canRequestEvent:true}
-}));
-}
-
 let users=JSON.parse(localStorage.getItem("users"));
 let requests=JSON.parse(localStorage.getItem("requests")||"[]");
 let events=JSON.parse(localStorage.getItem("events")||"[]");
 let editingUser=null;
 
 function login(){
-if(users[username.value]&&users[username.value].password===password.value){
+if(users[username.value]&&users[username.value].password===password.value&&users[username.value].role==="admin"){
 loginStage.style.display="none";
-membersStage.style.display="block";
+adminPanel.style.display="block";
 loadUsers();
 renderRequests();
-}else alert("Invalid login.");
+}else alert("Admin access only.");
 }
 
 function logout(){
-membersStage.style.display="none";
+adminPanel.style.display="none";
 loginStage.style.display="block";
 }
 
@@ -92,23 +89,22 @@ userList.innerHTML=html;
 function editUser(u){
 if(u==="admin1") return;
 editingUser=u;
-editUsername.value=u;
-editPassword.value=users[u].password;
-editRole.value=users[u].role;
-editRequest.checked=users[u].canRequestEvent||false;
+uName.value=u;
+uPass.value=users[u].password;
+uRole.value=users[u].role;
+uRequest.checked=users[u].canRequestEvent||false;
 }
 
 function saveUser(){
-const uname=editUsername.value;
-if(uname==="admin1") return;
-users[uname]={
-password:editPassword.value,
-role:editRole.value,
+if(uName.value==="admin1") return;
+users[uName.value]={
+password:uPass.value,
+role:uRole.value,
 active:true,
-canRequestEvent:editRequest.checked
+canRequestEvent:uRequest.checked
 };
 localStorage.setItem("users",JSON.stringify(users));
-editUsername.value="";editPassword.value="";editRequest.checked=false;
+uName.value="";uPass.value="";uRequest.checked=false;
 loadUsers();
 }
 
@@ -136,7 +132,7 @@ pendingTable.innerHTML+=`<tr>
 }
 
 function approve(i){
-events.push(requests[i]);
+events.push({...requests[i],addedBy:requests[i].username});
 requests.splice(i,1);
 localStorage.setItem("events",JSON.stringify(events));
 localStorage.setItem("requests",JSON.stringify(requests));
@@ -149,5 +145,6 @@ localStorage.setItem("requests",JSON.stringify(requests));
 renderRequests();
 }
 </script>
+
 </body>
 </html>
