@@ -1,149 +1,515 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Members Administration</title>
+<meta charset="utf-8" />
+<title>Members Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
-body{font-family:Arial;margin:0;padding:40px;background:#002147;color:#fff;text-align:center;}
-.container{max-width:1100px;margin:auto;background:#1a1a1a;padding:30px;border-radius:12px;text-align:left;}
-h1,h3{color:#FFD700;}
-.btn{background:#FFD700;color:#000;padding:8px 14px;border-radius:6px;border:none;margin:4px;cursor:pointer;font-weight:bold;}
-.btn-danger{background:#800000;color:#fff;}
-input,select{width:100%;padding:8px;margin:6px 0;border-radius:4px;border:none;}
-table{width:100%;border-collapse:collapse;margin-top:15px;}
-th,td{border:1px solid #333;padding:8px;}
-th{background:#800000;color:#FFD700;}
+  :root{--bg:#002147;--card:#1a1a1a;--accent:#FFD700;--danger:#800000}
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:28px;background:var(--bg);color:#fff}
+  .wrap{max-width:1100px;margin:0 auto}
+  header{display:flex;align-items:center;gap:12px}
+  header img.logo-left, header img.logo-right{width:88px}
+  header img.logo-center{height:56px}
+  h1{color:var(--accent);margin:6px 0}
+  .row{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px}
+  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.5)}
+  .card.wide{flex:1 1 620px}
+  .card.side{flex:1 1 300px;min-width:260px}
+  label{display:block;margin:6px 0;color:#ddd}
+  input[type="text"],input[type="password"],select{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff}
+  .btn{display:inline-block;background:var(--accent);color:#000;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:700;margin:6px}
+  .btn-danger{background:var(--danger);color:#fff}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:left}
+  th{background:var(--danger);color:var(--accent);text-transform:uppercase}
+  .user-actions button{margin-right:6px}
+  .member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:14px}
+  .member-card{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;text-align:center}
+  .small{font-size:0.9rem;color:#cfcfcf}
+  .hidden{display:none}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="container">
+<header>
+  <img src="logo-left.png" alt="left" class="logo-left">
+  <div style="flex:1;text-align:center">
+    <img src="logo.png" class="logo-center" alt="center">
+    <h1>Members Administration</h1>
+    <div class="small">Manage users, members and event requests</div>
+  </div>
+  <img src="logo-right.png" alt="right" class="logo-right">
+</header>
 
-<h1>Members Administration</h1>
+<!-- Login / session -->
+<div class="row" style="margin-top:18px">
+  <div class="card side">
+    <h3 style="margin-top:0">Sign in (Admin)</h3>
+    <label>Username<input id="loginUser" type="text"></label>
+    <label>Password<input id="loginPass" type="password"></label>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="doLogin()">Login</button>
+      <a class="btn" href="index.html">Back to Calendar</a>
+    </div>
+    <div id="loginNotice" class="small" style="margin-top:8px"></div>
+  </div>
 
-<div id="loginStage">
-<input id="username" placeholder="Username">
-<input id="password" type="password" placeholder="Password">
-<button class="btn" onclick="login()">Login</button>
-<a href="index.html" class="btn">Back to Calendar</a>
+  <div class="card wide">
+    <h3 style="margin-top:0">Session</h3>
+    <div id="sessionInfo" class="small">Not signed in</div>
+    <div id="sessionActions" class="hidden" style="margin-top:8px">
+      <button class="btn" onclick="doLogout()">Logout</button>
+      <button class="btn" onclick="renderAll()">Refresh view</button>
+    </div>
+  </div>
 </div>
 
-<div id="adminPanel" style="display:none;">
+<!-- Admin controls visible only after sign-in -->
+<div id="adminArea" class="hidden">
 
-<button class="btn" onclick="logout()">Logout</button>
-<a href="index.html" class="btn">Back to Calendar</a>
+  <div class="row" style="margin-top:12px">
+    <!-- User management -->
+    <div class="card side">
+      <h3 style="margin-top:0">Add / Edit User</h3>
 
-<h3>Add / Edit User</h3>
-<input id="uName" placeholder="Username">
-<input id="uPass" placeholder="Password">
-<select id="uRole">
-<option value="member">Member</option>
-<option value="admin">Admin</option>
-</select>
-<label><input type="checkbox" id="uRequest"> Can Request Event</label>
-<button class="btn" onclick="saveUser()">Save User</button>
+      <label>Username <input id="u_username" type="text"></label>
+      <label>Password <input id="u_password" type="password"></label>
+      <label>Role
+        <select id="u_role">
+          <option value="member">Member</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>
+      <label><input id="u_canRequest" type="checkbox"> Can Request Event</label>
 
-<h3>Existing Users</h3>
-<div id="userList"></div>
+      <div style="margin-top:8px">
+        <button class="btn" onclick="saveUser()">Save User</button>
+        <button class="btn" onclick="clearUserForm()">Clear</button>
+      </div>
 
-<h3>Pending Event Requests</h3>
-<table id="pendingTable">
-<tr><th>User</th><th>Date</th><th>Event</th><th>Host</th><th>Actions</th></tr>
-</table>
+      <h4 style="margin-top:12px">Existing Users</h4>
+      <div id="usersList" class="small"></div>
+    </div>
 
+    <!-- Members / Requests -->
+    <div class="card wide">
+      <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
+        <h3 style="margin-top:0">Members</h3>
+        <div class="small">Add / Edit member profiles</div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:280px">
+          <label>Name <input id="m_name" type="text"></label>
+          <label>Surname <input id="m_surname" type="text"></label>
+          <label>Number <input id="m_number" type="text"></label>
+          <label>Title <input id="m_title" type="text"></label>
+          <label>Photo <input id="m_photo" type="file" accept="image/*"></label>
+
+          <div style="margin-top:8px">
+            <label><input id="m_vis_name" type="checkbox" checked> Show Name</label>
+            <label><input id="m_vis_title" type="checkbox" checked> Show Title</label>
+            <label><input id="m_vis_number" type="checkbox" checked> Show Number</label>
+            <label><input id="m_vis_photo" type="checkbox" checked> Show Photo</label>
+          </div>
+
+          <div style="margin-top:8px">
+            <button class="btn" onclick="saveMember()">Save Member</button>
+            <button class="btn" onclick="clearMemberForm()">Clear</button>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:300px">
+          <h4 style="margin-top:0">Members Directory</h4>
+          <div id="membersGrid" class="member-grid"></div>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:12px 0">
+
+      <h3>Pending Event Requests</h3>
+      <div class="small">You can edit the request inline then Approve or Decline.</div>
+      <table id="requestsTable" style="margin-top:8px">
+        <thead><tr><th>User</th><th>Date</th><th>Event</th><th>Host</th><th>Actions</th></tr></thead>
+        <tbody id="requestsBody"></tbody>
+      </table>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:12px 0">
+
+      <h3>Approved Events (Admin removal)</h3>
+      <div id="approvedEventsList" class="small"></div>
+    </div>
+  </div>
 </div>
+
 </div>
 
 <script>
-let users=JSON.parse(localStorage.getItem("users"));
-let requests=JSON.parse(localStorage.getItem("requests")||"[]");
-let events=JSON.parse(localStorage.getItem("events")||"[]");
-let editingUser=null;
+/* initialize storage if missing */
+if(!localStorage.getItem('users')){
+  localStorage.setItem('users', JSON.stringify({
+    admin1: { password: 'admin123', role:'admin', active:true, canRequestEvent:true }
+  }));
+}
+if(!localStorage.getItem('members')) localStorage.setItem('members', JSON.stringify([]));
+if(!localStorage.getItem('requests')) localStorage.setItem('requests', JSON.stringify([]));
+if(!localStorage.getItem('events')) localStorage.setItem('events', JSON.stringify([]));
 
-function login(){
-if(users[username.value]&&users[username.value].password===password.value&&users[username.value].role==="admin"){
-loginStage.style.display="none";
-adminPanel.style.display="block";
-loadUsers();
-renderRequests();
-}else alert("Admin access only.");
+let users = JSON.parse(localStorage.getItem('users'));
+let members = JSON.parse(localStorage.getItem('members'));
+let requests = JSON.parse(localStorage.getItem('requests'));
+let events = JSON.parse(localStorage.getItem('events'));
+
+let sessionUser = null;
+let sessionRole = null;
+let editingUsername = null;
+let editingMemberId = null;
+
+/* ---------- Session ---------- */
+function doLogin(){
+  users = JSON.parse(localStorage.getItem('users')||'{}');
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if(!u || !p){ document.getElementById('loginNotice').textContent = 'Enter username and password.'; return; }
+  if(!users[u] || users[u].password !== p || !users[u].active){ document.getElementById('loginNotice').textContent = 'Invalid credentials or disabled.'; return; }
+  sessionUser = u; sessionRole = users[u].role;
+  document.getElementById('loginNotice').textContent = '';
+  document.getElementById('loginStage').classList.add('hidden');
+  document.getElementById('adminArea').classList.remove('hidden');
+  document.getElementById('sessionInfo').textContent = `Signed in as ${sessionUser} (${sessionRole})`;
+  document.getElementById('sessionActions').classList.remove('hidden');
+  renderAll();
 }
 
-function logout(){
-adminPanel.style.display="none";
-loginStage.style.display="block";
+function doLogout(){
+  sessionUser = null; sessionRole = null;
+  document.getElementById('loginStage').classList.remove('hidden');
+  document.getElementById('adminArea').classList.add('hidden');
+  document.getElementById('sessionInfo').textContent = 'Not signed in';
+  document.getElementById('sessionActions').classList.add('hidden');
 }
 
-function loadUsers(){
-let html="";
-Object.keys(users).forEach(u=>{
-html+=`<div>
-<strong>${u}</strong> (${users[u].role})
-<button class="btn" onclick="editUser('${u}')">Edit</button>
-${u!=="admin1"?`<button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>`:""}
-</div>`;
-});
-userList.innerHTML=html;
+/* ---------- Users ---------- */
+function renderUsersList(){
+  users = JSON.parse(localStorage.getItem('users')||'{}');
+  let html = '';
+  Object.keys(users).forEach(u=>{
+    const obj = users[u];
+    html += `<div style="padding:6px;border-bottom:1px dashed rgba(255,255,255,0.03)">
+      <strong>${u}</strong> <span class="small">(${obj.role})</span> &nbsp;
+      <span class="small">RequestRights: ${obj.canRequestEvent? 'Yes':'No'}</span>
+      <div class="user-actions" style="margin-top:8px">
+        ${u!=='admin1' ? `<button class="btn" onclick="loadUserToForm('${u}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>` : ''}
+        <button class="btn" onclick="resetPasswordPrompt('${u}')">Reset Password</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('usersList').innerHTML = html;
 }
 
-function editUser(u){
-if(u==="admin1") return;
-editingUser=u;
-uName.value=u;
-uPass.value=users[u].password;
-uRole.value=users[u].role;
-uRequest.checked=users[u].canRequestEvent||false;
+function loadUserToForm(username){
+  // populate form for editing
+  users = JSON.parse(localStorage.getItem('users')||'{}');
+  if(!users[username]) return;
+  if(username === 'admin1') { alert('admin1 is protected and cannot be edited here.'); return; }
+  editingUsername = username;
+  document.getElementById('u_username').value = username;
+  document.getElementById('u_password').value = users[username].password;
+  document.getElementById('u_role').value = users[username].role;
+  document.getElementById('u_canRequest').checked = !!users[username].canRequestEvent;
 }
 
 function saveUser(){
-if(uName.value==="admin1") return;
-users[uName.value]={
-password:uPass.value,
-role:uRole.value,
-active:true,
-canRequestEvent:uRequest.checked
-};
-localStorage.setItem("users",JSON.stringify(users));
-uName.value="";uPass.value="";uRequest.checked=false;
-loadUsers();
+  const uname = document.getElementById('u_username').value.trim();
+  const upass = document.getElementById('u_password').value;
+  const urole = document.getElementById('u_role').value;
+  const ucan = document.getElementById('u_canRequest').checked;
+
+  if(!uname || !upass){ alert('Username and password required'); return; }
+
+  users = JSON.parse(localStorage.getItem('users')||'{}');
+
+  // If editing existing user (editingUsername set)
+  if(editingUsername){
+    // prevent editing admin1
+    if(editingUsername === 'admin1'){ alert('admin1 cannot be edited.'); editingUsername = null; clearUserForm(); return; }
+
+    // if username changed, remove old key
+    if(uname !== editingUsername){
+      // ensure new username not used
+      if(users[uname]){ alert('Username already exists'); return; }
+      delete users[editingUsername];
+    }
+  } else {
+    // adding new user: prevent creating admin1 or duplicate
+    if(uname === 'admin1' && users['admin1']){ alert('admin1 is reserved'); return; }
+    if(users[uname]){ alert('Username already exists'); return; }
+  }
+
+  users[uname] = { password: upass, role: urole, active: true, canRequestEvent: ucan };
+  localStorage.setItem('users', JSON.stringify(users));
+  editingUsername = null;
+  clearUserForm();
+  renderUsersList();
+  alert('User saved.');
 }
 
-function deleteUser(u){
-if(u==="admin1") return;
-delete users[u];
-localStorage.setItem("users",JSON.stringify(users));
-loadUsers();
+function clearUserForm(){
+  document.getElementById('u_username').value = '';
+  document.getElementById('u_password').value = '';
+  document.getElementById('u_role').value = 'member';
+  document.getElementById('u_canRequest').checked = false;
+  editingUsername = null;
 }
 
-function renderRequests(){
-pendingTable.innerHTML=`<tr><th>User</th><th>Date</th><th>Event</th><th>Host</th><th>Actions</th></tr>`;
-requests.forEach((r,i)=>{
-pendingTable.innerHTML+=`<tr>
-<td>${r.username}</td>
-<td><input value="${r.date}" onchange="requests[${i}].date=this.value"></td>
-<td><input value="${r.event}" onchange="requests[${i}].event=this.value"></td>
-<td><input value="${r.host}" onchange="requests[${i}].host=this.value"></td>
-<td>
-<button class="btn" onclick="approve(${i})">Approve</button>
-<button class="btn btn-danger" onclick="decline(${i})">Decline</button>
-</td>
-</tr>`;
+function deleteUser(username){
+  if(username === 'admin1'){ alert('admin1 is protected.'); return; }
+  if(!confirm('Delete user permanently?')) return;
+  users = JSON.parse(localStorage.getItem('users')||'{}');
+  delete users[username];
+  localStorage.setItem('users', JSON.stringify(users));
+  renderUsersList();
+}
+
+function resetPasswordPrompt(username){
+  if(username === 'admin1'){ alert('admin1 password is protected.'); return; }
+  const p = prompt('Enter new password for ' + username);
+  if(!p) return;
+  users = JSON.parse(localStorage.getItem('users')||'{}');
+  if(!users[username]) return alert('User not found');
+  users[username].password = p;
+  localStorage.setItem('users', JSON.stringify(users));
+  alert('Password updated.');
+}
+
+/* ---------- Members ---------- */
+function renderMembers(){
+  members = JSON.parse(localStorage.getItem('members')||'[]');
+  const grid = document.getElementById('membersGrid');
+  grid.innerHTML = '';
+  if(members.length === 0){ grid.innerHTML = '<div class="small">No members yet</div>'; return; }
+  members.forEach(m=>{
+    const div = document.createElement('div');
+    div.className = 'member-card';
+    let html = '';
+    if(m.photo) html += `<img src="${m.photo}" style="width:100%;border-radius:6px;margin-bottom:8px">`;
+    html += `<div><strong>${m.name || ''} ${m.surname || ''}</strong></div>`;
+    if(m.title) html += `<div class="small">${m.title}</div>`;
+    if(m.number) html += `<div class="small">#${m.number}</div>`;
+    if(sessionRole === 'admin'){
+      html += `<div style="margin-top:8px"><button class="btn" onclick="loadMemberToForm('${m.id}')">Edit</button>
+               <button class="btn btn-danger" onclick="deleteMember('${m.id}')">Delete</button></div>`;
+    }
+    div.innerHTML = html;
+    grid.appendChild(div);
+  });
+}
+
+function loadMemberToForm(id){
+  members = JSON.parse(localStorage.getItem('members')||'[]');
+  const m = members.find(x => String(x.id) === String(id));
+  if(!m) return alert('Member not found');
+  editingMemberId = m.id;
+  document.getElementById('m_name').value = m.name || '';
+  document.getElementById('m_surname').value = m.surname || '';
+  document.getElementById('m_number').value = m.number || '';
+  document.getElementById('m_title').value = m.title || '';
+  document.getElementById('m_vis_name').checked = !!m.visibility.name;
+  document.getElementById('m_vis_title').checked = !!m.visibility.title;
+  document.getElementById('m_vis_number').checked = !!m.visibility.number;
+  document.getElementById('m_vis_photo').checked = !!m.visibility.photo;
+}
+
+function saveMember(){
+  const name = document.getElementById('m_name').value.trim();
+  if(!name) return alert('Member name required');
+  const memberObj = {
+    id: editingMemberId || Date.now().toString(),
+    name,
+    surname: document.getElementById('m_surname').value.trim(),
+    number: document.getElementById('m_number').value.trim(),
+    title: document.getElementById('m_title').value.trim(),
+    visibility: {
+      name: !!document.getElementById('m_vis_name').checked,
+      title: !!document.getElementById('m_vis_title').checked,
+      number: !!document.getElementById('m_vis_number').checked,
+      photo: !!document.getElementById('m_vis_photo').checked
+    },
+    photo: ''
+  };
+
+  const photoInput = document.getElementById('m_photo');
+  if(photoInput.files && photoInput.files[0]){
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      memberObj.photo = ev.target.result;
+      commitMember(memberObj);
+    };
+    reader.readAsDataURL(photoInput.files[0]);
+  } else {
+    // preserve existing photo if editing
+    const existing = (JSON.parse(localStorage.getItem('members')||'[]')).find(x => x.id === editingMemberId);
+    memberObj.photo = existing ? existing.photo : '';
+    commitMember(memberObj);
+  }
+}
+function commitMember(memberObj){
+  members = JSON.parse(localStorage.getItem('members')||'[]');
+  if(editingMemberId){
+    members = members.map(m => m.id === editingMemberId ? memberObj : m);
+  } else {
+    members.push(memberObj);
+  }
+  localStorage.setItem('members', JSON.stringify(members));
+  editingMemberId = null;
+  clearMemberForm();
+  renderMembers();
+  alert('Member saved.');
+}
+function deleteMember(id){
+  if(!confirm('Delete member?')) return;
+  members = JSON.parse(localStorage.getItem('members')||'[]').filter(m => m.id !== id);
+  localStorage.setItem('members', JSON.stringify(members));
+  renderMembers();
+}
+function clearMemberForm(){
+  editingMemberId = null;
+  document.getElementById('m_name').value = '';
+  document.getElementById('m_surname').value = '';
+  document.getElementById('m_number').value = '';
+  document.getElementById('m_title').value = '';
+  document.getElementById('m_photo').value = '';
+  document.getElementById('m_vis_name').checked = true;
+  document.getElementById('m_vis_title').checked = true;
+  document.getElementById('m_vis_number').checked = true;
+  document.getElementById('m_vis_photo').checked = true;
+}
+
+/* ---------- Requests (admin approve/decline & edit) ---------- */
+function renderRequestsTable(){
+  requests = JSON.parse(localStorage.getItem('requests')||'[]');
+  const tbody = document.getElementById('requestsBody');
+  tbody.innerHTML = '';
+  if(requests.length === 0){ tbody.innerHTML = '<tr><td colspan="5" class="small">No pending requests</td></tr>'; return; }
+
+  requests.forEach((r, idx) => {
+    const tr = document.createElement('tr');
+
+    // username (not editable)
+    const tdUser = document.createElement('td'); tdUser.textContent = r.username;
+
+    // date editable
+    const tdDate = document.createElement('td');
+    const dateInput = document.createElement('input');
+    dateInput.value = r.date || '';
+    dateInput.onchange = (e) => { requests[idx].date = e.target.value; localStorage.setItem('requests', JSON.stringify(requests)); };
+    tdDate.appendChild(dateInput);
+
+    // event editable
+    const tdEvent = document.createElement('td');
+    const eventInput = document.createElement('input');
+    eventInput.value = r.event || '';
+    eventInput.onchange = (e) => { requests[idx].event = e.target.value; localStorage.setItem('requests', JSON.stringify(requests)); };
+    tdEvent.appendChild(eventInput);
+
+    // host editable
+    const tdHost = document.createElement('td');
+    const hostInput = document.createElement('input');
+    hostInput.value = r.host || '';
+    hostInput.onchange = (e) => { requests[idx].host = e.target.value; localStorage.setItem('requests', JSON.stringify(requests)); };
+    tdHost.appendChild(hostInput);
+
+    // actions
+    const tdActions = document.createElement('td');
+    const approveBtn = document.createElement('button'); approveBtn.className = 'btn'; approveBtn.textContent = 'Approve';
+    approveBtn.onclick = () => { approveRequest(idx); };
+    const declineBtn = document.createElement('button'); declineBtn.className = 'btn btn-danger'; declineBtn.textContent = 'Decline';
+    declineBtn.onclick = () => { declineRequest(idx); };
+    tdActions.appendChild(approveBtn); tdActions.appendChild(declineBtn);
+
+    tr.appendChild(tdUser); tr.appendChild(tdDate); tr.appendChild(tdEvent); tr.appendChild(tdHost); tr.appendChild(tdActions);
+    tbody.appendChild(tr);
+  });
+}
+
+function approveRequest(index){
+  requests = JSON.parse(localStorage.getItem('requests')||'[]');
+  const req = requests[index];
+  if(!req) return;
+  // push to events, store addedBy for audit
+  events = JSON.parse(localStorage.getItem('events')||'[]');
+  events.push({ addedBy: sessionUser || req.username, date: req.date, event: req.event, details: req.details, host: req.host, invite: req.invite || '' });
+  localStorage.setItem('events', JSON.stringify(events));
+  // remove from requests
+  requests.splice(index, 1);
+  localStorage.setItem('requests', JSON.stringify(requests));
+  renderRequestsTable();
+  renderApprovedEvents();
+  alert('Request approved and added to calendar.');
+}
+
+function declineRequest(index){
+  requests = JSON.parse(localStorage.getItem('requests')||'[]');
+  if(!confirm('Decline and remove this request?')) return;
+  requests.splice(index, 1);
+  localStorage.setItem('requests', JSON.stringify(requests));
+  renderRequestsTable();
+  alert('Request declined.');
+}
+
+/* ---------- Approved events list (admin) ---------- */
+function renderApprovedEvents(){
+  events = JSON.parse(localStorage.getItem('events')||'[]');
+  const out = document.getElementById('approvedEventsList');
+  if(events.length === 0){ out.innerHTML = '<div class="small">No approved events</div>'; return; }
+  let html = '<table><thead><tr><th>Date</th><th>Event</th><th>Host</th><th></th></tr></thead><tbody>';
+  events.forEach((ev, idx)=>{
+    html += `<tr>
+      <td>${ev.date||''}</td>
+      <td>${ev.event||''}</td>
+      <td>${ev.host||''}</td>
+      <td><button class="btn btn-danger" onclick="adminRemoveEvent(${idx})">Remove</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  out.innerHTML = html;
+}
+
+function adminRemoveEvent(index){
+  if(!confirm('Remove this approved event?')) return;
+  events = JSON.parse(localStorage.getItem('events')||'[]');
+  events.splice(index, 1);
+  localStorage.setItem('events', JSON.stringify(events));
+  renderApprovedEvents();
+  // also update calendar page via storage event
+  alert('Event removed.');
+}
+
+/* ---------- Misc ---------- */
+function renderAll(){
+  renderUsersList();
+  renderMembers();
+  renderRequestsTable();
+  renderApprovedEvents();
+  // update calendar page: store events in localStorage (it is same key)
+}
+
+function clearUserForm(){ document.getElementById('u_username').value=''; document.getElementById('u_password').value=''; document.getElementById('u_role').value='member'; document.getElementById('u_canRequest').checked=false; editingUsername=null; }
+
+/* keep in sync */
+window.addEventListener('storage', () => {
+  users = JSON.parse(localStorage.getItem('users')||'{}');
+  members = JSON.parse(localStorage.getItem('members')||'[]');
+  requests = JSON.parse(localStorage.getItem('requests')||'[]');
+  events = JSON.parse(localStorage.getItem('events')||'[]');
+  renderAll();
 });
-}
 
-function approve(i){
-events.push({...requests[i],addedBy:requests[i].username});
-requests.splice(i,1);
-localStorage.setItem("events",JSON.stringify(events));
-localStorage.setItem("requests",JSON.stringify(requests));
-renderRequests();
-}
-
-function decline(i){
-requests.splice(i,1);
-localStorage.setItem("requests",JSON.stringify(requests));
-renderRequests();
-}
+/* initial render for guests */
+renderAll();
 </script>
 
 </body>
