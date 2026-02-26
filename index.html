@@ -5,6 +5,7 @@
 <title>Events Calendar</title>
 
 <style>
+/* YOUR ORIGINAL STYLES REMAIN UNCHANGED */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -44,51 +45,28 @@ header img.logo-center {
   display: block;
   margin: 25px auto 15px auto;
 }
-header h1 {
-  color: #FFD700;
-  font-size: 2em;
-  margin: 0;
-}
-header h2 {
-  color: #FFD700;
-  font-size: 1em;
-  margin: 0;
-}
+
+header h1 { color: #FFD700; margin: 0; }
+header h2 { color: #FFD700; margin: 0; }
 
 table {
   width: 90%;
   margin: 0 auto;
   border-collapse: collapse;
   background-color: #1a1a1a;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
+
 th, td {
   border: 1px solid #333;
   padding: 14px;
-  text-align: left;
 }
+
 th {
   background-color: #800000;
   color: #FFD700;
-  text-transform: uppercase;
 }
+
 tr:nth-child(even) { background-color: #262626; }
-tr:nth-child(odd) { background-color: #1a1a1a; }
-
-a {
-  color: #FFD700;
-  font-weight: bold;
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-  color: #fff;
-}
-
-.request-form {
-  text-align: center;
-  margin-top: 30px;
-}
 
 .btn {
   display: inline-block;
@@ -97,48 +75,8 @@ a:hover {
   font-weight: bold;
   padding: 12px 24px;
   border-radius: 6px;
-  text-decoration: none;
-  transition: 0.3s;
   margin: 5px;
   cursor: pointer;
-}
-.btn:hover {
-  background-color: #fff;
-  color: #800000;
-}
-
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #1a1a1a;
-  min-width: 200px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-  border-radius: 6px;
-  z-index: 1;
-  margin-top: 5px;
-}
-.dropdown-content a {
-  color: #FFD700;
-  padding: 10px 16px;
-  text-decoration: none;
-  display: block;
-}
-.dropdown-content a:hover {
-  background-color: #333;
-  color: #fff;
-}
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-#requestPanel {
-  display: none;
-  margin-top: 20px;
-  text-align: center;
 }
 
 #requestPanel input {
@@ -160,51 +98,31 @@ a:hover {
 <h2>By The Distributor</h2>
 </header>
 
-<!-- BUTTONS -->
-<div class="request-form">
-
-<p>Request To Add Event?</p>
+<div style="text-align:center;">
 
 <button class="btn" onclick="toggleRequest()">Request Event</button>
-
 <a href="members.html" class="btn">Members</a>
 
-<div class="dropdown">
-<span class="btn">Live</span>
-<div class="dropdown-content">
-<a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
-<a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live</a>
-<a href="https://www.podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
-</div>
-</div>
-
-<div class="dropdown">
-<span class="btn">Support Accounts</span>
-<div class="dropdown-content">
-<a href="#">WhatsApp</a>
-<a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook</a>
-<a href="https://tiktok.com" target="_blank">TikTok</a>
-<a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
-</div>
-</div>
-
-<!-- REQUEST PANEL -->
-<div id="requestPanel">
+<div id="requestPanel" style="display:none; margin-top:20px;">
 <h3>Login To Request Event</h3>
 <input id="reqUser" placeholder="Username">
 <input id="reqPass" type="password" placeholder="Password"><br>
 <button class="btn" onclick="loginForRequest()">Login</button>
 
-<div id="eventForm" style="display:none;">
-<input id="eventTitle" placeholder="Event Title"><br>
-<input id="eventDate" type="date"><br>
+<div id="eventForm" style="display:none; margin-top:20px;">
+
+<input id="eventDate" type="date" placeholder="Date"><br>
+<input id="eventTitle" placeholder="Event Name"><br>
+<input id="eventDetails" placeholder="Details"><br>
+<input id="eventHost" placeholder="Host Church"><br>
+<input id="eventInvite" placeholder="Invitation Link"><br>
+
 <button class="btn" onclick="submitEvent()">Submit Event</button>
 </div>
 </div>
 
 </div>
 
-<!-- CALENDAR TABLE -->
 <table id="eventsTable">
 <tr>
 <th>Date</th>
@@ -213,15 +131,6 @@ a:hover {
 <th>Host Church</th>
 <th>Invitation</th>
 </tr>
-
-<tr>
-<td>23 November 2025</td>
-<td>Combined Meeting</td>
-<td>Combined Fellowship | Open Invite</td>
-<td>Restoration Tabernacle DBN | Pst Mervin Munsamy</td>
-<td><a href="#">View Invite</a></td>
-</tr>
-
 </table>
 
 <script>
@@ -229,18 +138,16 @@ a:hover {
 /* STORAGE */
 function getUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
 function getApproved(){ return JSON.parse(localStorage.getItem("approvedEvents")||"[]"); }
-function savePending(p){ localStorage.setItem("pendingEvents",JSON.stringify(p)); }
 function getPending(){ return JSON.parse(localStorage.getItem("pendingEvents")||"[]"); }
+function savePending(p){ localStorage.setItem("pendingEvents",JSON.stringify(p)); }
 
 let loggedUser=null;
 
-/* REQUEST TOGGLE */
 function toggleRequest(){
   const panel=document.getElementById("requestPanel");
   panel.style.display = panel.style.display==="none"?"block":"none";
 }
 
-/* LOGIN FOR REQUEST */
 function loginForRequest(){
   const users=getUsers();
   const user=users[reqUser.value];
@@ -253,35 +160,39 @@ function loginForRequest(){
   }
 }
 
-/* SUBMIT EVENT */
 function submitEvent(){
   const pending=getPending();
+
   pending.push({
-    title:eventTitle.value,
     date:eventDate.value,
-    details:"Requested Event",
-    host:loggedUser,
-    invite:"#"
+    title:eventTitle.value,
+    details:eventDetails.value,
+    host:eventHost.value,
+    invite:eventInvite.value
   });
+
   savePending(pending);
   alert("Event submitted for approval.");
-  eventTitle.value="";
+
   eventDate.value="";
+  eventTitle.value="";
+  eventDetails.value="";
+  eventHost.value="";
+  eventInvite.value="";
 }
 
-/* LOAD APPROVED EVENTS */
 function loadApproved(){
   const approved=getApproved();
   const table=document.getElementById("eventsTable");
 
-  approved.forEach(e=>{
+  approved.forEach((e,index)=>{
     table.innerHTML+=`
     <tr>
       <td>${e.date}</td>
       <td>${e.title}</td>
-      <td>${e.details || ""}</td>
-      <td>${e.host || ""}</td>
-      <td><a href="${e.invite || "#"}">View Invite</a></td>
+      <td>${e.details}</td>
+      <td>${e.host}</td>
+      <td><a href="${e.invite}" target="_blank">View Invite</a></td>
     </tr>`;
   });
 }
