@@ -1,515 +1,522 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8" />
-<title>Members Admin</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8">
+<title>Distributors Network Calendar</title>
+
 <style>
-  :root{--bg:#002147;--card:#1a1a1a;--accent:#FFD700;--danger:#800000}
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:28px;background:var(--bg);color:#fff}
-  .wrap{max-width:1100px;margin:0 auto}
-  header{display:flex;align-items:center;gap:12px}
-  header img.logo-left, header img.logo-right{width:88px}
-  header img.logo-center{height:56px}
-  h1{color:var(--accent);margin:6px 0}
-  .row{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px}
-  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.5)}
-  .card.wide{flex:1 1 620px}
-  .card.side{flex:1 1 300px;min-width:260px}
-  label{display:block;margin:6px 0;color:#ddd}
-  input[type="text"],input[type="password"],select{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff}
-  .btn{display:inline-block;background:var(--accent);color:#000;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:700;margin:6px}
-  .btn-danger{background:var(--danger);color:#fff}
-  table{width:100%;border-collapse:collapse;margin-top:12px}
-  th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:left}
-  th{background:var(--danger);color:var(--accent);text-transform:uppercase}
-  .user-actions button{margin-right:6px}
-  .member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:14px}
-  .member-card{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;text-align:center}
-  .small{font-size:0.9rem;color:#cfcfcf}
-  .hidden{display:none}
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#002147;
+  color:#fff;
+}
+
+header{
+  text-align:center;
+  padding:20px;
+}
+
+h1,h2,h3{
+  color:#FFD700;
+  text-align:center;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  background:#1a1a1a;
+  padding:25px;
+  border-radius:10px;
+}
+
+.btn{
+  background:#FFD700;
+  color:#000;
+  border:none;
+  padding:8px 15px;
+  margin:5px;
+  border-radius:5px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.btn-danger{
+  background:#800000;
+  color:#fff;
+}
+
+.center{
+  text-align:center;
+}
+
+input,select{
+  width:100%;
+  padding:8px;
+  margin:6px 0;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:#262626;
+  padding:15px;
+  border-radius:8px;
+  text-align:center;
+}
+
+img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  border-radius:6px;
+}
+
+.section{
+  display:none;
+}
 </style>
 </head>
+
 <body>
-<div class="wrap">
 
 <header>
-  <img src="logo-left.png" alt="left" class="logo-left">
-  <div style="flex:1;text-align:center">
-    <img src="logo.png" class="logo-center" alt="center">
-    <h1>Members Administration</h1>
-    <div class="small">Manage users, members and event requests</div>
-  </div>
-  <img src="logo-right.png" alt="right" class="logo-right">
+  <h1>Distributors Network Calendar</h1>
 </header>
 
-<!-- Login / session -->
-<div class="row" style="margin-top:18px">
-  <div class="card side">
-    <h3 style="margin-top:0">Sign in (Admin)</h3>
-    <label>Username<input id="loginUser" type="text"></label>
-    <label>Password<input id="loginPass" type="password"></label>
-    <div style="display:flex;gap:8px">
-      <button class="btn" onclick="doLogin()">Login</button>
-      <a class="btn" href="index.html">Back to Calendar</a>
-    </div>
-    <div id="loginNotice" class="small" style="margin-top:8px"></div>
+<div class="container">
+
+<!-- NAV -->
+<div class="center">
+  <button class="btn" onclick="showCalendar()">Calendar</button>
+  <button class="btn" onclick="showMembers()">Members</button>
+</div>
+
+<!-- CALENDAR SECTION (DEFAULT) -->
+<div id="calendarSection" class="section" style="display:block;">
+
+<h2>Calendar</h2>
+
+<div id="approvedEvents"></div>
+
+<div class="center">
+  <button class="btn" onclick="toggleRequest()">Request Event</button>
+</div>
+
+<div id="requestArea" style="display:none;">
+  <h3>Request Event</h3>
+
+  <div id="eventLoginArea">
+    <input id="eventUser" placeholder="Username">
+    <input id="eventPass" type="password" placeholder="Password">
+    <button class="btn" onclick="eventLogin()">Login</button>
   </div>
 
-  <div class="card wide">
-    <h3 style="margin-top:0">Session</h3>
-    <div id="sessionInfo" class="small">Not signed in</div>
-    <div id="sessionActions" class="hidden" style="margin-top:8px">
-      <button class="btn" onclick="doLogout()">Logout</button>
-      <button class="btn" onclick="renderAll()">Refresh view</button>
-    </div>
+  <div id="eventFormArea" style="display:none;">
+    <input id="eventTitle" placeholder="Event Title">
+    <input id="eventDate" type="date">
+    <button class="btn" onclick="submitEvent()">Submit Request</button>
   </div>
 </div>
 
-<!-- Admin controls visible only after sign-in -->
-<div id="adminArea" class="hidden">
+<hr>
 
-  <div class="row" style="margin-top:12px">
-    <!-- User management -->
-    <div class="card side">
-      <h3 style="margin-top:0">Add / Edit User</h3>
+<h3>Pending Event Requests (Admin Only)</h3>
+<div id="pendingEvents"></div>
 
-      <label>Username <input id="u_username" type="text"></label>
-      <label>Password <input id="u_password" type="password"></label>
-      <label>Role
-        <select id="u_role">
-          <option value="member">Member</option>
-          <option value="admin">Admin</option>
-        </select>
-      </label>
-      <label><input id="u_canRequest" type="checkbox"> Can Request Event</label>
-
-      <div style="margin-top:8px">
-        <button class="btn" onclick="saveUser()">Save User</button>
-        <button class="btn" onclick="clearUserForm()">Clear</button>
-      </div>
-
-      <h4 style="margin-top:12px">Existing Users</h4>
-      <div id="usersList" class="small"></div>
-    </div>
-
-    <!-- Members / Requests -->
-    <div class="card wide">
-      <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
-        <h3 style="margin-top:0">Members</h3>
-        <div class="small">Add / Edit member profiles</div>
-      </div>
-
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <div style="flex:1;min-width:280px">
-          <label>Name <input id="m_name" type="text"></label>
-          <label>Surname <input id="m_surname" type="text"></label>
-          <label>Number <input id="m_number" type="text"></label>
-          <label>Title <input id="m_title" type="text"></label>
-          <label>Photo <input id="m_photo" type="file" accept="image/*"></label>
-
-          <div style="margin-top:8px">
-            <label><input id="m_vis_name" type="checkbox" checked> Show Name</label>
-            <label><input id="m_vis_title" type="checkbox" checked> Show Title</label>
-            <label><input id="m_vis_number" type="checkbox" checked> Show Number</label>
-            <label><input id="m_vis_photo" type="checkbox" checked> Show Photo</label>
-          </div>
-
-          <div style="margin-top:8px">
-            <button class="btn" onclick="saveMember()">Save Member</button>
-            <button class="btn" onclick="clearMemberForm()">Clear</button>
-          </div>
-        </div>
-
-        <div style="flex:1;min-width:300px">
-          <h4 style="margin-top:0">Members Directory</h4>
-          <div id="membersGrid" class="member-grid"></div>
-        </div>
-      </div>
-
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:12px 0">
-
-      <h3>Pending Event Requests</h3>
-      <div class="small">You can edit the request inline then Approve or Decline.</div>
-      <table id="requestsTable" style="margin-top:8px">
-        <thead><tr><th>User</th><th>Date</th><th>Event</th><th>Host</th><th>Actions</th></tr></thead>
-        <tbody id="requestsBody"></tbody>
-      </table>
-
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:12px 0">
-
-      <h3>Approved Events (Admin removal)</h3>
-      <div id="approvedEventsList" class="small"></div>
-    </div>
-  </div>
 </div>
 
+<!-- MEMBERS SECTION -->
+<div id="membersSection" class="section">
+
+<h2>Members Area</h2>
+
+<div id="loginArea">
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button class="btn" onclick="login()">Login</button>
+</div>
+
+<div id="membersContent" style="display:none;">
+
+<div class="center">
+  <button class="btn" onclick="logout()">Logout</button>
+  <button class="btn" onclick="showCalendar()">Back to Calendar</button>
+</div>
+
+<hr>
+
+<!-- ADMIN CONTROLS -->
+<div id="adminControls" style="display:none;">
+
+<h3>Add / Edit User</h3>
+<input id="uName" placeholder="Username">
+<input id="uPass" placeholder="Password">
+<label><input type="checkbox" id="rightView"> Can View Members</label><br>
+<label><input type="checkbox" id="rightRequest"> Can Request Event</label><br>
+<button class="btn" onclick="saveUser()">Save User</button>
+<button class="btn btn-danger" onclick="clearUserForm()">Clear</button>
+
+<hr>
+
+<h3>Add / Edit Member Profile</h3>
+<input id="mName" placeholder="Name">
+<input id="mSurname" placeholder="Surname">
+<input id="mNumber" placeholder="Member Number">
+<input id="mTitle" placeholder="Title">
+<input id="mPhoto" type="file" accept="image/*">
+<button class="btn" onclick="saveMember()">Save Member</button>
+<button class="btn btn-danger" onclick="clearMemberForm()">Clear</button>
+
+<hr>
+
+<h3>Users</h3>
+<div id="userList"></div>
+
+</div>
+
+<h3>Members</h3>
+<div class="grid" id="memberGrid"></div>
+
+</div>
 </div>
 
 <script>
-/* initialize storage if missing */
-if(!localStorage.getItem('users')){
-  localStorage.setItem('users', JSON.stringify({
-    admin1: { password: 'admin123', role:'admin', active:true, canRequestEvent:true }
-  }));
-}
-if(!localStorage.getItem('members')) localStorage.setItem('members', JSON.stringify([]));
-if(!localStorage.getItem('requests')) localStorage.setItem('requests', JSON.stringify([]));
-if(!localStorage.getItem('events')) localStorage.setItem('events', JSON.stringify([]));
 
-let users = JSON.parse(localStorage.getItem('users'));
-let members = JSON.parse(localStorage.getItem('members'));
-let requests = JSON.parse(localStorage.getItem('requests'));
-let events = JSON.parse(localStorage.getItem('events'));
+/* ---------------- STORAGE ---------------- */
 
-let sessionUser = null;
-let sessionRole = null;
-let editingUsername = null;
-let editingMemberId = null;
-
-/* ---------- Session ---------- */
-function doLogin(){
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value;
-  if(!u || !p){ document.getElementById('loginNotice').textContent = 'Enter username and password.'; return; }
-  if(!users[u] || users[u].password !== p || !users[u].active){ document.getElementById('loginNotice').textContent = 'Invalid credentials or disabled.'; return; }
-  sessionUser = u; sessionRole = users[u].role;
-  document.getElementById('loginNotice').textContent = '';
-  document.getElementById('loginStage').classList.add('hidden');
-  document.getElementById('adminArea').classList.remove('hidden');
-  document.getElementById('sessionInfo').textContent = `Signed in as ${sessionUser} (${sessionRole})`;
-  document.getElementById('sessionActions').classList.remove('hidden');
-  renderAll();
+function getUsers(){
+  let users = JSON.parse(localStorage.getItem("users")||"null");
+  if(!users){
+    users={
+      admin1:{
+        password:"admin123",
+        role:"admin",
+        view:true,
+        request:true,
+        disabled:false
+      }
+    };
+    localStorage.setItem("users",JSON.stringify(users));
+  }
+  return users;
 }
 
-function doLogout(){
-  sessionUser = null; sessionRole = null;
-  document.getElementById('loginStage').classList.remove('hidden');
-  document.getElementById('adminArea').classList.add('hidden');
-  document.getElementById('sessionInfo').textContent = 'Not signed in';
-  document.getElementById('sessionActions').classList.add('hidden');
+function saveUsers(users){
+  localStorage.setItem("users",JSON.stringify(users));
 }
 
-/* ---------- Users ---------- */
-function renderUsersList(){
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-  let html = '';
-  Object.keys(users).forEach(u=>{
-    const obj = users[u];
-    html += `<div style="padding:6px;border-bottom:1px dashed rgba(255,255,255,0.03)">
-      <strong>${u}</strong> <span class="small">(${obj.role})</span> &nbsp;
-      <span class="small">RequestRights: ${obj.canRequestEvent? 'Yes':'No'}</span>
-      <div class="user-actions" style="margin-top:8px">
-        ${u!=='admin1' ? `<button class="btn" onclick="loadUserToForm('${u}')">Edit</button>
-                        <button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>` : ''}
-        <button class="btn" onclick="resetPasswordPrompt('${u}')">Reset Password</button>
-      </div>
-    </div>`;
-  });
-  document.getElementById('usersList').innerHTML = html;
+function getMembers(){
+  return JSON.parse(localStorage.getItem("members")||"[]");
 }
 
-function loadUserToForm(username){
-  // populate form for editing
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-  if(!users[username]) return;
-  if(username === 'admin1') { alert('admin1 is protected and cannot be edited here.'); return; }
-  editingUsername = username;
-  document.getElementById('u_username').value = username;
-  document.getElementById('u_password').value = users[username].password;
-  document.getElementById('u_role').value = users[username].role;
-  document.getElementById('u_canRequest').checked = !!users[username].canRequestEvent;
+function saveMembers(data){
+  localStorage.setItem("members",JSON.stringify(data));
 }
+
+function getApproved(){
+  return JSON.parse(localStorage.getItem("approved")||"[]");
+}
+
+function saveApproved(data){
+  localStorage.setItem("approved",JSON.stringify(data));
+}
+
+function getPending(){
+  return JSON.parse(localStorage.getItem("pending")||"[]");
+}
+
+function savePending(data){
+  localStorage.setItem("pending",JSON.stringify(data));
+}
+
+/* ---------------- NAVIGATION ---------------- */
+
+function showCalendar(){
+  calendarSection.style.display="block";
+  membersSection.style.display="none";
+  loadApproved();
+  loadPending();
+}
+
+function showMembers(){
+  calendarSection.style.display="none";
+  membersSection.style.display="block";
+}
+
+/* ---------------- LOGIN ---------------- */
+
+let currentUser=null;
+
+function login(){
+  const users=getUsers();
+  const u=users[username.value];
+
+  if(u && u.password===password.value && !u.disabled){
+    currentUser=username.value;
+    loginArea.style.display="none";
+    membersContent.style.display="block";
+    if(u.role==="admin"){
+      adminControls.style.display="block";
+      loadUsers();
+    }
+    loadMembers();
+  }else{
+    alert("Invalid login");
+  }
+}
+
+function logout(){
+  currentUser=null;
+  membersContent.style.display="none";
+  loginArea.style.display="block";
+}
+
+/* ---------------- USERS ---------------- */
+
+let editingUser=null;
 
 function saveUser(){
-  const uname = document.getElementById('u_username').value.trim();
-  const upass = document.getElementById('u_password').value;
-  const urole = document.getElementById('u_role').value;
-  const ucan = document.getElementById('u_canRequest').checked;
+  const users=getUsers();
 
-  if(!uname || !upass){ alert('Username and password required'); return; }
-
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-
-  // If editing existing user (editingUsername set)
-  if(editingUsername){
-    // prevent editing admin1
-    if(editingUsername === 'admin1'){ alert('admin1 cannot be edited.'); editingUsername = null; clearUserForm(); return; }
-
-    // if username changed, remove old key
-    if(uname !== editingUsername){
-      // ensure new username not used
-      if(users[uname]){ alert('Username already exists'); return; }
-      delete users[editingUsername];
-    }
-  } else {
-    // adding new user: prevent creating admin1 or duplicate
-    if(uname === 'admin1' && users['admin1']){ alert('admin1 is reserved'); return; }
-    if(users[uname]){ alert('Username already exists'); return; }
+  if(uName.value==="admin1"){
+    alert("admin1 cannot be modified");
+    return;
   }
 
-  users[uname] = { password: upass, role: urole, active: true, canRequestEvent: ucan };
-  localStorage.setItem('users', JSON.stringify(users));
-  editingUsername = null;
+  users[uName.value]={
+    password:uPass.value,
+    role:"user",
+    view:rightView.checked,
+    request:rightRequest.checked,
+    disabled:false
+  };
+
+  saveUsers(users);
+  loadUsers();
   clearUserForm();
-  renderUsersList();
-  alert('User saved.');
+}
+
+function editUser(name){
+  if(name==="admin1") return;
+  const u=getUsers()[name];
+  editingUser=name;
+  uName.value=name;
+  uPass.value=u.password;
+  rightView.checked=u.view;
+  rightRequest.checked=u.request;
+}
+
+function deleteUser(name){
+  if(name==="admin1") return;
+  const users=getUsers();
+  delete users[name];
+  saveUsers(users);
+  loadUsers();
+}
+
+function disableUser(name){
+  if(name==="admin1") return;
+  const users=getUsers();
+  users[name].disabled=!users[name].disabled;
+  saveUsers(users);
+  loadUsers();
+}
+
+function loadUsers(){
+  const users=getUsers();
+  userList.innerHTML="";
+  for(let u in users){
+    const data=users[u];
+    userList.innerHTML+=`
+      <div>
+        ${u} ${data.disabled?"(Disabled)":""}
+        ${u!=="admin1"?
+        `<button class="btn" onclick="editUser('${u}')">Edit</button>
+         <button class="btn btn-danger" onclick="deleteUser('${u}')">Remove</button>
+         <button class="btn" onclick="disableUser('${u}')">Enable/Disable</button>`
+        :""}
+      </div>`;
+  }
 }
 
 function clearUserForm(){
-  document.getElementById('u_username').value = '';
-  document.getElementById('u_password').value = '';
-  document.getElementById('u_role').value = 'member';
-  document.getElementById('u_canRequest').checked = false;
-  editingUsername = null;
+  uName.value="";
+  uPass.value="";
+  rightView.checked=false;
+  rightRequest.checked=false;
+  editingUser=null;
 }
 
-function deleteUser(username){
-  if(username === 'admin1'){ alert('admin1 is protected.'); return; }
-  if(!confirm('Delete user permanently?')) return;
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-  delete users[username];
-  localStorage.setItem('users', JSON.stringify(users));
-  renderUsersList();
-}
+/* ---------------- MEMBERS ---------------- */
 
-function resetPasswordPrompt(username){
-  if(username === 'admin1'){ alert('admin1 password is protected.'); return; }
-  const p = prompt('Enter new password for ' + username);
-  if(!p) return;
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-  if(!users[username]) return alert('User not found');
-  users[username].password = p;
-  localStorage.setItem('users', JSON.stringify(users));
-  alert('Password updated.');
-}
-
-/* ---------- Members ---------- */
-function renderMembers(){
-  members = JSON.parse(localStorage.getItem('members')||'[]');
-  const grid = document.getElementById('membersGrid');
-  grid.innerHTML = '';
-  if(members.length === 0){ grid.innerHTML = '<div class="small">No members yet</div>'; return; }
-  members.forEach(m=>{
-    const div = document.createElement('div');
-    div.className = 'member-card';
-    let html = '';
-    if(m.photo) html += `<img src="${m.photo}" style="width:100%;border-radius:6px;margin-bottom:8px">`;
-    html += `<div><strong>${m.name || ''} ${m.surname || ''}</strong></div>`;
-    if(m.title) html += `<div class="small">${m.title}</div>`;
-    if(m.number) html += `<div class="small">#${m.number}</div>`;
-    if(sessionRole === 'admin'){
-      html += `<div style="margin-top:8px"><button class="btn" onclick="loadMemberToForm('${m.id}')">Edit</button>
-               <button class="btn btn-danger" onclick="deleteMember('${m.id}')">Delete</button></div>`;
-    }
-    div.innerHTML = html;
-    grid.appendChild(div);
-  });
-}
-
-function loadMemberToForm(id){
-  members = JSON.parse(localStorage.getItem('members')||'[]');
-  const m = members.find(x => String(x.id) === String(id));
-  if(!m) return alert('Member not found');
-  editingMemberId = m.id;
-  document.getElementById('m_name').value = m.name || '';
-  document.getElementById('m_surname').value = m.surname || '';
-  document.getElementById('m_number').value = m.number || '';
-  document.getElementById('m_title').value = m.title || '';
-  document.getElementById('m_vis_name').checked = !!m.visibility.name;
-  document.getElementById('m_vis_title').checked = !!m.visibility.title;
-  document.getElementById('m_vis_number').checked = !!m.visibility.number;
-  document.getElementById('m_vis_photo').checked = !!m.visibility.photo;
-}
+let editingMember=null;
 
 function saveMember(){
-  const name = document.getElementById('m_name').value.trim();
-  if(!name) return alert('Member name required');
-  const memberObj = {
-    id: editingMemberId || Date.now().toString(),
-    name,
-    surname: document.getElementById('m_surname').value.trim(),
-    number: document.getElementById('m_number').value.trim(),
-    title: document.getElementById('m_title').value.trim(),
-    visibility: {
-      name: !!document.getElementById('m_vis_name').checked,
-      title: !!document.getElementById('m_vis_title').checked,
-      number: !!document.getElementById('m_vis_number').checked,
-      photo: !!document.getElementById('m_vis_photo').checked
-    },
-    photo: ''
+  const members=getMembers();
+  const reader=new FileReader();
+
+  reader.onload=function(){
+    const obj={
+      name:mName.value,
+      surname:mSurname.value,
+      number:mNumber.value,
+      title:mTitle.value,
+      photo:reader.result
+    };
+
+    if(editingMember!==null){
+      members[editingMember]=obj;
+    }else{
+      members.push(obj);
+    }
+
+    saveMembers(members);
+    loadMembers();
+    clearMemberForm();
   };
 
-  const photoInput = document.getElementById('m_photo');
-  if(photoInput.files && photoInput.files[0]){
-    const reader = new FileReader();
-    reader.onload = function(ev){
-      memberObj.photo = ev.target.result;
-      commitMember(memberObj);
-    };
-    reader.readAsDataURL(photoInput.files[0]);
-  } else {
-    // preserve existing photo if editing
-    const existing = (JSON.parse(localStorage.getItem('members')||'[]')).find(x => x.id === editingMemberId);
-    memberObj.photo = existing ? existing.photo : '';
-    commitMember(memberObj);
+  if(mPhoto.files[0]){
+    reader.readAsDataURL(mPhoto.files[0]);
   }
 }
-function commitMember(memberObj){
-  members = JSON.parse(localStorage.getItem('members')||'[]');
-  if(editingMemberId){
-    members = members.map(m => m.id === editingMemberId ? memberObj : m);
-  } else {
-    members.push(memberObj);
-  }
-  localStorage.setItem('members', JSON.stringify(members));
-  editingMemberId = null;
-  clearMemberForm();
-  renderMembers();
-  alert('Member saved.');
+
+function editMember(i){
+  const m=getMembers()[i];
+  editingMember=i;
+  mName.value=m.name;
+  mSurname.value=m.surname;
+  mNumber.value=m.number;
+  mTitle.value=m.title;
 }
-function deleteMember(id){
-  if(!confirm('Delete member?')) return;
-  members = JSON.parse(localStorage.getItem('members')||'[]').filter(m => m.id !== id);
-  localStorage.setItem('members', JSON.stringify(members));
-  renderMembers();
+
+function deleteMember(i){
+  const members=getMembers();
+  members.splice(i,1);
+  saveMembers(members);
+  loadMembers();
 }
+
+function loadMembers(){
+  memberGrid.innerHTML="";
+  getMembers().forEach((m,i)=>{
+    memberGrid.innerHTML+=`
+      <div class="card">
+        <img src="${m.photo}">
+        <h4>${m.name} ${m.surname}</h4>
+        <p>${m.title}</p>
+        <small>${m.number}</small>
+        ${currentUser && getUsers()[currentUser].role==="admin"?
+        `<div>
+          <button class="btn" onclick="editMember(${i})">Edit</button>
+          <button class="btn btn-danger" onclick="deleteMember(${i})">Remove</button>
+        </div>`:""}
+      </div>`;
+  });
+}
+
 function clearMemberForm(){
-  editingMemberId = null;
-  document.getElementById('m_name').value = '';
-  document.getElementById('m_surname').value = '';
-  document.getElementById('m_number').value = '';
-  document.getElementById('m_title').value = '';
-  document.getElementById('m_photo').value = '';
-  document.getElementById('m_vis_name').checked = true;
-  document.getElementById('m_vis_title').checked = true;
-  document.getElementById('m_vis_number').checked = true;
-  document.getElementById('m_vis_photo').checked = true;
+  mName.value="";
+  mSurname.value="";
+  mNumber.value="";
+  mTitle.value="";
+  mPhoto.value="";
+  editingMember=null;
 }
 
-/* ---------- Requests (admin approve/decline & edit) ---------- */
-function renderRequestsTable(){
-  requests = JSON.parse(localStorage.getItem('requests')||'[]');
-  const tbody = document.getElementById('requestsBody');
-  tbody.innerHTML = '';
-  if(requests.length === 0){ tbody.innerHTML = '<tr><td colspan="5" class="small">No pending requests</td></tr>'; return; }
+/* ---------------- EVENTS ---------------- */
 
-  requests.forEach((r, idx) => {
-    const tr = document.createElement('tr');
+let eventUserLogged=null;
 
-    // username (not editable)
-    const tdUser = document.createElement('td'); tdUser.textContent = r.username;
+function toggleRequest(){
+  requestArea.style.display=
+  requestArea.style.display==="none"?"block":"none";
+}
 
-    // date editable
-    const tdDate = document.createElement('td');
-    const dateInput = document.createElement('input');
-    dateInput.value = r.date || '';
-    dateInput.onchange = (e) => { requests[idx].date = e.target.value; localStorage.setItem('requests', JSON.stringify(requests)); };
-    tdDate.appendChild(dateInput);
+function eventLogin(){
+  const users=getUsers();
+  const u=users[eventUser.value];
 
-    // event editable
-    const tdEvent = document.createElement('td');
-    const eventInput = document.createElement('input');
-    eventInput.value = r.event || '';
-    eventInput.onchange = (e) => { requests[idx].event = e.target.value; localStorage.setItem('requests', JSON.stringify(requests)); };
-    tdEvent.appendChild(eventInput);
+  if(u && u.password===eventPass.value && u.request && !u.disabled){
+    eventUserLogged=eventUser.value;
+    eventLoginArea.style.display="none";
+    eventFormArea.style.display="block";
+  }else{
+    alert("No permission");
+  }
+}
 
-    // host editable
-    const tdHost = document.createElement('td');
-    const hostInput = document.createElement('input');
-    hostInput.value = r.host || '';
-    hostInput.onchange = (e) => { requests[idx].host = e.target.value; localStorage.setItem('requests', JSON.stringify(requests)); };
-    tdHost.appendChild(hostInput);
+function submitEvent(){
+  const pending=getPending();
+  pending.push({
+    title:eventTitle.value,
+    date:eventDate.value,
+    by:eventUserLogged
+  });
+  savePending(pending);
+  alert("Event submitted for approval");
+  eventTitle.value="";
+  eventDate.value="";
+  loadPending();
+}
 
-    // actions
-    const tdActions = document.createElement('td');
-    const approveBtn = document.createElement('button'); approveBtn.className = 'btn'; approveBtn.textContent = 'Approve';
-    approveBtn.onclick = () => { approveRequest(idx); };
-    const declineBtn = document.createElement('button'); declineBtn.className = 'btn btn-danger'; declineBtn.textContent = 'Decline';
-    declineBtn.onclick = () => { declineRequest(idx); };
-    tdActions.appendChild(approveBtn); tdActions.appendChild(declineBtn);
-
-    tr.appendChild(tdUser); tr.appendChild(tdDate); tr.appendChild(tdEvent); tr.appendChild(tdHost); tr.appendChild(tdActions);
-    tbody.appendChild(tr);
+function loadPending(){
+  const users=getUsers();
+  pendingEvents.innerHTML="";
+  getPending().forEach((e,i)=>{
+    pendingEvents.innerHTML+=`
+      <div>
+        ${e.title} - ${e.date} (by ${e.by})
+        ${currentUser && users[currentUser].role==="admin"?
+        `<button class="btn" onclick="approveEvent(${i})">Approve</button>
+         <button class="btn btn-danger" onclick="rejectEvent(${i})">Reject</button>`
+        :""}
+      </div>`;
   });
 }
 
-function approveRequest(index){
-  requests = JSON.parse(localStorage.getItem('requests')||'[]');
-  const req = requests[index];
-  if(!req) return;
-  // push to events, store addedBy for audit
-  events = JSON.parse(localStorage.getItem('events')||'[]');
-  events.push({ addedBy: sessionUser || req.username, date: req.date, event: req.event, details: req.details, host: req.host, invite: req.invite || '' });
-  localStorage.setItem('events', JSON.stringify(events));
-  // remove from requests
-  requests.splice(index, 1);
-  localStorage.setItem('requests', JSON.stringify(requests));
-  renderRequestsTable();
-  renderApprovedEvents();
-  alert('Request approved and added to calendar.');
+function approveEvent(i){
+  const pending=getPending();
+  const approved=getApproved();
+  approved.push(pending[i]);
+  pending.splice(i,1);
+  saveApproved(approved);
+  savePending(pending);
+  loadApproved();
+  loadPending();
 }
 
-function declineRequest(index){
-  requests = JSON.parse(localStorage.getItem('requests')||'[]');
-  if(!confirm('Decline and remove this request?')) return;
-  requests.splice(index, 1);
-  localStorage.setItem('requests', JSON.stringify(requests));
-  renderRequestsTable();
-  alert('Request declined.');
+function rejectEvent(i){
+  const pending=getPending();
+  pending.splice(i,1);
+  savePending(pending);
+  loadPending();
 }
 
-/* ---------- Approved events list (admin) ---------- */
-function renderApprovedEvents(){
-  events = JSON.parse(localStorage.getItem('events')||'[]');
-  const out = document.getElementById('approvedEventsList');
-  if(events.length === 0){ out.innerHTML = '<div class="small">No approved events</div>'; return; }
-  let html = '<table><thead><tr><th>Date</th><th>Event</th><th>Host</th><th></th></tr></thead><tbody>';
-  events.forEach((ev, idx)=>{
-    html += `<tr>
-      <td>${ev.date||''}</td>
-      <td>${ev.event||''}</td>
-      <td>${ev.host||''}</td>
-      <td><button class="btn btn-danger" onclick="adminRemoveEvent(${idx})">Remove</button></td>
-    </tr>`;
+function loadApproved(){
+  approvedEvents.innerHTML="";
+  getApproved().forEach((e,i)=>{
+    approvedEvents.innerHTML+=`
+      <div>
+        ${e.title} - ${e.date}
+        ${currentUser && getUsers()[currentUser].role==="admin"?
+        `<button class="btn btn-danger" onclick="removeApproved(${i})">Remove</button>`
+        :""}
+      </div>`;
   });
-  html += '</tbody></table>';
-  out.innerHTML = html;
 }
 
-function adminRemoveEvent(index){
-  if(!confirm('Remove this approved event?')) return;
-  events = JSON.parse(localStorage.getItem('events')||'[]');
-  events.splice(index, 1);
-  localStorage.setItem('events', JSON.stringify(events));
-  renderApprovedEvents();
-  // also update calendar page via storage event
-  alert('Event removed.');
+function removeApproved(i){
+  const approved=getApproved();
+  approved.splice(i,1);
+  saveApproved(approved);
+  loadApproved();
 }
 
-/* ---------- Misc ---------- */
-function renderAll(){
-  renderUsersList();
-  renderMembers();
-  renderRequestsTable();
-  renderApprovedEvents();
-  // update calendar page: store events in localStorage (it is same key)
-}
-
-function clearUserForm(){ document.getElementById('u_username').value=''; document.getElementById('u_password').value=''; document.getElementById('u_role').value='member'; document.getElementById('u_canRequest').checked=false; editingUsername=null; }
-
-/* keep in sync */
-window.addEventListener('storage', () => {
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-  members = JSON.parse(localStorage.getItem('members')||'[]');
-  requests = JSON.parse(localStorage.getItem('requests')||'[]');
-  events = JSON.parse(localStorage.getItem('events')||'[]');
-  renderAll();
-});
-
-/* initial render for guests */
-renderAll();
 </script>
 
 </body>
