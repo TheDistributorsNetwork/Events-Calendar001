@@ -1,271 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>Message Believer's Network Calendar</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8">
+<title>Events Calendar</title>
+
 <style>
-  :root{--bg:#002147;--card:#1a1a1a;--accent:#FFD700;--danger:#800000;}
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:36px;background:var(--bg);color:#fff}
-  header{position:relative;text-align:center;margin-bottom:18px}
-  header img.logo-left, header img.logo-right{width:100px;position:absolute;top:18px}
-  header img.logo-left{left:18px}
-  header img.logo-right{right:18px}
-  header img.logo-center{width:160px;display:block;margin:12px auto}
-  header h1, header h2{color:var(--accent);margin:6px 0}
-  .toolbar{text-align:center;margin:16px 0}
-  .btn{display:inline-block;background:var(--accent);color:#000;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-weight:700;margin:6px;text-decoration:none}
-  .btn:hover{filter:brightness(0.95)}
-  .btn-danger{background:var(--danger);color:#fff}
-  .dropdown{display:inline-block;position:relative}
-  .dropdown-content{display:none;position:absolute;background:var(--card);min-width:200px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.6);z-index:20}
-  .dropdown:hover .dropdown-content{display:block}
-  .dropdown-content a{display:block;padding:8px 12px;color:var(--accent);text-decoration:none}
-  .panel{background:var(--card);padding:16px;border-radius:10px;width:95%;max-width:1100px;margin:18px auto;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:12px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:left}
-  th{background:var(--danger);color:var(--accent);text-transform:uppercase}
-  .small-muted{color:#cfcfcf;font-size:0.9rem}
-  form.request{display:none;margin:10px auto;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);width:95%;max-width:520px}
-  input[type="text"],input[type="password"],input[type="date"],textarea{width:100%;padding:8px;margin:6px 0;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff}
-  textarea{min-height:90px;resize:vertical}
-  .center{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-  .hidden{display:none}
-  /* admin confirm modal */
-  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:40}
-  .modal{background:var(--card);padding:16px;border-radius:8px;width:90%;max-width:420px}
-  .link-like{color:var(--accent);text-decoration:underline;cursor:pointer}
-  @media (max-width:600px){ header img.logo-left,header img.logo-right{display:none} }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 40px;
+  background-color: #002147;
+  color: #fff;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.version {
+  font-size: 0.8em;
+  color: #aaa;
+  font-style: italic;
+  margin-bottom: 8px;
+  display: block;
+}
+
+header img.logo-left {
+  width: 120px;
+  position: absolute;
+  left: 0;
+  top: 25px;
+}
+header img.logo-right {
+  width: 120px;
+  position: absolute;
+  right: 0;
+  top: 25px;
+}
+header img.logo-center {
+  width: 160px;
+  display: block;
+  margin: 25px auto 15px auto;
+}
+header h1 {
+  color: #FFD700;
+  font-size: 2em;
+  margin: 0;
+}
+header h2 {
+  color: #FFD700;
+  font-size: 1em;
+  margin: 0;
+}
+
+table {
+  width: 90%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+th, td {
+  border: 1px solid #333;
+  padding: 14px;
+  text-align: left;
+}
+th {
+  background-color: #800000;
+  color: #FFD700;
+  text-transform: uppercase;
+}
+tr:nth-child(even) { background-color: #262626; }
+tr:nth-child(odd) { background-color: #1a1a1a; }
+
+a {
+  color: #FFD700;
+  font-weight: bold;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+  color: #fff;
+}
+
+.request-form {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.btn {
+  display: inline-block;
+  background-color: #FFD700;
+  color: #000;
+  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.3s;
+  margin: 5px;
+  cursor: pointer;
+}
+.btn:hover {
+  background-color: #fff;
+  color: #800000;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #1a1a1a;
+  min-width: 200px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+  border-radius: 6px;
+  z-index: 1;
+  margin-top: 5px;
+}
+.dropdown-content a {
+  color: #FFD700;
+  padding: 10px 16px;
+  text-decoration: none;
+  display: block;
+}
+.dropdown-content a:hover {
+  background-color: #333;
+  color: #fff;
+}
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+#requestPanel {
+  display: none;
+  margin-top: 20px;
+  text-align: center;
+}
+
+#requestPanel input {
+  width: 300px;
+  padding: 8px;
+  margin: 6px;
+}
 </style>
 </head>
+
 <body>
 
 <header>
-  <img src="logo-left.png" alt="left logo" class="logo-left">
-  <img src="logo-right.png" alt="right logo" class="logo-right">
-  <img src="logo.png" alt="center logo" class="logo-center">
-  <h1>Message Believer's Network Calendar</h1>
-  <div class="small-muted">By The Distributor</div>
+<span class="version">Version 1.0PRI</span>
+<img src="logo-left.png" class="logo-left">
+<img src="logo-right.png" class="logo-right">
+<img src="logo.png" class="logo-center">
+<h1>Message Believer's Network Calendar</h1>
+<h2>By The Distributor</h2>
 </header>
 
-<div class="toolbar">
-  <a class="btn" href="members.html">Members</a>
+<!-- BUTTONS -->
+<div class="request-form">
 
-  <div class="dropdown" style="margin-left:6px">
-    <button class="btn">Live</button>
-    <div class="dropdown-content">
-      <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube (COMING SOON)</a>
-      <a href="#" target="_blank">Facebook Live (COMING SOON)</a>
-      <a href="https://podbean.com" target="_blank">Podbean</a>
-    </div>
-  </div>
+<p>Request To Add Event?</p>
 
-  <div class="dropdown" style="margin-left:6px">
-    <button class="btn">Support Accounts</button>
-    <div class="dropdown-content">
-      <a href="#" target="_blank">WhatsApp (COMING SOON)</a>
-      <a href="#" target="_blank">Facebook</a>
-      <a href="#" target="_blank">TikTok</a>
-      <a href="https://youtube.com" target="_blank">YouTube</a>
-    </div>
-  </div>
+<button class="btn" onclick="toggleRequest()">Request Event</button>
 
-  <button class="btn" id="showRequestBtn" onclick="toggleRequest()">Request Event</button>
+<a href="members.html" class="btn">Members</a>
+
+<div class="dropdown">
+<span class="btn">Live</span>
+<div class="dropdown-content">
+<a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
+<a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live</a>
+<a href="https://www.podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
+</div>
 </div>
 
-<div class="panel">
-  <h3 style="margin-top:0">Approved Calendar</h3>
-  <table id="calendarTable" aria-live="polite">
-    <thead>
-      <tr><th>Date</th><th>Event</th><th>Details</th><th>Host Church</th><th>Invite</th><th style="width:130px"></th></tr>
-    </thead>
-    <tbody id="calendarBody"></tbody>
-  </table>
+<div class="dropdown">
+<span class="btn">Support Accounts</span>
+<div class="dropdown-content">
+<a href="#">WhatsApp</a>
+<a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook</a>
+<a href="https://tiktok.com" target="_blank">TikTok</a>
+<a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
+</div>
 </div>
 
-<!-- Request form (hidden until button clicked) -->
-<form id="requestForm" class="request" autocomplete="off">
-  <h3 style="margin-top:0">Request an Event (login required)</h3>
-  <input id="reqUser" type="text" placeholder="Username" required>
-  <input id="reqPass" type="password" placeholder="Password" required>
-  <input id="reqDate" type="date" required>
-  <input id="reqName" type="text" placeholder="Event title" required>
-  <textarea id="reqDetails" placeholder="Details (short)"></textarea>
-  <input id="reqHost" type="text" placeholder="Host church / pastor">
-  <input id="reqInvite" type="text" placeholder="Invite image URL (optional)">
-  <div class="center" style="margin-top:8px">
-    <button class="btn" type="submit">Submit Request</button>
-    <button type="button" class="btn btn-danger" onclick="toggleRequest()">Cancel</button>
-  </div>
-</form>
+<!-- REQUEST PANEL -->
+<div id="requestPanel">
+<h3>Login To Request Event</h3>
+<input id="reqUser" placeholder="Username">
+<input id="reqPass" type="password" placeholder="Password"><br>
+<button class="btn" onclick="loginForRequest()">Login</button>
 
-<!-- Admin confirmation modal (used when deleting from calendar) -->
-<div id="adminModalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true">
-  <div class="modal">
-    <h3 style="margin-top:0">Admin confirmation</h3>
-    <div class="small-muted">Enter admin credentials to perform this action.</div>
-    <input id="adminConfirmUser" placeholder="admin username">
-    <input id="adminConfirmPass" placeholder="password" type="password">
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-      <button class="btn" id="adminConfirmOk">Confirm</button>
-      <button class="btn btn-danger" onclick="closeAdminModal()">Cancel</button>
-    </div>
-  </div>
+<div id="eventForm" style="display:none;">
+<input id="eventTitle" placeholder="Event Title"><br>
+<input id="eventDate" type="date"><br>
+<button class="btn" onclick="submitEvent()">Submit Event</button>
 </div>
+</div>
+
+</div>
+
+<!-- CALENDAR TABLE -->
+<table id="eventsTable">
+<tr>
+<th>Date</th>
+<th>Event</th>
+<th>Details</th>
+<th>Host Church</th>
+<th>Invitation</th>
+</tr>
+
+<tr>
+<td>23 November 2025</td>
+<td>Combined Meeting</td>
+<td>Combined Fellowship | Open Invite</td>
+<td>Restoration Tabernacle DBN | Pst Mervin Munsamy</td>
+<td><a href="#">View Invite</a></td>
+</tr>
+
+</table>
 
 <script>
-/* storage keys:
-   users { username: { password, role, active, canRequestEvent } }
-   requests [ { username, date, event, details, host, invite } ]
-   events [ { addedBy, date, event, details, host, invite } ]
-*/
 
-if(!localStorage.getItem('users')){
-  // seed protected admin1
-  localStorage.setItem('users', JSON.stringify({
-    admin1: { password: 'admin123', role: 'admin', active: true, canRequestEvent: true }
-  }));
+/* STORAGE */
+function getUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
+function getApproved(){ return JSON.parse(localStorage.getItem("approvedEvents")||"[]"); }
+function savePending(p){ localStorage.setItem("pendingEvents",JSON.stringify(p)); }
+function getPending(){ return JSON.parse(localStorage.getItem("pendingEvents")||"[]"); }
+
+let loggedUser=null;
+
+/* REQUEST TOGGLE */
+function toggleRequest(){
+  const panel=document.getElementById("requestPanel");
+  panel.style.display = panel.style.display==="none"?"block":"none";
 }
-let users = JSON.parse(localStorage.getItem('users'));
-let requests = JSON.parse(localStorage.getItem('requests')||'[]');
-let events = JSON.parse(localStorage.getItem('events')||'[]');
 
-const calendarBody = document.getElementById('calendarBody');
-const requestForm = document.getElementById('requestForm');
-const showRequestBtn = document.getElementById('showRequestBtn');
-const adminModalBackdrop = document.getElementById('adminModalBackdrop');
-let pendingRemovalIndex = null;
+/* LOGIN FOR REQUEST */
+function loginForRequest(){
+  const users=getUsers();
+  const user=users[reqUser.value];
 
-// Helper: persist stores
-function saveUsers(){ localStorage.setItem('users', JSON.stringify(users)); }
-function saveRequests(){ localStorage.setItem('requests', JSON.stringify(requests)); }
-function saveEvents(){ localStorage.setItem('events', JSON.stringify(events)); }
-
-// Render calendar rows
-function renderCalendar(){
-  calendarBody.innerHTML = '';
-  if(events.length === 0){
-    calendarBody.innerHTML = '<tr><td colspan="6" class="small-muted">No events available</td></tr>';
-    return;
+  if(user && user.password===reqPass.value && user.canRequestEvent && user.active){
+    loggedUser=reqUser.value;
+    document.getElementById("eventForm").style.display="block";
+  } else {
+    alert("No permission to request events.");
   }
-  events.forEach((ev, idx) => {
-    const tr = document.createElement('tr');
+}
 
-    const tdDate = document.createElement('td'); tdDate.textContent = ev.date || '';
-    const tdName = document.createElement('td'); tdName.textContent = ev.event || '';
-    const tdDetails = document.createElement('td'); tdDetails.textContent = ev.details || '';
-    const tdHost = document.createElement('td'); tdHost.textContent = ev.host || '';
-    const tdInvite = document.createElement('td'); tdInvite.innerHTML = ev.invite ? `<a href="${ev.invite}" target="_blank" class="link-like">View Invite</a>` : '';
+/* SUBMIT EVENT */
+function submitEvent(){
+  const pending=getPending();
+  pending.push({
+    title:eventTitle.value,
+    date:eventDate.value,
+    details:"Requested Event",
+    host:loggedUser,
+    invite:"#"
+  });
+  savePending(pending);
+  alert("Event submitted for approval.");
+  eventTitle.value="";
+  eventDate.value="";
+}
 
-    const tdActions = document.createElement('td');
-    tdActions.style.textAlign = 'right';
+/* LOAD APPROVED EVENTS */
+function loadApproved(){
+  const approved=getApproved();
+  const table=document.getElementById("eventsTable");
 
-    // Provide a remove button — require admin credentials to actually remove
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'btn btn-danger';
-    removeBtn.textContent = 'Remove';
-    removeBtn.onclick = () => { promptAdminConfirmRemoval(idx); };
-
-    // Show remove button only if events exist (admins control removal)
-    tdActions.appendChild(removeBtn);
-
-    tr.appendChild(tdDate);
-    tr.appendChild(tdName);
-    tr.appendChild(tdDetails);
-    tr.appendChild(tdHost);
-    tr.appendChild(tdInvite);
-    tr.appendChild(tdActions);
-
-    calendarBody.appendChild(tr);
+  approved.forEach(e=>{
+    table.innerHTML+=`
+    <tr>
+      <td>${e.date}</td>
+      <td>${e.title}</td>
+      <td>${e.details || ""}</td>
+      <td>${e.host || ""}</td>
+      <td><a href="${e.invite || "#"}">View Invite</a></td>
+    </tr>`;
   });
 }
 
-// Toggle request form
-function toggleRequest(){
-  requestForm.style.display = requestForm.style.display === 'block' ? 'none' : 'block';
-  if(requestForm.style.display === 'block') {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-  }
-}
+loadApproved();
 
-// Submit request (requires existing user with canRequestEvent)
-requestForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-
-  const username = document.getElementById('reqUser').value.trim();
-  const password = document.getElementById('reqPass').value;
-  const date = document.getElementById('reqDate').value;
-  const name = document.getElementById('reqName').value.trim();
-  const details = document.getElementById('reqDetails').value.trim();
-  const host = document.getElementById('reqHost').value.trim();
-  const invite = document.getElementById('reqInvite').value.trim();
-
-  if(!username || !password || !date || !name){
-    alert('Please complete required fields.');
-    return;
-  }
-
-  if(!users[username] || users[username].password !== password || !users[username].active){
-    alert('Invalid credentials or account disabled.');
-    return;
-  }
-
-  if(!users[username].canRequestEvent){
-    alert('You do not have rights to request events.');
-    return;
-  }
-
-  requests.push({ username, date, event: name, details, host, invite });
-  saveRequests();
-  alert('Event request submitted for admin approval.');
-  requestForm.reset();
-  toggleRequest();
-});
-
-// Admin removal: show admin modal to confirm credentials
-function promptAdminConfirmRemoval(index){
-  pendingRemovalIndex = index;
-  adminModalBackdrop.style.display = 'flex';
-}
-function closeAdminModal(){
-  adminModalBackdrop.style.display = 'none';
-  document.getElementById('adminConfirmUser').value = '';
-  document.getElementById('adminConfirmPass').value = '';
-  pendingRemovalIndex = null;
-}
-
-// Confirm admin and remove
-document.getElementById('adminConfirmOk').addEventListener('click', () => {
-  const uname = document.getElementById('adminConfirmUser').value.trim();
-  const pwd = document.getElementById('adminConfirmPass').value;
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-
-  if(!users[uname] || users[uname].password !== pwd || users[uname].role !== 'admin' || !users[uname].active){
-    alert('Invalid admin credentials.');
-    return;
-  }
-
-  if(typeof pendingRemovalIndex === 'number'){
-    if(confirm('Remove approved event permanently?')){
-      events.splice(pendingRemovalIndex, 1);
-      saveEvents();
-      renderCalendar();
-    }
-  }
-  closeAdminModal();
-});
-
-// initial render
-renderCalendar();
-
-// Keep variables in sync when other page changes storage
-window.addEventListener('storage', () => {
-  users = JSON.parse(localStorage.getItem('users')||'{}');
-  requests = JSON.parse(localStorage.getItem('requests')||'[]');
-  events = JSON.parse(localStorage.getItem('events')||'[]');
-  renderCalendar();
-});
 </script>
 </body>
 </html>
