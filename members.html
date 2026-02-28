@@ -54,6 +54,12 @@ input,select{
   object-fit:cover;
   border-radius:8px;
 }
+.section{
+  margin-bottom:30px;
+  padding-bottom:20px;
+  border-bottom:1px solid #333;
+}
+label{display:block;margin:4px 0;}
 </style>
 </head>
 
@@ -66,7 +72,7 @@ input,select{
 <div id="loginStage">
   <h2>Login</h2>
   <input id="username" placeholder="Username">
-  <input id="password" type="password">
+  <input id="password" type="password" placeholder="Password">
   <button class="btn" onclick="login()">Login</button>
 </div>
 
@@ -77,38 +83,43 @@ input,select{
 
 <div id="adminControls" style="display:none;">
 
+<div class="section">
 <h3>Add / Edit Member</h3>
-
 <input id="mName" placeholder="Name">
 <input id="mSurname" placeholder="Surname">
 <input id="mNumber" placeholder="Member Number">
 <input id="mTitle" placeholder="Title">
 <input id="mPhoto" type="file" accept="image/*">
 
-<h4>Visibility</h4>
-<label><input type="checkbox" id="vName" checked> Show Name</label><br>
-<label><input type="checkbox" id="vSurname" checked> Show Surname</label><br>
-<label><input type="checkbox" id="vTitle" checked> Show Title</label><br>
-<label><input type="checkbox" id="vNumber" checked> Show Number</label><br>
-<label><input type="checkbox" id="vPhoto" checked> Show Photo</label><br>
+<h4>Field Visibility</h4>
+<label><input type="checkbox" id="vName" checked> Show Name</label>
+<label><input type="checkbox" id="vSurname" checked> Show Surname</label>
+<label><input type="checkbox" id="vTitle" checked> Show Title</label>
+<label><input type="checkbox" id="vNumber" checked> Show Number</label>
+<label><input type="checkbox" id="vPhoto" checked> Show Photo</label>
 
 <button class="btn" onclick="saveMember()">Save Member</button>
+</div>
 
-<hr>
-
+<div class="section">
 <h3>User Management</h3>
-
 <input id="newUsername" placeholder="Username">
 <input id="newPassword" placeholder="Password">
 <select id="newRole">
   <option value="member">Member</option>
   <option value="admin">Admin</option>
 </select>
+
+<h4>Rights</h4>
+<label><input type="checkbox" id="rManageUsers"> Manage Users</label>
+<label><input type="checkbox" id="rManageMembers"> Manage Members</label>
+<label><input type="checkbox" id="rViewMembers" checked> View Members</label>
+
 <button class="btn" onclick="addUser()">Add User</button>
 
 <div id="userList"></div>
+</div>
 
-<hr>
 </div>
 
 <div class="member-grid" id="memberGrid"></div>
@@ -124,15 +135,23 @@ function saveUsers(u){ localStorage.setItem("users",JSON.stringify(u)); }
 function getMembers(){ return JSON.parse(localStorage.getItem("members")||"[]"); }
 function saveMembers(m){ localStorage.setItem("members",JSON.stringify(m)); }
 
-/* INIT ADMINS */
+/* INITIAL SUPER ADMIN */
 if(!localStorage.getItem("users")){
   saveUsers({
-    admin1:{password:"admin123",role:"admin",active:true},
-    admin2:{password:"admin456",role:"admin",active:true}
+    superadmin:{
+      password:"admin123",
+      role:"admin",
+      active:true,
+      rights:{
+        manageUsers:true,
+        manageMembers:true,
+        viewMembers:true
+      }
+    }
   });
 }
 
-let role=null;
+let currentUser=null;
 let editingMemberId=null;
 
 /* LOGIN */
@@ -141,19 +160,23 @@ function login(){
   const user=users[username.value];
 
   if(user && user.password===password.value && user.active){
-    role=user.role;
+    currentUser=user;
     loginStage.style.display="none";
     membersStage.style.display="block";
-    adminControls.style.display=role==="admin"?"block":"none";
-    if(role==="admin") loadUsers();
+
+    adminControls.style.display =
+      (user.rights.manageUsers || user.rights.manageMembers)
+      ? "block" : "none";
+
     loadMembers();
+    loadUsers();
   } else {
     alert("Invalid or disabled account");
   }
 }
 
 function logout(){
-  role=null;
+  currentUser=null;
   membersStage.style.display="none";
   loginStage.style.display="block";
 }
@@ -161,26 +184,30 @@ function logout(){
 /* USER MANAGEMENT */
 
 function addUser(){
-  const users=getUsers();
-  if(!newUsername.value || !newPassword.value){
-    alert("Required");
+  if(!currentUser.rights.manageUsers){
+    alert("No permission");
     return;
   }
+
+  const users=getUsers();
 
   users[newUsername.value]={
     password:newPassword.value,
     role:newRole.value,
-    active:true
+    active:true,
+    rights:{
+      manageUsers:rManageUsers.checked,
+      manageMembers:rManageMembers.checked,
+      viewMembers:rViewMembers.checked
+    }
   };
 
   saveUsers(users);
-  newUsername.value="";
-  newPassword.value="";
-  newRole.value="member";
   loadUsers();
 }
 
 function toggleUser(username){
+  if(!currentUser.rights.manageUsers) return;
   const users=getUsers();
   users[username].active=!users[username].active;
   saveUsers(users);
@@ -188,7 +215,7 @@ function toggleUser(username){
 }
 
 function deleteUser(username){
-  if(!confirm("Delete user permanently?")) return;
+  if(!currentUser.rights.manageUsers) return;
   const users=getUsers();
   delete users[username];
   saveUsers(users);
@@ -196,32 +223,40 @@ function deleteUser(username){
 }
 
 function loadUsers(){
+  if(!currentUser || !currentUser.rights.manageUsers) return;
+
   const users=getUsers();
   let html="<h4>Existing Users</h4>";
+
   Object.keys(users).forEach(u=>{
     html+=`
-    <div>
-      <strong>${u}</strong> (${users[u].role}) - ${users[u].active?"Active":"Disabled"}
-      <button class="btn btn-danger" onclick="toggleUser('${u}')">${users[u].active?"Disable":"Enable"}</button>
-      <button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>
-    </div>
+      <div>
+        <strong>${u}</strong> (${users[u].role})
+        <button class="btn" onclick="toggleUser('${u}')">Enable/Disable</button>
+        <button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>
+      </div>
     `;
   });
+
   userList.innerHTML=html;
 }
 
 /* MEMBER MANAGEMENT */
 
 function saveMember(){
+  if(!currentUser.rights.manageMembers){
+    alert("No permission");
+    return;
+  }
 
   const members=getMembers();
 
   const memberData={
     id: editingMemberId || Date.now(),
-    name:mName.value.trim(),
-    surname:mSurname.value.trim(),
-    number:mNumber.value.trim(),
-    title:mTitle.value.trim(),
+    name:mName.value,
+    surname:mSurname.value,
+    number:mNumber.value,
+    title:mTitle.value,
     visibility:{
       name:vName.checked,
       surname:vSurname.checked,
@@ -239,14 +274,11 @@ function saveMember(){
     };
     reader.readAsDataURL(mPhoto.files[0]);
   } else {
-    const existing=members.find(m=>m.id===editingMemberId);
-    memberData.photo=existing?existing.photo:"";
     commitMember(memberData);
   }
 }
 
 function commitMember(memberData){
-
   let members=getMembers();
 
   if(editingMemberId){
@@ -257,76 +289,43 @@ function commitMember(memberData){
 
   saveMembers(members);
   editingMemberId=null;
-  clearForm();
   loadMembers();
 }
 
-function editMember(id){
-  const members=getMembers();
-  const m=members.find(x=>x.id===id);
-
-  editingMemberId=id;
-
-  mName.value=m.name;
-  mSurname.value=m.surname;
-  mNumber.value=m.number;
-  mTitle.value=m.title;
-  vName.checked=m.visibility.name;
-  vSurname.checked=m.visibility.surname;
-  vTitle.checked=m.visibility.title;
-  vNumber.checked=m.visibility.number;
-  vPhoto.checked=m.visibility.photo;
-}
-
 function deleteMember(id){
-  if(!confirm("Delete member?")) return;
+  if(!currentUser.rights.manageMembers) return;
   const members=getMembers().filter(m=>m.id!==id);
   saveMembers(members);
   loadMembers();
 }
 
-function clearForm(){
-  mName.value="";
-  mSurname.value="";
-  mNumber.value="";
-  mTitle.value="";
-  mPhoto.value="";
-  vName.checked=true;
-  vSurname.checked=true;
-  vTitle.checked=true;
-  vNumber.checked=true;
-  vPhoto.checked=true;
-}
-
 function loadMembers(){
-  memberGrid.innerHTML="";
-  getMembers().forEach(m=>{
+  if(!currentUser || !currentUser.rights.viewMembers) return;
 
-    const show=role==="admin"
-      ? {name:true,surname:true,title:true,number:true,photo:true}
-      : m.visibility;
+  memberGrid.innerHTML="";
+
+  getMembers().forEach(m=>{
 
     let content="";
 
-    if(show.photo && m.photo)
+    if(m.visibility.photo && m.photo)
       content+=`<img src="${m.photo}">`;
 
-    if(show.name || show.surname)
-      content+=`<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>`;
+    if(m.visibility.name || m.visibility.surname)
+      content+=`<h4>${m.name} ${m.surname}</h4>`;
 
-    if(show.title)
+    if(m.visibility.title)
       content+=`<p>${m.title}</p>`;
 
-    if(show.number)
+    if(m.visibility.number)
       content+=`<small>${m.number}</small>`;
 
     memberGrid.innerHTML+=`
       <div class="member-card">
-        ${content || "<p>No visible fields</p>"}
+        ${content}
         ${
-          role==="admin"
-          ? `<button class="btn" onclick="editMember(${m.id})">Edit</button>
-             <button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`
+          currentUser.rights.manageMembers
+          ? `<button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`
           : ""
         }
       </div>
