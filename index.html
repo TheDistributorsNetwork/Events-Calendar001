@@ -2,146 +2,362 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Message Believers Network Calendar</title>
+<title>Distributors Network Hub</title>
 
 <style>
-body { font-family: Arial; margin:0; padding:40px; background:#002147; color:#fff; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #002147;
+  color: #fff;
+}
 
-header { text-align:center; position:relative; margin-bottom:30px; }
+header {
+  background:#00152e;
+  padding:15px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  color:#FFD700;
+}
 
-header img.logo-left { width:120px; position:absolute; left:0; top:25px; }
-header img.logo-right { width:120px; position:absolute; right:0; top:25px; }
-header img.logo-center { width:160px; display:block; margin:25px auto 15px auto; }
-
-header h1, header h2 { color:#FFD700; margin:0; }
-
-table { width:90%; margin:20px auto; border-collapse:collapse; background:#1a1a1a; }
-th, td { border:1px solid #333; padding:12px; }
-th { background:#800000; color:#FFD700; }
+.container {
+  padding:30px;
+  max-width:1200px;
+  margin:auto;
+}
 
 .btn {
   background:#FFD700;
   color:#000;
-  padding:10px 20px;
   border:none;
-  border-radius:6px;
+  padding:8px 14px;
+  margin:4px;
   cursor:pointer;
-  margin:5px;
+  border-radius:6px;
   font-weight:bold;
 }
 
-#requestPanel { display:none; text-align:center; margin-top:20px; }
-#requestPanel input { width:300px; padding:8px; margin:6px; }
+.btn-danger {
+  background:#800000;
+  color:#fff;
+}
+
+input, select {
+  padding:8px;
+  margin:4px 0;
+  width:100%;
+}
+
+.hidden { display:none; }
+
+.card {
+  background:#1a1a1a;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+
+.member-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:20px;
+}
+
+.member-card {
+  background:#262626;
+  padding:10px;
+  border-radius:8px;
+  text-align:center;
+}
+
+.member-card img {
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  border-radius:6px;
+}
+
+.navbar {
+  text-align:center;
+  margin-bottom:20px;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-<img src="logo-left.png" class="logo-left">
-<img src="logo-right.png" class="logo-right">
-<img src="logo.png" class="logo-center">
-<h1>Message Believer's Network Calendar</h1>
-<h2>By The Distributor</h2>
-</header>
+<header>Distributors Network Hub</header>
 
-<div style="text-align:center;">
-<button class="btn" onclick="toggleRequest()">Request Event</button>
-<a href="members.html" class="btn">Members</a>
+<div class="container">
+
+<!-- LOGIN -->
+<div id="loginStage">
+  <h2>Login</h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button class="btn" onclick="login()">Login</button>
 </div>
 
-<div id="requestPanel">
-<h3>Login To Request Event</h3>
-<input id="reqUser" placeholder="Username">
-<input id="reqPass" type="password" placeholder="Password"><br>
-<button class="btn" onclick="loginForRequest()">Login</button>
+<!-- MAIN -->
+<div id="mainStage" class="hidden">
 
-<div id="eventForm" style="display:none;">
-<input id="eventDate" type="date"><br>
-<input id="eventTitle" placeholder="Event Name"><br>
-<input id="eventDetails" placeholder="Details"><br>
-<input id="eventHost" placeholder="Host Church"><br>
-<input id="eventInvite" placeholder="Invitation Link"><br>
-<button class="btn" onclick="submitEvent()">Submit Event</button>
-</div>
+<div class="navbar">
+  <button class="btn" onclick="showCalendar()">Calendar</button>
+  <button class="btn" onclick="showMembers()">Members</button>
+  <button class="btn" onclick="logout()">Logout</button>
 </div>
 
-<table id="eventsTable">
-<tr>
-<th>Date</th>
-<th>Event</th>
-<th>Details</th>
-<th>Host Church</th>
-<th>Invitation</th>
-</tr>
-</table>
+<!-- CALENDAR -->
+<div id="calendarSection">
+
+<h2>Network Calendar</h2>
+
+<div id="calendarAdmin" class="hidden card">
+  <h3>Add Event</h3>
+  <input id="eventTitle" placeholder="Event Title">
+  <input id="eventDate" type="date">
+  <button class="btn" onclick="addEvent()">Add Event</button>
+</div>
+
+<div id="eventList"></div>
+
+</div>
+
+<!-- MEMBERS -->
+<div id="membersSection" class="hidden">
+
+<h2>Members</h2>
+
+<div id="memberAdmin" class="hidden card">
+<h3>Add Member</h3>
+<input id="mName" placeholder="Name">
+<input id="mSurname" placeholder="Surname">
+<input id="mNumber" placeholder="Member Number">
+<input id="mTitle" placeholder="Title">
+<input id="mPhoto" type="file" accept="image/*">
+
+<h4>Visible To Viewers</h4>
+<label><input type="checkbox" id="vName" checked> Name</label><br>
+<label><input type="checkbox" id="vSurname" checked> Surname</label><br>
+<label><input type="checkbox" id="vNumber" checked> Member Number</label><br>
+<label><input type="checkbox" id="vTitle" checked> Title</label><br>
+<label><input type="checkbox" id="vPhoto" checked> Photo</label><br><br>
+
+<button class="btn" onclick="addMember()">Add Member</button>
+
+<hr>
+
+<h3>Add User</h3>
+<input id="newUser" placeholder="Username">
+<input id="newPass" placeholder="Password">
+<select id="newRole">
+<option value="viewer">Viewer</option>
+<option value="admin">Admin</option>
+</select>
+<button class="btn" onclick="addUser()">Add User</button>
+
+<div id="userList"></div>
+
+</div>
+
+<div class="member-grid" id="memberGrid"></div>
+
+</div>
+
+</div>
 
 <script>
 
-/* HARD CODE ADMIN1 */
-let users = JSON.parse(localStorage.getItem("users") || "{}");
-if(!users["admin1"]){
-  users["admin1"] = {
-    password:"admin123",
-    isAdmin:true,
-    canRequestEvent:true,
-    active:true
-  };
-  localStorage.setItem("users",JSON.stringify(users));
-}
+/* CORE ADMINS */
+const CORE_USERS = {
+  admin: { password:"admin123", role:"admin", disabled:false },
+  director: { password:"director123", role:"admin", disabled:false }
+};
 
+let currentRole = null;
+
+/* STORAGE HELPERS */
 function getUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
-function getPending(){ return JSON.parse(localStorage.getItem("pendingEvents")||"[]"); }
-function getApproved(){ return JSON.parse(localStorage.getItem("approvedEvents")||"[]"); }
-function savePending(p){ localStorage.setItem("pendingEvents",JSON.stringify(p)); }
+function saveUsers(u){ localStorage.setItem("users",JSON.stringify(u)); }
 
-let loggedUser=null;
+function getMembers(){ return JSON.parse(localStorage.getItem("members")||"[]"); }
+function saveMembers(m){ localStorage.setItem("members",JSON.stringify(m)); }
 
-function toggleRequest(){
-  const panel=document.getElementById("requestPanel");
-  panel.style.display = panel.style.display==="none"?"block":"none";
+function getEvents(){ return JSON.parse(localStorage.getItem("events")||"[]"); }
+function saveEvents(e){ localStorage.setItem("events",JSON.stringify(e)); }
+
+/* LOGIN */
+function login(){
+  const users={...CORE_USERS,...getUsers()};
+  const u=users[username.value];
+
+  if(u && !u.disabled && u.password===password.value){
+    currentRole=u.role;
+    loginStage.classList.add("hidden");
+    mainStage.classList.remove("hidden");
+
+    if(currentRole==="admin"){
+      calendarAdmin.classList.remove("hidden");
+      memberAdmin.classList.remove("hidden");
+      loadUsers();
+    }
+
+    showCalendar();
+    loadEvents();
+    loadMembers();
+  } else {
+    alert("Invalid or disabled account.");
+  }
 }
 
-function loginForRequest(){
-  const users=getUsers();
-  const u=users[reqUser.value];
-  if(u && u.password===reqPass.value && u.canRequestEvent && u.active){
-    loggedUser=reqUser.value;
-    document.getElementById("eventForm").style.display="block";
-  } else alert("No permission.");
+function logout(){
+  location.reload();
 }
 
-function submitEvent(){
-  const pending=getPending();
-  pending.push({
-    date:eventDate.value,
+/* NAVIGATION */
+function showCalendar(){
+  calendarSection.classList.remove("hidden");
+  membersSection.classList.add("hidden");
+}
+
+function showMembers(){
+  membersSection.classList.remove("hidden");
+  calendarSection.classList.add("hidden");
+}
+
+/* CALENDAR */
+function addEvent(){
+  const events=getEvents();
+  events.push({
     title:eventTitle.value,
-    details:eventDetails.value,
-    host:eventHost.value,
-    invite:eventInvite.value
+    date:eventDate.value
   });
-  savePending(pending);
-  alert("Submitted for approval.");
-  document.getElementById("eventForm").reset;
+  saveEvents(events);
+  loadEvents();
 }
 
-function loadApproved(){
-  const approved=getApproved();
-  const table=document.getElementById("eventsTable");
-  approved.forEach(e=>{
-    table.innerHTML+=`
-    <tr>
-      <td>${e.date}</td>
-      <td>${e.title}</td>
-      <td>${e.details}</td>
-      <td>${e.host}</td>
-      <td><a href="${e.invite}" target="_blank">View Invite</a></td>
-    </tr>`;
+function deleteEvent(i){
+  const events=getEvents();
+  events.splice(i,1);
+  saveEvents(events);
+  loadEvents();
+}
+
+function loadEvents(){
+  const events=getEvents();
+  eventList.innerHTML="";
+  events.forEach((e,i)=>{
+    eventList.innerHTML+=`
+      <div class="card">
+        <strong>${e.title}</strong><br>
+        ${e.date}
+        ${currentRole==="admin"
+          ? `<br><button class="btn btn-danger" onclick="deleteEvent(${i})">Remove</button>`
+          : ""
+        }
+      </div>
+    `;
   });
 }
 
-loadApproved();
+/* MEMBERS */
+function addMember(){
+  const reader=new FileReader();
+  reader.onload=function(){
+    const members=getMembers();
+    members.push({
+      name:mName.value,
+      surname:mSurname.value,
+      number:mNumber.value,
+      title:mTitle.value,
+      photo:reader.result,
+      visibility:{
+        name:vName.checked,
+        surname:vSurname.checked,
+        number:vNumber.checked,
+        title:vTitle.checked,
+        photo:vPhoto.checked
+      }
+    });
+    saveMembers(members);
+    loadMembers();
+  };
+  reader.readAsDataURL(mPhoto.files[0]);
+}
+
+function deleteMember(i){
+  const m=getMembers();
+  m.splice(i,1);
+  saveMembers(m);
+  loadMembers();
+}
+
+function loadMembers(){
+  const members=getMembers();
+  memberGrid.innerHTML="";
+  members.forEach((m,i)=>{
+    function show(f){ return currentRole==="admin" || m.visibility[f]; }
+
+    memberGrid.innerHTML+=`
+      <div class="member-card">
+        ${show("photo")?`<img src="${m.photo}">`:""}
+        ${show("name")?`<h4>${m.name}</h4>`:""}
+        ${show("surname")?`<h4>${m.surname}</h4>`:""}
+        ${show("title")?`<p>${m.title}</p>`:""}
+        ${show("number")?`<small>${m.number}</small>`:""}
+        ${currentRole==="admin"
+          ? `<br><button class="btn btn-danger" onclick="deleteMember(${i})">Remove</button>`
+          : ""
+        }
+      </div>
+    `;
+  });
+}
+
+/* USERS */
+function addUser(){
+  const users=getUsers();
+  users[newUser.value]={
+    password:newPass.value,
+    role:newRole.value,
+    disabled:false
+  };
+  saveUsers(users);
+  loadUsers();
+}
+
+function toggleUser(u){
+  const users=getUsers();
+  users[u].disabled=!users[u].disabled;
+  saveUsers(users);
+  loadUsers();
+}
+
+function deleteUser(u){
+  const users=getUsers();
+  delete users[u];
+  saveUsers(users);
+  loadUsers();
+}
+
+function loadUsers(){
+  const users=getUsers();
+  userList.innerHTML="<h4>Manage Users</h4>";
+  Object.keys(users).forEach(u=>{
+    userList.innerHTML+=`
+      <div>
+        ${u} (${users[u].role}) ${users[u].disabled?"- DISABLED":""}
+        <button class="btn" onclick="toggleUser('${u}')">
+          ${users[u].disabled?"Enable":"Disable"}
+        </button>
+        <button class="btn btn-danger" onclick="deleteUser('${u}')">Remove</button>
+      </div>
+    `;
+  });
+}
 
 </script>
+
 </body>
 </html>
