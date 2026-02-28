@@ -1,397 +1,230 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Distributors Network Calendar</title>
+<title>Members Area</title>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#002147;
-  color:#fff;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 40px;
+  background-color: #002147;
+  color: #fff;
 }
 
-header{
-  text-align:center;
-  padding:20px;
-}
+h1,h2,h3 { color:#FFD700; }
 
-h1,h2,h3{
-  color:#FFD700;
-  text-align:center;
-}
-
-.container{
-  max-width:1100px;
-  margin:auto;
-  background:#1a1a1a;
-  padding:25px;
-  border-radius:10px;
-}
-
-.btn{
+.btn {
   background:#FFD700;
   color:#000;
+  padding:8px 14px;
   border:none;
-  padding:8px 15px;
-  margin:5px;
-  border-radius:5px;
+  border-radius:6px;
   cursor:pointer;
+  margin:5px 3px;
   font-weight:bold;
 }
 
-.btn-danger{
+.btn-danger {
   background:#800000;
   color:#fff;
 }
 
-.center{
-  text-align:center;
-}
-
-input,select{
+input, select {
   width:100%;
   padding:8px;
   margin:6px 0;
 }
 
-.grid{
+.container {
+  max-width:1000px;
+  margin:auto;
+  background:#1a1a1a;
+  padding:25px;
+  border-radius:12px;
+}
+
+.member-grid {
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
   gap:20px;
+  margin-top:20px;
 }
 
-.card{
+.member-card {
   background:#262626;
   padding:15px;
-  border-radius:8px;
+  border-radius:10px;
   text-align:center;
 }
 
-img{
+.member-card img {
   width:100%;
   height:200px;
   object-fit:cover;
-  border-radius:6px;
-}
-
-.section{
-  display:none;
+  border-radius:8px;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Distributors Network Calendar</h1>
-</header>
-
 <div class="container">
 
-<!-- NAV -->
-<div class="center">
-  <button class="btn" onclick="showCalendar()">Calendar</button>
-  <button class="btn" onclick="showMembers()">Members</button>
-</div>
+<h1>Members Area</h1>
 
-<!-- CALENDAR SECTION (DEFAULT) -->
-<div id="calendarSection" class="section" style="display:block;">
-
-<h2>Calendar</h2>
-
-<div id="approvedEvents"></div>
-
-<div class="center">
-  <button class="btn" onclick="toggleRequest()">Request Event</button>
-</div>
-
-<div id="requestArea" style="display:none;">
-  <h3>Request Event</h3>
-
-  <div id="eventLoginArea">
-    <input id="eventUser" placeholder="Username">
-    <input id="eventPass" type="password" placeholder="Password">
-    <button class="btn" onclick="eventLogin()">Login</button>
-  </div>
-
-  <div id="eventFormArea" style="display:none;">
-    <input id="eventTitle" placeholder="Event Title">
-    <input id="eventDate" type="date">
-    <button class="btn" onclick="submitEvent()">Submit Request</button>
-  </div>
-</div>
-
-<hr>
-
-<h3>Pending Event Requests (Admin Only)</h3>
-<div id="pendingEvents"></div>
-
-</div>
-
-<!-- MEMBERS SECTION -->
-<div id="membersSection" class="section">
-
-<h2>Members Area</h2>
-
-<div id="loginArea">
+<!-- LOGIN -->
+<div id="loginStage">
+  <h2>Login</h2>
   <input id="username" placeholder="Username">
   <input id="password" type="password" placeholder="Password">
   <button class="btn" onclick="login()">Login</button>
 </div>
 
-<div id="membersContent" style="display:none;">
-
-<div class="center">
+<!-- MEMBERS -->
+<div id="membersStage" style="display:none;">
   <button class="btn" onclick="logout()">Logout</button>
-  <button class="btn" onclick="showCalendar()">Back to Calendar</button>
+
+  <!-- ADMIN CONTROLS -->
+  <div id="adminControls" style="display:none;">
+
+    <h3>Add Member</h3>
+
+    <input id="mName" placeholder="Name">
+    <input id="mSurname" placeholder="Surname">
+    <input id="mNumber" placeholder="Member Number">
+    <input id="mTitle" placeholder="Title">
+    <input id="mPhoto" type="file" accept="image/*">
+
+    <h4>Visibility</h4>
+    <label><input type="checkbox" id="vName" checked> Show Name</label><br>
+    <label><input type="checkbox" id="vSurname" checked> Show Surname</label><br>
+    <label><input type="checkbox" id="vTitle" checked> Show Title</label><br>
+    <label><input type="checkbox" id="vNumber" checked> Show Number</label><br>
+    <label><input type="checkbox" id="vPhoto" checked> Show Photo</label><br>
+
+    <button class="btn" onclick="addMember()">Add Member</button>
+
+    <hr>
+
+    <h3>User Management</h3>
+
+    <input id="newUsername" placeholder="Username">
+    <input id="newPassword" placeholder="Password">
+    <select id="newRole">
+      <option value="member">Member</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button class="btn" onclick="addUser()">Add User</button>
+
+    <div id="userList"></div>
+
+    <hr>
+  </div>
+
+  <div class="member-grid" id="memberGrid"></div>
 </div>
 
-<hr>
-
-<!-- ADMIN CONTROLS -->
-<div id="adminControls" style="display:none;">
-
-<h3>Add / Edit User</h3>
-<input id="uName" placeholder="Username">
-<input id="uPass" placeholder="Password">
-<label><input type="checkbox" id="rightView"> Can View Members</label><br>
-<label><input type="checkbox" id="rightRequest"> Can Request Event</label><br>
-<button class="btn" onclick="saveUser()">Save User</button>
-<button class="btn btn-danger" onclick="clearUserForm()">Clear</button>
-
-<hr>
-
-<h3>Add / Edit Member Profile</h3>
-<input id="mName" placeholder="Name">
-<input id="mSurname" placeholder="Surname">
-<input id="mNumber" placeholder="Member Number">
-<input id="mTitle" placeholder="Title">
-<input id="mPhoto" type="file" accept="image/*">
-<button class="btn" onclick="saveMember()">Save Member</button>
-<button class="btn btn-danger" onclick="clearMemberForm()">Clear</button>
-
-<hr>
-
-<h3>Users</h3>
-<div id="userList"></div>
-
-</div>
-
-<h3>Members</h3>
-<div class="grid" id="memberGrid"></div>
-
-</div>
 </div>
 
 <script>
 
-/* ---------------- STORAGE ---------------- */
+/* STORAGE */
+function getUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
+function saveUsers(u){ localStorage.setItem("users",JSON.stringify(u)); }
 
-function getUsers(){
-  let users = JSON.parse(localStorage.getItem("users")||"null");
-  if(!users){
-    users={
-      admin1:{
-        password:"admin123",
-        role:"admin",
-        view:true,
-        request:true,
-        disabled:false
-      }
-    };
-    localStorage.setItem("users",JSON.stringify(users));
-  }
-  return users;
+function getMembers(){ return JSON.parse(localStorage.getItem("members")||"[]"); }
+function saveMembers(m){ localStorage.setItem("members",JSON.stringify(m)); }
+
+/* INIT ADMINS */
+if(!localStorage.getItem("users")){
+  saveUsers({
+    admin1:{password:"admin123",role:"admin",active:true},
+    admin2:{password:"admin456",role:"admin",active:true}
+  });
 }
 
-function saveUsers(users){
-  localStorage.setItem("users",JSON.stringify(users));
-}
+let role=null;
 
-function getMembers(){
-  return JSON.parse(localStorage.getItem("members")||"[]");
-}
-
-function saveMembers(data){
-  localStorage.setItem("members",JSON.stringify(data));
-}
-
-function getApproved(){
-  return JSON.parse(localStorage.getItem("approved")||"[]");
-}
-
-function saveApproved(data){
-  localStorage.setItem("approved",JSON.stringify(data));
-}
-
-function getPending(){
-  return JSON.parse(localStorage.getItem("pending")||"[]");
-}
-
-function savePending(data){
-  localStorage.setItem("pending",JSON.stringify(data));
-}
-
-/* ---------------- NAVIGATION ---------------- */
-
-function showCalendar(){
-  calendarSection.style.display="block";
-  membersSection.style.display="none";
-  loadApproved();
-  loadPending();
-}
-
-function showMembers(){
-  calendarSection.style.display="none";
-  membersSection.style.display="block";
-}
-
-/* ---------------- LOGIN ---------------- */
-
-let currentUser=null;
-
+/* LOGIN */
 function login(){
   const users=getUsers();
-  const u=users[username.value];
+  const user=users[username.value];
 
-  if(u && u.password===password.value && !u.disabled){
-    currentUser=username.value;
-    loginArea.style.display="none";
-    membersContent.style.display="block";
-    if(u.role==="admin"){
-      adminControls.style.display="block";
-      loadUsers();
-    }
+  if(user && user.password===password.value && user.active){
+    role=user.role;
+    loginStage.style.display="none";
+    membersStage.style.display="block";
+    adminControls.style.display=role==="admin"?"block":"none";
+    if(role==="admin") loadUsers();
     loadMembers();
-  }else{
-    alert("Invalid login");
+  } else {
+    alert("Invalid or disabled account");
   }
 }
 
 function logout(){
-  currentUser=null;
-  membersContent.style.display="none";
-  loginArea.style.display="block";
+  role=null;
+  membersStage.style.display="none";
+  loginStage.style.display="block";
 }
 
-/* ---------------- USERS ---------------- */
-
-let editingUser=null;
-
-function saveUser(){
+/* USER MANAGEMENT */
+function addUser(){
   const users=getUsers();
-
-  if(uName.value==="admin1"){
-    alert("admin1 cannot be modified");
-    return;
-  }
-
-  users[uName.value]={
-    password:uPass.value,
-    role:"user",
-    view:rightView.checked,
-    request:rightRequest.checked,
-    disabled:false
-  };
-
+  if(!newUsername.value || !newPassword.value){ alert("Required"); return; }
+  users[newUsername.value]={password:newPassword.value,role:newRole.value,active:true};
   saveUsers(users);
   loadUsers();
-  clearUserForm();
+  newUsername.value="";
+  newPassword.value="";
 }
 
-function editUser(name){
-  if(name==="admin1") return;
-  const u=getUsers()[name];
-  editingUser=name;
-  uName.value=name;
-  uPass.value=u.password;
-  rightView.checked=u.view;
-  rightRequest.checked=u.request;
-}
-
-function deleteUser(name){
-  if(name==="admin1") return;
+function toggleUser(u){
   const users=getUsers();
-  delete users[name];
-  saveUsers(users);
-  loadUsers();
-}
-
-function disableUser(name){
-  if(name==="admin1") return;
-  const users=getUsers();
-  users[name].disabled=!users[name].disabled;
+  users[u].active=!users[u].active;
   saveUsers(users);
   loadUsers();
 }
 
 function loadUsers(){
   const users=getUsers();
-  userList.innerHTML="";
-  for(let u in users){
-    const data=users[u];
-    userList.innerHTML+=`
-      <div>
-        ${u} ${data.disabled?"(Disabled)":""}
-        ${u!=="admin1"?
-        `<button class="btn" onclick="editUser('${u}')">Edit</button>
-         <button class="btn btn-danger" onclick="deleteUser('${u}')">Remove</button>
-         <button class="btn" onclick="disableUser('${u}')">Enable/Disable</button>`
-        :""}
-      </div>`;
-  }
+  let html="<h4>Existing Users</h4>";
+  Object.keys(users).forEach(u=>{
+    html+=`${u} (${users[u].role}) - ${users[u].active?"Active":"Disabled"}
+    <button class="btn btn-danger" onclick="toggleUser('${u}')">
+    ${users[u].active?"Disable":"Enable"}
+    </button><br>`;
+  });
+  userList.innerHTML=html;
 }
 
-function clearUserForm(){
-  uName.value="";
-  uPass.value="";
-  rightView.checked=false;
-  rightRequest.checked=false;
-  editingUser=null;
-}
+/* MEMBERS */
+function addMember(){
+  if(!mPhoto.files[0]){ alert("Select photo"); return; }
 
-/* ---------------- MEMBERS ---------------- */
-
-let editingMember=null;
-
-function saveMember(){
-  const members=getMembers();
   const reader=new FileReader();
-
   reader.onload=function(){
-    const obj={
+    const members=getMembers();
+    members.push({
       name:mName.value,
       surname:mSurname.value,
       number:mNumber.value,
       title:mTitle.value,
-      photo:reader.result
-    };
-
-    if(editingMember!==null){
-      members[editingMember]=obj;
-    }else{
-      members.push(obj);
-    }
-
+      photo:reader.result,
+      visibility:{
+        name:vName.checked,
+        surname:vSurname.checked,
+        title:vTitle.checked,
+        number:vNumber.checked,
+        photo:vPhoto.checked
+      }
+    });
     saveMembers(members);
     loadMembers();
-    clearMemberForm();
   };
-
-  if(mPhoto.files[0]){
-    reader.readAsDataURL(mPhoto.files[0]);
-  }
-}
-
-function editMember(i){
-  const m=getMembers()[i];
-  editingMember=i;
-  mName.value=m.name;
-  mSurname.value=m.surname;
-  mNumber.value=m.number;
-  mTitle.value=m.title;
+  reader.readAsDataURL(mPhoto.files[0]);
 }
 
 function deleteMember(i){
@@ -404,117 +237,18 @@ function deleteMember(i){
 function loadMembers(){
   memberGrid.innerHTML="";
   getMembers().forEach((m,i)=>{
+    const show=role==="admin"?{name:true,surname:true,title:true,number:true,photo:true}:m.visibility;
+
     memberGrid.innerHTML+=`
-      <div class="card">
-        <img src="${m.photo}">
-        <h4>${m.name} ${m.surname}</h4>
-        <p>${m.title}</p>
-        <small>${m.number}</small>
-        ${currentUser && getUsers()[currentUser].role==="admin"?
-        `<div>
-          <button class="btn" onclick="editMember(${i})">Edit</button>
-          <button class="btn btn-danger" onclick="deleteMember(${i})">Remove</button>
-        </div>`:""}
-      </div>`;
+    <div class="member-card">
+      ${show.photo?`<img src="${m.photo}">`:""}
+      ${(show.name||show.surname)?`<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>`:""}
+      ${show.title?`<p>${m.title}</p>`:""}
+      ${show.number?`<small>Member No: ${m.number}</small>`:""}
+      ${role==="admin"?`
+      <button class="btn" onclick="deleteMember(${i})">Remove</button>`:""}
+    </div>`;
   });
-}
-
-function clearMemberForm(){
-  mName.value="";
-  mSurname.value="";
-  mNumber.value="";
-  mTitle.value="";
-  mPhoto.value="";
-  editingMember=null;
-}
-
-/* ---------------- EVENTS ---------------- */
-
-let eventUserLogged=null;
-
-function toggleRequest(){
-  requestArea.style.display=
-  requestArea.style.display==="none"?"block":"none";
-}
-
-function eventLogin(){
-  const users=getUsers();
-  const u=users[eventUser.value];
-
-  if(u && u.password===eventPass.value && u.request && !u.disabled){
-    eventUserLogged=eventUser.value;
-    eventLoginArea.style.display="none";
-    eventFormArea.style.display="block";
-  }else{
-    alert("No permission");
-  }
-}
-
-function submitEvent(){
-  const pending=getPending();
-  pending.push({
-    title:eventTitle.value,
-    date:eventDate.value,
-    by:eventUserLogged
-  });
-  savePending(pending);
-  alert("Event submitted for approval");
-  eventTitle.value="";
-  eventDate.value="";
-  loadPending();
-}
-
-function loadPending(){
-  const users=getUsers();
-  pendingEvents.innerHTML="";
-  getPending().forEach((e,i)=>{
-    pendingEvents.innerHTML+=`
-      <div>
-        ${e.title} - ${e.date} (by ${e.by})
-        ${currentUser && users[currentUser].role==="admin"?
-        `<button class="btn" onclick="approveEvent(${i})">Approve</button>
-         <button class="btn btn-danger" onclick="rejectEvent(${i})">Reject</button>`
-        :""}
-      </div>`;
-  });
-}
-
-function approveEvent(i){
-  const pending=getPending();
-  const approved=getApproved();
-  approved.push(pending[i]);
-  pending.splice(i,1);
-  saveApproved(approved);
-  savePending(pending);
-  loadApproved();
-  loadPending();
-}
-
-function rejectEvent(i){
-  const pending=getPending();
-  pending.splice(i,1);
-  savePending(pending);
-  loadPending();
-}
-
-function loadApproved(){
-  approvedEvents.innerHTML="";
-  getApproved().forEach((e,i)=>{
-    approvedEvents.innerHTML+=`
-      <div>
-        ${e.title} - ${e.date}
-        ${currentUser && getUsers()[currentUser].role==="admin"?
-        `<button class="btn btn-danger" onclick="removeApproved(${i})">Remove</button>`
-        :""}
-      </div>`;
-  });
-}
-
-function removeApproved(i){
-  const approved=getApproved();
-  approved.splice(i,1);
-  saveApproved(approved);
-  loadApproved();
 }
 
 </script>
