@@ -2,25 +2,37 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Members Section</title>
+<title>Members Area</title>
 <style>
 body{font-family:Arial;background:#002147;color:#fff;padding:40px;}
-.btn{background:#FFD700;color:#000;padding:8px 14px;border:none;border-radius:6px;font-weight:bold;margin:4px;cursor:pointer;}
+.container{max-width:1100px;margin:auto;background:#1a1a1a;padding:30px;border-radius:12px;}
+input,select{width:100%;padding:8px;margin:6px 0;}
+.btn{background:#FFD700;color:#000;padding:8px 14px;border:none;border-radius:6px;font-weight:bold;cursor:pointer;margin:4px;}
 .btn-danger{background:#800000;color:#fff;}
-.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;margin-top:20px;}
-.member-card{background:#1a1a1a;padding:15px;border-radius:10px;text-align:center;}
-.member-card img{width:100%;height:200px;object-fit:cover;border-radius:8px;}
-input{width:100%;padding:6px;margin:6px 0;}
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:20px;margin-top:20px;}
+.member-card{background:#262626;padding:15px;border-radius:10px;text-align:center;}
+.member-card img{width:100%;height:220px;object-fit:cover;border-radius:8px;}
+.hidden{display:none;}
 </style>
 </head>
+
 <body>
+<div class="container">
 
 <h1>Members Area</h1>
 
+<div id="loginBox">
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
 <button class="btn" onclick="login()">Login</button>
+</div>
+
+<div id="panel" class="hidden">
+
 <button class="btn" onclick="logout()">Logout</button>
 
-<div id="adminControls" style="display:none;">
+<div id="adminPanel" class="hidden">
+
 <h3>Add / Edit Member</h3>
 <input id="mName" placeholder="Name">
 <input id="mSurname" placeholder="Surname">
@@ -28,49 +40,139 @@ input{width:100%;padding:6px;margin:6px 0;}
 <input id="mTitle" placeholder="Title">
 <input id="mPhoto" type="file">
 
-<label><input type="checkbox" id="vName" checked> Show Name</label><br>
-<label><input type="checkbox" id="vSurname" checked> Show Surname</label><br>
-<label><input type="checkbox" id="vNumber" checked> Show Number</label><br>
-<label><input type="checkbox" id="vTitle" checked> Show Title</label><br>
-<label><input type="checkbox" id="vPhoto" checked> Show Photo</label><br>
+<h4>Visibility Controls</h4>
+<label><input type="checkbox" id="vName" checked> Name</label>
+<label><input type="checkbox" id="vSurname" checked> Surname</label>
+<label><input type="checkbox" id="vNumber" checked> Number</label>
+<label><input type="checkbox" id="vTitle" checked> Title</label>
+<label><input type="checkbox" id="vPhoto" checked> Photo</label>
 
 <button class="btn" onclick="saveMember()">Save Member</button>
+
+<hr>
+
+<h3>User Management</h3>
+<input id="uName" placeholder="Username">
+<input id="uPass" placeholder="Password">
+<select id="uRole">
+<option value="member">Member</option>
+<option value="admin">Admin</option>
+<option value="pastor">Pastor / Event Coordinator</option>
+</select>
+<button class="btn" onclick="saveUser()">Save User</button>
+
+<div id="userList"></div>
+
+<hr>
+
+<h3>Pending Events</h3>
+<div id="pendingEvents"></div>
+
 </div>
 
-<div class="member-grid" id="memberGrid"></div>
+<div class="member-grid" id="membersGrid"></div>
+
+</div>
+</div>
 
 <script>
 
-function getMembers(){return JSON.parse(localStorage.getItem("members")||"[]")}
-function saveMembers(m){localStorage.setItem("members",JSON.stringify(m))}
-function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}")}
+/* STORAGE */
+function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}");}
+function saveUsers(u){localStorage.setItem("users",JSON.stringify(u));}
+function getMembers(){return JSON.parse(localStorage.getItem("members")||"[]");}
+function saveMembers(m){localStorage.setItem("members",JSON.stringify(m));}
+function getEvents(){return JSON.parse(localStorage.getItem("events")||"[]");}
+function saveEvents(e){localStorage.setItem("events",JSON.stringify(e));}
+
+/* HARD SUPERADMIN */
+if(!localStorage.getItem("users")){
+saveUsers({
+superadmin:{password:"super123",role:"superadmin",active:true},
+admin2:{password:"admin456",role:"admin",active:true}
+});
+}
 
 let currentUser=null;
-let editingId=null;
+let editMemberId=null;
 
+/* LOGIN */
 function login(){
-let u=prompt("Username");
-let p=prompt("Password");
-let users=getUsers();
-if(users[u] && users[u].password===p && users[u].active){
-if(users[u].role==="member"||users[u].role==="admin"||users[u].role==="superadmin"){
-currentUser={username:u,role:users[u].role};
-if(users[u].role==="admin"||users[u].role==="superadmin"){
-adminControls.style.display="block";
+const users=getUsers();
+if(users[username.value] && users[username.value].password===password.value && users[username.value].active){
+currentUser={name:username.value,...users[username.value]};
+loginBox.classList.add("hidden");
+panel.classList.remove("hidden");
+
+if(currentUser.role==="admin"||currentUser.role==="superadmin"){
+adminPanel.classList.remove("hidden");
+loadUsers();
+loadPending();
 }
 loadMembers();
-}else{
-alert("Access Denied");
-}
-}else alert("Invalid Login");
+}else alert("Invalid");
 }
 
-function logout(){location.reload();}
+function logout(){
+currentUser=null;
+panel.classList.add("hidden");
+loginBox.classList.remove("hidden");
+}
 
+/* USERS */
+function saveUser(){
+if(currentUser.role!=="admin"&&currentUser.role!=="superadmin")return;
+
+let users=getUsers();
+users[uName.value]={password:uPass.value,role:uRole.value,active:true};
+saveUsers(users);
+loadUsers();
+}
+
+function loadUsers(){
+let users=getUsers();
+let html="";
+Object.keys(users).forEach(u=>{
+if(u==="superadmin" && currentUser.role!=="superadmin") return;
+
+html+=`
+<div>
+${u} (${users[u].role}) ${users[u].active?"Active":"Disabled"}
+<button class="btn" onclick="resetPass('${u}')">Reset</button>
+<button class="btn" onclick="toggleUser('${u}')">${users[u].active?"Disable":"Enable"}</button>
+${u!=="superadmin" ? `<button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>`:""}
+</div>`;
+});
+userList.innerHTML=html;
+}
+
+function resetPass(u){
+let users=getUsers();
+users[u].password=prompt("New Password:");
+saveUsers(users);
+loadUsers();
+}
+
+function toggleUser(u){
+let users=getUsers();
+users[u].active=!users[u].active;
+saveUsers(users);
+loadUsers();
+}
+
+function deleteUser(u){
+if(!confirm("Delete user?")) return;
+let users=getUsers();
+delete users[u];
+saveUsers(users);
+loadUsers();
+}
+
+/* MEMBERS */
 function saveMember(){
 let members=getMembers();
 let data={
-id:editingId||Date.now(),
+id:editMemberId||Date.now(),
 name:mName.value,
 surname:mSurname.value,
 number:mNumber.value,
@@ -88,26 +190,48 @@ if(mPhoto.files[0]){
 let reader=new FileReader();
 reader.onload=function(){
 data.photo=reader.result;
-commit(data);
+commitMember(data);
 };
 reader.readAsDataURL(mPhoto.files[0]);
-}else commit(data);
+}else commitMember(data);
 }
 
-function commit(data){
+function commitMember(data){
 let members=getMembers();
-if(editingId){
-members=members.map(m=>m.id===editingId?data:m);
-}else members.push(data);
-
+if(editMemberId)
+members=members.map(m=>m.id===editMemberId?data:m);
+else members.push(data);
 saveMembers(members);
-editingId=null;
+editMemberId=null;
 loadMembers();
+}
+
+function loadMembers(){
+membersGrid.innerHTML="";
+getMembers().forEach(m=>{
+let show=currentUser.role==="admin"||currentUser.role==="superadmin"
+? {name:true,surname:true,number:true,title:true,photo:true}
+: m.visibility;
+
+let content="";
+if(show.photo && m.photo) content+=`<img src="${m.photo}">`;
+if(show.name||show.surname) content+=`<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>`;
+if(show.title) content+=`<p>${m.title}</p>`;
+if(show.number) content+=`<small>${m.number}</small>`;
+
+membersGrid.innerHTML+=`
+<div class="member-card">
+${content||"Hidden"}
+${currentUser.role==="admin"||currentUser.role==="superadmin"
+? `<button class="btn" onclick="editMember(${m.id})">Edit</button>
+<button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`:""}
+</div>`;
+});
 }
 
 function editMember(id){
 let m=getMembers().find(x=>x.id===id);
-editingId=id;
+editMemberId=id;
 mName.value=m.name;
 mSurname.value=m.surname;
 mNumber.value=m.number;
@@ -120,34 +244,35 @@ vPhoto.checked=m.visibility.photo;
 }
 
 function deleteMember(id){
-if(!confirm("Delete member?"))return;
-let members=getMembers().filter(m=>m.id!==id);
-saveMembers(members);
+if(!confirm("Delete?"))return;
+saveMembers(getMembers().filter(m=>m.id!==id));
 loadMembers();
 }
 
-function loadMembers(){
-memberGrid.innerHTML="";
-getMembers().forEach(m=>{
-let visible=currentUser.role==="admin"||currentUser.role==="superadmin"
-?{name:true,surname:true,number:true,title:true,photo:true}
-:m.visibility;
-
+/* EVENTS APPROVAL */
+function loadPending(){
 let html="";
-if(visible.photo && m.photo) html+=`<img src="${m.photo}">`;
-if(visible.name||visible.surname)
-html+=`<h4>${visible.name?m.name:""} ${visible.surname?m.surname:""}</h4>`;
-if(visible.title) html+=`<p>${m.title}</p>`;
-if(visible.number) html+=`<small>${m.number}</small>`;
-
-memberGrid.innerHTML+=`
-<div class="member-card">
-${html||"<p>No visible data</p>"}
-${(currentUser.role==="admin"||currentUser.role==="superadmin")?
-`<button class="btn" onclick="editMember(${m.id})">Edit</button>
-<button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`:""}
+getEvents().filter(e=>e.status==="pending").forEach(e=>{
+html+=`
+<div>
+${e.title} - ${e.date}
+<button class="btn" onclick="approve(${e.id})">Approve</button>
+<button class="btn btn-danger" onclick="reject(${e.id})">Reject</button>
 </div>`;
 });
+pendingEvents.innerHTML=html;
+}
+
+function approve(id){
+let events=getEvents();
+events.find(e=>e.id===id).status="approved";
+saveEvents(events);
+loadPending();
+}
+
+function reject(id){
+saveEvents(getEvents().filter(e=>e.id!==id));
+loadPending();
 }
 
 </script>
