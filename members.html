@@ -1,336 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Members Area</title>
-
+<title>Members Section</title>
 <style>
-body{
-  font-family:Arial;
-  margin:0;
-  padding:40px;
-  background:#002147;
-  color:#fff;
-}
-h1,h2,h3{color:#FFD700;}
-.container{
-  max-width:1100px;
-  margin:auto;
-  background:#1a1a1a;
-  padding:30px;
-  border-radius:12px;
-}
-.btn{
-  background:#FFD700;
-  color:#000;
-  border:none;
-  padding:8px 14px;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:bold;
-  margin:4px 2px;
-}
+body{font-family:Arial;background:#002147;color:#fff;padding:40px;}
+.btn{background:#FFD700;color:#000;padding:8px 14px;border:none;border-radius:6px;font-weight:bold;margin:4px;cursor:pointer;}
 .btn-danger{background:#800000;color:#fff;}
-input,select{
-  width:100%;
-  padding:8px;
-  margin:6px 0;
-}
-.member-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
-  gap:20px;
-  margin-top:20px;
-}
-.member-card{
-  background:#262626;
-  padding:15px;
-  border-radius:10px;
-  text-align:center;
-}
-.member-card img{
-  width:100%;
-  height:220px;
-  object-fit:cover;
-  border-radius:8px;
-}
-.section{
-  margin-bottom:30px;
-  padding-bottom:20px;
-  border-bottom:1px solid #333;
-}
-label{display:block;margin:4px 0;}
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;margin-top:20px;}
+.member-card{background:#1a1a1a;padding:15px;border-radius:10px;text-align:center;}
+.member-card img{width:100%;height:200px;object-fit:cover;border-radius:8px;}
+input{width:100%;padding:6px;margin:6px 0;}
 </style>
 </head>
-
 <body>
-<div class="container">
 
 <h1>Members Area</h1>
 
-<!-- LOGIN -->
-<div id="loginStage">
-  <h2>Login</h2>
-  <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
-  <button class="btn" onclick="login()">Login</button>
-</div>
-
-<!-- MEMBERS -->
-<div id="membersStage" style="display:none;">
-
+<button class="btn" onclick="login()">Login</button>
 <button class="btn" onclick="logout()">Logout</button>
 
 <div id="adminControls" style="display:none;">
-
-<div class="section">
 <h3>Add / Edit Member</h3>
 <input id="mName" placeholder="Name">
 <input id="mSurname" placeholder="Surname">
 <input id="mNumber" placeholder="Member Number">
 <input id="mTitle" placeholder="Title">
-<input id="mPhoto" type="file" accept="image/*">
+<input id="mPhoto" type="file">
 
-<h4>Field Visibility</h4>
-<label><input type="checkbox" id="vName" checked> Show Name</label>
-<label><input type="checkbox" id="vSurname" checked> Show Surname</label>
-<label><input type="checkbox" id="vTitle" checked> Show Title</label>
-<label><input type="checkbox" id="vNumber" checked> Show Number</label>
-<label><input type="checkbox" id="vPhoto" checked> Show Photo</label>
+<label><input type="checkbox" id="vName" checked> Show Name</label><br>
+<label><input type="checkbox" id="vSurname" checked> Show Surname</label><br>
+<label><input type="checkbox" id="vNumber" checked> Show Number</label><br>
+<label><input type="checkbox" id="vTitle" checked> Show Title</label><br>
+<label><input type="checkbox" id="vPhoto" checked> Show Photo</label><br>
 
 <button class="btn" onclick="saveMember()">Save Member</button>
 </div>
 
-<div class="section">
-<h3>User Management</h3>
-<input id="newUsername" placeholder="Username">
-<input id="newPassword" placeholder="Password">
-<select id="newRole">
-  <option value="member">Member</option>
-  <option value="admin">Admin</option>
-</select>
-
-<h4>Rights</h4>
-<label><input type="checkbox" id="rManageUsers"> Manage Users</label>
-<label><input type="checkbox" id="rManageMembers"> Manage Members</label>
-<label><input type="checkbox" id="rViewMembers" checked> View Members</label>
-
-<button class="btn" onclick="addUser()">Add User</button>
-
-<div id="userList"></div>
-</div>
-
-</div>
-
 <div class="member-grid" id="memberGrid"></div>
-
-</div>
-</div>
 
 <script>
 
-/* STORAGE */
-function getUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
-function saveUsers(u){ localStorage.setItem("users",JSON.stringify(u)); }
-function getMembers(){ return JSON.parse(localStorage.getItem("members")||"[]"); }
-function saveMembers(m){ localStorage.setItem("members",JSON.stringify(m)); }
-
-/* INITIAL SUPER ADMIN */
-if(!localStorage.getItem("users")){
-  saveUsers({
-    superadmin:{
-      password:"admin123",
-      role:"admin",
-      active:true,
-      rights:{
-        manageUsers:true,
-        manageMembers:true,
-        viewMembers:true
-      }
-    }
-  });
-}
+function getMembers(){return JSON.parse(localStorage.getItem("members")||"[]")}
+function saveMembers(m){localStorage.setItem("members",JSON.stringify(m))}
+function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}")}
 
 let currentUser=null;
-let editingMemberId=null;
+let editingId=null;
 
-/* LOGIN */
 function login(){
-  const users=getUsers();
-  const user=users[username.value];
-
-  if(user && user.password===password.value && user.active){
-    currentUser=user;
-    loginStage.style.display="none";
-    membersStage.style.display="block";
-
-    adminControls.style.display =
-      (user.rights.manageUsers || user.rights.manageMembers)
-      ? "block" : "none";
-
-    loadMembers();
-    loadUsers();
-  } else {
-    alert("Invalid or disabled account");
-  }
+let u=prompt("Username");
+let p=prompt("Password");
+let users=getUsers();
+if(users[u] && users[u].password===p && users[u].active){
+if(users[u].role==="member"||users[u].role==="admin"||users[u].role==="superadmin"){
+currentUser={username:u,role:users[u].role};
+if(users[u].role==="admin"||users[u].role==="superadmin"){
+adminControls.style.display="block";
+}
+loadMembers();
+}else{
+alert("Access Denied");
+}
+}else alert("Invalid Login");
 }
 
-function logout(){
-  currentUser=null;
-  membersStage.style.display="none";
-  loginStage.style.display="block";
-}
-
-/* USER MANAGEMENT */
-
-function addUser(){
-  if(!currentUser.rights.manageUsers){
-    alert("No permission");
-    return;
-  }
-
-  const users=getUsers();
-
-  users[newUsername.value]={
-    password:newPassword.value,
-    role:newRole.value,
-    active:true,
-    rights:{
-      manageUsers:rManageUsers.checked,
-      manageMembers:rManageMembers.checked,
-      viewMembers:rViewMembers.checked
-    }
-  };
-
-  saveUsers(users);
-  loadUsers();
-}
-
-function toggleUser(username){
-  if(!currentUser.rights.manageUsers) return;
-  const users=getUsers();
-  users[username].active=!users[username].active;
-  saveUsers(users);
-  loadUsers();
-}
-
-function deleteUser(username){
-  if(!currentUser.rights.manageUsers) return;
-  const users=getUsers();
-  delete users[username];
-  saveUsers(users);
-  loadUsers();
-}
-
-function loadUsers(){
-  if(!currentUser || !currentUser.rights.manageUsers) return;
-
-  const users=getUsers();
-  let html="<h4>Existing Users</h4>";
-
-  Object.keys(users).forEach(u=>{
-    html+=`
-      <div>
-        <strong>${u}</strong> (${users[u].role})
-        <button class="btn" onclick="toggleUser('${u}')">Enable/Disable</button>
-        <button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>
-      </div>
-    `;
-  });
-
-  userList.innerHTML=html;
-}
-
-/* MEMBER MANAGEMENT */
+function logout(){location.reload();}
 
 function saveMember(){
-  if(!currentUser.rights.manageMembers){
-    alert("No permission");
-    return;
-  }
+let members=getMembers();
+let data={
+id:editingId||Date.now(),
+name:mName.value,
+surname:mSurname.value,
+number:mNumber.value,
+title:mTitle.value,
+visibility:{
+name:vName.checked,
+surname:vSurname.checked,
+number:vNumber.checked,
+title:vTitle.checked,
+photo:vPhoto.checked
+}
+};
 
-  const members=getMembers();
-
-  const memberData={
-    id: editingMemberId || Date.now(),
-    name:mName.value,
-    surname:mSurname.value,
-    number:mNumber.value,
-    title:mTitle.value,
-    visibility:{
-      name:vName.checked,
-      surname:vSurname.checked,
-      title:vTitle.checked,
-      number:vNumber.checked,
-      photo:vPhoto.checked
-    }
-  };
-
-  if(mPhoto.files[0]){
-    const reader=new FileReader();
-    reader.onload=function(){
-      memberData.photo=reader.result;
-      commitMember(memberData);
-    };
-    reader.readAsDataURL(mPhoto.files[0]);
-  } else {
-    commitMember(memberData);
-  }
+if(mPhoto.files[0]){
+let reader=new FileReader();
+reader.onload=function(){
+data.photo=reader.result;
+commit(data);
+};
+reader.readAsDataURL(mPhoto.files[0]);
+}else commit(data);
 }
 
-function commitMember(memberData){
-  let members=getMembers();
+function commit(data){
+let members=getMembers();
+if(editingId){
+members=members.map(m=>m.id===editingId?data:m);
+}else members.push(data);
 
-  if(editingMemberId){
-    members=members.map(m=>m.id===editingMemberId?memberData:m);
-  } else {
-    members.push(memberData);
-  }
+saveMembers(members);
+editingId=null;
+loadMembers();
+}
 
-  saveMembers(members);
-  editingMemberId=null;
-  loadMembers();
+function editMember(id){
+let m=getMembers().find(x=>x.id===id);
+editingId=id;
+mName.value=m.name;
+mSurname.value=m.surname;
+mNumber.value=m.number;
+mTitle.value=m.title;
+vName.checked=m.visibility.name;
+vSurname.checked=m.visibility.surname;
+vNumber.checked=m.visibility.number;
+vTitle.checked=m.visibility.title;
+vPhoto.checked=m.visibility.photo;
 }
 
 function deleteMember(id){
-  if(!currentUser.rights.manageMembers) return;
-  const members=getMembers().filter(m=>m.id!==id);
-  saveMembers(members);
-  loadMembers();
+if(!confirm("Delete member?"))return;
+let members=getMembers().filter(m=>m.id!==id);
+saveMembers(members);
+loadMembers();
 }
 
 function loadMembers(){
-  if(!currentUser || !currentUser.rights.viewMembers) return;
+memberGrid.innerHTML="";
+getMembers().forEach(m=>{
+let visible=currentUser.role==="admin"||currentUser.role==="superadmin"
+?{name:true,surname:true,number:true,title:true,photo:true}
+:m.visibility;
 
-  memberGrid.innerHTML="";
+let html="";
+if(visible.photo && m.photo) html+=`<img src="${m.photo}">`;
+if(visible.name||visible.surname)
+html+=`<h4>${visible.name?m.name:""} ${visible.surname?m.surname:""}</h4>`;
+if(visible.title) html+=`<p>${m.title}</p>`;
+if(visible.number) html+=`<small>${m.number}</small>`;
 
-  getMembers().forEach(m=>{
-
-    let content="";
-
-    if(m.visibility.photo && m.photo)
-      content+=`<img src="${m.photo}">`;
-
-    if(m.visibility.name || m.visibility.surname)
-      content+=`<h4>${m.name} ${m.surname}</h4>`;
-
-    if(m.visibility.title)
-      content+=`<p>${m.title}</p>`;
-
-    if(m.visibility.number)
-      content+=`<small>${m.number}</small>`;
-
-    memberGrid.innerHTML+=`
-      <div class="member-card">
-        ${content}
-        ${
-          currentUser.rights.manageMembers
-          ? `<button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`
-          : ""
-        }
-      </div>
-    `;
-  });
+memberGrid.innerHTML+=`
+<div class="member-card">
+${html||"<p>No visible data</p>"}
+${(currentUser.role==="admin"||currentUser.role==="superadmin")?
+`<button class="btn" onclick="editMember(${m.id})">Edit</button>
+<button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`:""}
+</div>`;
+});
 }
 
 </script>
