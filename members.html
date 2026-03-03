@@ -94,42 +94,50 @@ let editingMemberId=null;
 
 /* AUTH */
 function login(){
-  const users=getUsers();
-  const user=users[username.value];
-  if(user && user.password===password.value && user.active){
-    role=user.role;
-    loginStage.style.display="none";
-    membersStage.style.display="block";
-    adminControls.style.display=role==="admin"?"block":"none";
-    if(role==="admin") { loadUsers(); loadEvents(); }
+  const users = getUsers();
+  const uname = document.getElementById("username").value;
+  const pwd = document.getElementById("password").value;
+  const user = users[uname];
+
+  if(user && user.password === pwd && user.active){
+    role = user.role;
+    document.getElementById("loginStage").style.display = "none";
+    document.getElementById("membersStage").style.display = "block";
+    document.getElementById("adminControls").style.display = (role === "admin") ? "block" : "none";
+    if(role === "admin"){ loadUsers(); loadEvents(); }
     loadMembers();
-  } else { alert("Invalid or disabled account"); }
+  } else { alert("Invalid username, password, or disabled account"); }
 }
+
 function logout(){
-  role=null;
-  membersStage.style.display="none";
-  loginStage.style.display="block";
+  role = null;
+  document.getElementById("membersStage").style.display = "none";
+  document.getElementById("loginStage").style.display = "block";
 }
 
 /* USER MANAGEMENT */
 function addUser(){
   const users=getUsers();
-  if(!newUsername.value || !newPassword.value){ alert("Required"); return; }
-  if(users[newUsername.value]){ alert("Username exists"); return; }
-  users[newUsername.value]={password:newPassword.value,role:newRole.value,active:true};
+  const uname=document.getElementById("newUsername").value.trim();
+  const pwd=document.getElementById("newPassword").value.trim();
+  const r=document.getElementById("newRole").value;
+  if(!uname || !pwd){ alert("Required"); return; }
+  if(users[uname]){ alert("Username exists"); return; }
+  users[uname]={password:pwd,role:r,active:true};
   saveUsers(users);
-  newUsername.value=""; newPassword.value=""; newRole.value="member";
+  document.getElementById("newUsername").value=""; 
+  document.getElementById("newPassword").value="";
+  document.getElementById("newRole").value="member";
   loadUsers();
 }
 
 function editUser(username){
-  if(username==="admin1") { alert("Cannot edit this user"); return; }
+  if(username==="admin1"){ alert("Cannot edit this user"); return; }
   const users=getUsers();
   const newName=prompt("New Username:",username);
   if(!newName) return;
   const newRoleValue=prompt("Role (admin/member/pastor):",users[username].role);
   if(!newRoleValue) return;
-
   const userData=users[username];
   delete users[username];
   users[newName]={password:userData.password,role:newRoleValue,active:userData.active};
@@ -138,7 +146,7 @@ function editUser(username){
 }
 
 function resetPassword(username){
-  if(username==="admin1") { alert("Cannot reset password for this user"); return; }
+  if(username==="admin1"){ alert("Cannot reset password for this user"); return; }
   const newPass=prompt("Enter new password:");
   if(!newPass) return;
   const users=getUsers();
@@ -147,7 +155,7 @@ function resetPassword(username){
 }
 
 function toggleUser(username){
-  if(username==="admin1") { alert("Cannot disable this user"); return; }
+  if(username==="admin1"){ alert("Cannot disable this user"); return; }
   const users=getUsers();
   users[username].active=!users[username].active;
   saveUsers(users);
@@ -155,7 +163,7 @@ function toggleUser(username){
 }
 
 function deleteUser(username){
-  if(username==="admin1") { alert("Cannot delete this user"); return; }
+  if(username==="admin1"){ alert("Cannot delete this user"); return; }
   if(!confirm("Delete user permanently?")) return;
   const users=getUsers();
   delete users[username];
@@ -177,34 +185,39 @@ function loadUsers(){
       </div>
     `;
   });
-  userList.innerHTML=html;
+  document.getElementById("userList").innerHTML=html;
 }
 
 /* MEMBER MANAGEMENT */
 function saveMember(){
   const members=getMembers();
+  const mName=document.getElementById("mName").value.trim();
+  const mSurname=document.getElementById("mSurname").value.trim();
+  const mNumber=document.getElementById("mNumber").value.trim();
+  const mTitle=document.getElementById("mTitle").value.trim();
+  const vName=document.getElementById("vName").checked;
+  const vSurname=document.getElementById("vSurname").checked;
+  const vTitle=document.getElementById("vTitle").checked;
+  const vNumber=document.getElementById("vNumber").checked;
+  const vPhoto=document.getElementById("vPhoto").checked;
+  const mPhoto=document.getElementById("mPhoto").files[0];
+
   const memberData={
-    id: editingMemberId || Date.now(),
-    name:mName.value.trim(),
-    surname:mSurname.value.trim(),
-    number:mNumber.value.trim(),
-    title:mTitle.value.trim(),
-    visibility:{
-      name:vName.checked,
-      surname:vSurname.checked,
-      title:vTitle.checked,
-      number:vNumber.checked,
-      photo:vPhoto.checked
-    }
+    id:editingMemberId||Date.now(),
+    name:mName,
+    surname:mSurname,
+    number:mNumber,
+    title:mTitle,
+    visibility:{name:vName,surname:vSurname,title:vTitle,number:vNumber,photo:vPhoto}
   };
 
-  if(mPhoto.files[0]){
+  if(mPhoto){
     const reader=new FileReader();
     reader.onload=function(){
       memberData.photo=reader.result;
       commitMember(memberData);
     };
-    reader.readAsDataURL(mPhoto.files[0]);
+    reader.readAsDataURL(mPhoto);
   } else {
     const existing=members.find(m=>m.id===editingMemberId);
     memberData.photo=existing?existing.photo:"";
@@ -214,9 +227,8 @@ function saveMember(){
 
 function commitMember(memberData){
   let members=getMembers();
-  if(editingMemberId){
-    members=members.map(m=>m.id===editingMemberId?memberData:m);
-  } else { members.push(memberData); }
+  if(editingMemberId){ members=members.map(m=>m.id===editingMemberId?memberData:m); }
+  else { members.push(memberData); }
   saveMembers(members);
   editingMemberId=null;
   clearForm();
@@ -227,40 +239,55 @@ function editMember(id){
   const members=getMembers();
   const m=members.find(x=>x.id===id);
   editingMemberId=id;
-  mName.value=m.name; mSurname.value=m.surname; mNumber.value=m.number; mTitle.value=m.title;
-  vName.checked=m.visibility.name; vSurname.checked=m.visibility.surname;
-  vTitle.checked=m.visibility.title; vNumber.checked=m.visibility.number; vPhoto.checked=m.visibility.photo;
+  document.getElementById("mName").value=m.name;
+  document.getElementById("mSurname").value=m.surname;
+  document.getElementById("mNumber").value=m.number;
+  document.getElementById("mTitle").value=m.title;
+  document.getElementById("vName").checked=m.visibility.name;
+  document.getElementById("vSurname").checked=m.visibility.surname;
+  document.getElementById("vTitle").checked=m.visibility.title;
+  document.getElementById("vNumber").checked=m.visibility.number;
+  document.getElementById("vPhoto").checked=m.visibility.photo;
 }
 
 function deleteMember(id){
   if(!confirm("Delete member?")) return;
-  let members=getMembers().filter(m=>m.id!==id);
+  const members=getMembers().filter(m=>m.id!==id);
   saveMembers(members);
   loadMembers();
 }
 
 function clearForm(){
-  mName.value=""; mSurname.value=""; mNumber.value=""; mTitle.value="";
-  mPhoto.value=""; vName.checked=true; vSurname.checked=true; vTitle.checked=true; vNumber.checked=true; vPhoto.checked=true;
+  document.getElementById("mName").value="";
+  document.getElementById("mSurname").value="";
+  document.getElementById("mNumber").value="";
+  document.getElementById("mTitle").value="";
+  document.getElementById("mPhoto").value="";
+  document.getElementById("vName").checked=true;
+  document.getElementById("vSurname").checked=true;
+  document.getElementById("vTitle").checked=true;
+  document.getElementById("vNumber").checked=true;
+  document.getElementById("vPhoto").checked=true;
 }
 
 function loadMembers(){
+  const memberGrid=document.getElementById("memberGrid");
   memberGrid.innerHTML="";
   getMembers().forEach(m=>{
     const show=role==="admin"?{name:true,surname:true,title:true,number:true,photo:true}:m.visibility;
     let content="";
     if(show.photo && m.photo) content+=`<img src="${m.photo}">`;
     if(show.name||show.surname) content+=`<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>`;
-    if(show.title) content+=`<p>${m.title}</p>`;
-    if(show.number) content+=`<small>${m.number}</small>`;
+    if(show.title) content+=`<p>${show.title}</p>`;
+    if(show.number) content+=`<small>${show.number}</small>`;
     memberGrid.innerHTML+=`<div class="member-card">${content}${role==="admin"?`<button class="btn" onclick="editMember(${m.id})">Edit</button><button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`:""}</div>`;
   });
 }
 
-/* EVENT REQUESTS (Pastor/Coordinator) */
-function submitEventRequest(title, date, description){
+/* EVENT REQUESTS */
+function submitEventRequest(title,date,desc){
   const events=getEvents();
-  events.push({id:Date.now(),title,date,description,status:"pending"});
+  events.push({id:Date.now(),title,date,description:desc,status:"pending"});
   saveEvents(events);
   if(role==="admin") loadEvents();
 }
@@ -291,7 +318,6 @@ function rejectEvent(id){
   saveEvents(events);
   loadEvents();
 }
-
 </script>
 </body>
 </html>
