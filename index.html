@@ -1,204 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Events Calendar</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 40px;
-      background-color: #002147;
-      color: #fff;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-      position: relative;
-    }
-
-    .version {
-      font-size: 0.8em;
-      color: #aaa;
-      font-style: italic;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    header img.logo-left {
-      width: 120px;
-      position: absolute;
-      left: 0;
-      top: 25px;
-    }
-    header img.logo-right {
-      width: 120px;
-      position: absolute;
-      right: 0;
-      top: 25px;
-    }
-    header img.logo-center {
-      width: 160px;
-      display: block;
-      margin: 25px auto 15px auto;
-    }
-    header h1 {
-      color: #FFD700;
-      font-size: 2em;
-      margin: 0;
-    }
-    header h2 {
-      color: #FFD700;
-      font-size: 1em;
-      margin: 0;
-    }
-
-    table {
-      width: 90%;
-      margin: 0 auto;
-      border-collapse: collapse;
-      background-color: #1a1a1a;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-    }
-    th, td {
-      border: 1px solid #333;
-      padding: 14px;
-      text-align: left;
-    }
-    th {
-      background-color: #800000;
-      color: #FFD700;
-      text-transform: uppercase;
-    }
-    tr:nth-child(even) {
-      background-color: #262626;
-    }
-    tr:nth-child(odd) {
-      background-color: #1a1a1a;
-    }
-    a {
-      color: #FFD700;
-      font-weight: bold;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-      color: #fff;
-    }
-
-    .request-form {
-      text-align: center;
-      margin-top: 30px;
-    }
-    .btn {
-      display: inline-block;
-      background-color: #FFD700;
-      color: #000;
-      font-weight: bold;
-      padding: 12px 24px;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: 0.3s;
-      margin: 5px;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background-color: #fff;
-      color: #800000;
-    }
-
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #1a1a1a;
-      min-width: 200px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-      border-radius: 6px;
-      z-index: 1;
-      margin-top: 5px;
-    }
-    .dropdown-content a {
-      color: #FFD700;
-      padding: 10px 16px;
-      text-decoration: none;
-      display: block;
-    }
-    .dropdown-content a:hover {
-      background-color: #333;
-      color: #fff;
-    }
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Distributors Network</title>
+<style>
+body{font-family:Arial;margin:0;padding:40px;background:#002147;color:#fff;}
+h1,h2,h3{color:#FFD700;}
+.btn{background:#FFD700;color:#000;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold;cursor:pointer;border:none;margin:4px;}
+.btn-danger{background:#800000;color:#fff;}
+table{width:100%;border-collapse:collapse;margin-top:20px;background:#1a1a1a;}
+th,td{border:1px solid #333;padding:10px;}
+th{background:#800000;color:#FFD700;}
+.container{max-width:1200px;margin:auto;}
+.hidden{display:none;}
+input,select,textarea{width:100%;padding:8px;margin:6px 0;}
+</style>
 </head>
-
 <body>
-  <header>
-    <span class="version">Version 1.0PRI</span>
-    <img src="logo-left.png" alt="Left Logo" class="logo-left">
-    <img src="logo-right.png" alt="Right Logo" class="logo-right">
-    <img src="logo.png" alt="Center Logo" class="logo-center">
-    <h1>Message Believer's Network Calendar</h1>
-    <h2>By The Distributor</h2>
-  </header>
+<div class="container">
 
-  <!-- Buttons Section -->
-  <div class="request-form">
-    <p>Request To Add Event?</p>
+<h1>The Distributors Network</h1>
 
-    <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__jsUs6JUOVFCSUNaSzRFSjVRTUY0VkQ3N0dEWE9YVi4u"
-       target="_blank" class="btn">
-      Request Event
-    </a>
+<div id="publicNav">
+<button class="btn" onclick="showLogin()">Login</button>
+<a href="members.html" class="btn">Members</a>
+</div>
 
-    <!-- MEMBERS BUTTON (ADDED) -->
-    <a href="members.html" class="btn">Members</a>
+<div id="userNav" class="hidden">
+<span id="welcome"></span>
+<button class="btn" onclick="logout()">Logout</button>
+<button id="adminPanelBtn" class="btn hidden" onclick="openAdmin()">Admin Panel</button>
+<button id="requestBtn" class="btn hidden" onclick="requestEvent()">Request Event</button>
+</div>
 
-    <!-- Live Dropdown -->
-    <div class="dropdown">
-      <span class="btn">Live</span>
-      <div class="dropdown-content">
-        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube (COMING SOON!)</a>
-        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live (COMING SOON!)</a>
-        <a href="https://www.podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
-      </div>
-    </div>
+<h2>Events Calendar</h2>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Event</th>
+<th>Details</th>
+<th>Host</th>
+<th>Status</th>
+<th id="adminCol" class="hidden">Action</th>
+</tr>
+</thead>
+<tbody id="eventTable"></tbody>
+</table>
 
-    <!-- Support Accounts Dropdown -->
-    <div class="dropdown">
-      <span class="btn">Support Accounts</span>
-      <div class="dropdown-content">
-        <a href="#" target="_blank">WhatsApp (COMING SOON!)</a>
-        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook (COMING SOON!)</a>
-        <a href="https://tiktok.com" target="_blank">TikTok (COMING SOON!)</a>
-        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
-      </div>
-    </div>
-  </div>
+</div>
 
-  <!-- Calendar Table -->
-  <table>
-    <tr>
-      <th>Date</th>
-      <th>Event</th>
-      <th>Details</th>
-      <th>Host Church</th>
-      <th>Invitation</th>
-    </tr>
-    <tr>
-      <td>23 November 2025</td>
-      <td>Combined Meeting</td>
-      <td>Combined Fellowship | Open Invite</td>
-      <td>Restoration Tabernacle DBN | Pst Mervin Munsamy</td>
-      <td><a href="#" target="_blank">View Invite</a></td>
-    </tr>
-  </table>
+<script>
 
+/* ---------------- STORAGE ---------------- */
+
+function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}")}
+function saveUsers(u){localStorage.setItem("users",JSON.stringify(u))}
+function getEvents(){return JSON.parse(localStorage.getItem("events")||"[]")}
+function saveEvents(e){localStorage.setItem("events",JSON.stringify(e))}
+
+/* ---------------- HARD SUPER ADMIN ---------------- */
+
+const SUPER_ADMIN="AdminOne";
+const SUPER_PASS="CompleteAccess123";
+
+/* INITIALIZE USERS */
+
+if(!localStorage.getItem("users")){
+saveUsers({
+AdminOne:{password:SUPER_PASS,role:"superadmin",active:true},
+AdminTwo:{password:"admin456",role:"admin",active:true}
+});
+}
+
+let currentUser=null;
+
+/* ---------------- AUTH ---------------- */
+
+function showLogin(){
+const u=prompt("Username");
+const p=prompt("Password");
+const users=getUsers();
+if(users[u] && users[u].password===p && users[u].active){
+currentUser={username:u,role:users[u].role};
+postLogin();
+}else{
+alert("Invalid credentials");
+}
+}
+
+function postLogin(){
+publicNav.classList.add("hidden");
+userNav.classList.remove("hidden");
+welcome.innerText="Welcome: "+currentUser.username+" ("+currentUser.role+")";
+
+if(currentUser.role==="admin"||currentUser.role==="superadmin"){
+adminPanelBtn.classList.remove("hidden");
+adminCol.classList.remove("hidden");
+}
+
+if(currentUser.role==="pastor"){
+requestBtn.classList.remove("hidden");
+}
+
+loadEvents();
+}
+
+function logout(){
+currentUser=null;
+location.reload();
+}
+
+/* ---------------- EVENTS ---------------- */
+
+function requestEvent(){
+const pass=prompt("Enter Pastor Password:");
+const users=getUsers();
+if(!users[currentUser.username] || users[currentUser.username].password!==pass){
+alert("Incorrect password");
+return;
+}
+
+const date=prompt("Event Date");
+const name=prompt("Event Name");
+const details=prompt("Details");
+const host=prompt("Host");
+
+let events=getEvents();
+events.push({
+id:Date.now(),
+date,name,details,host,
+status:"Pending"
+});
+saveEvents(events);
+loadEvents();
+alert("Submitted for approval");
+}
+
+function loadEvents(){
+eventTable.innerHTML="";
+getEvents().forEach(e=>{
+if(e.status==="Approved" || (currentUser && (currentUser.role==="admin"||currentUser.role==="superadmin"))){
+eventTable.innerHTML+=`
+<tr>
+<td>${e.date}</td>
+<td>${e.name}</td>
+<td>${e.details}</td>
+<td>${e.host}</td>
+<td>${e.status}</td>
+${(currentUser && (currentUser.role==="admin"||currentUser.role==="superadmin"))?
+`<td>
+<button class="btn" onclick="approveEvent(${e.id})">Approve</button>
+<button class="btn" onclick="editEvent(${e.id})">Edit</button>
+<button class="btn btn-danger" onclick="deleteEvent(${e.id})">Delete</button>
+</td>`:""}
+</tr>`;
+}
+});
+}
+
+function approveEvent(id){
+let events=getEvents();
+events=events.map(e=>e.id===id?{...e,status:"Approved"}:e);
+saveEvents(events);
+loadEvents();
+}
+
+function editEvent(id){
+let events=getEvents();
+let e=events.find(x=>x.id===id);
+e.date=prompt("Date",e.date);
+e.name=prompt("Name",e.name);
+e.details=prompt("Details",e.details);
+e.host=prompt("Host",e.host);
+saveEvents(events);
+loadEvents();
+}
+
+function deleteEvent(id){
+if(!confirm("Delete event permanently?"))return;
+let events=getEvents().filter(e=>e.id!==id);
+saveEvents(events);
+loadEvents();
+}
+
+/* ---------------- ADMIN PANEL ---------------- */
+
+function openAdmin(){
+let choice=prompt("1:Add User\n2:Manage Users");
+if(choice==="1") addUser();
+if(choice==="2") manageUsers();
+}
+
+function addUser(){
+const u=prompt("Username");
+const p=prompt("Password");
+const r=prompt("Role (admin/member/pastor)");
+let users=getUsers();
+users[u]={password:p,role:r,active:true};
+saveUsers(users);
+alert("User Added");
+}
+
+function manageUsers(){
+let users=getUsers();
+let list=Object.keys(users).join("\n");
+let u=prompt("Users:\n"+list+"\n\nEnter username to manage:");
+if(!users[u])return;
+
+if(u===SUPER_ADMIN){
+alert("Super Admin cannot be modified.");
+return;
+}
+
+let action=prompt("1:Reset Password\n2:Disable/Enable\n3:Delete");
+if(action==="1"){
+users[u].password=prompt("New Password");
+}
+if(action==="2"){
+users[u].active=!users[u].active;
+}
+if(action==="3"){
+delete users[u];
+}
+saveUsers(users);
+alert("Updated");
+}
+
+/* INITIAL LOAD */
+loadEvents();
+
+</script>
 </body>
 </html>
