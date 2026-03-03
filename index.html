@@ -1,235 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Distributors Network</title>
+<title>Events Calendar</title>
+
 <style>
 body{font-family:Arial;margin:0;padding:40px;background:#002147;color:#fff;}
-h1,h2,h3{color:#FFD700;}
-.btn{background:#FFD700;color:#000;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold;cursor:pointer;border:none;margin:4px;}
-.btn-danger{background:#800000;color:#fff;}
-table{width:100%;border-collapse:collapse;margin-top:20px;background:#1a1a1a;}
-th,td{border:1px solid #333;padding:10px;}
+header{text-align:center;margin-bottom:30px;position:relative;}
+.version{font-size:.8em;color:#aaa;font-style:italic;display:block;margin-bottom:8px;}
+header h1{color:#FFD700;margin:0;}
+header h2{color:#FFD700;margin:0;font-size:1em;}
+table{width:90%;margin:auto;border-collapse:collapse;background:#1a1a1a;}
+th,td{border:1px solid #333;padding:12px;}
 th{background:#800000;color:#FFD700;}
-.container{max-width:1200px;margin:auto;}
+tr:nth-child(even){background:#262626;}
+.btn{background:#FFD700;color:#000;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold;cursor:pointer;border:none;margin:5px;}
+.btn-danger{background:#800000;color:#fff;}
 .hidden{display:none;}
-input,select,textarea{width:100%;padding:8px;margin:6px 0;}
 </style>
 </head>
+
 <body>
-<div class="container">
 
-<h1>The Distributors Network</h1>
+<header>
+<span class="version">Version 2.0PRI</span>
+<h1>Message Believer's Network Calendar</h1>
+<h2>By The Distributor</h2>
+</header>
 
-<div id="publicNav">
-<button class="btn" onclick="showLogin()">Login</button>
+<div style="text-align:center;">
+<button class="btn" onclick="openRequest()">Request Event</button>
 <a href="members.html" class="btn">Members</a>
 </div>
 
-<div id="userNav" class="hidden">
-<span id="welcome"></span>
-<button class="btn" onclick="logout()">Logout</button>
-<button id="adminPanelBtn" class="btn hidden" onclick="openAdmin()">Admin Panel</button>
-<button id="requestBtn" class="btn hidden" onclick="requestEvent()">Request Event</button>
-</div>
+<br>
 
-<h2>Events Calendar</h2>
-<table>
-<thead>
+<table id="calendarTable">
 <tr>
 <th>Date</th>
 <th>Event</th>
 <th>Details</th>
 <th>Host</th>
-<th>Status</th>
-<th id="adminCol" class="hidden">Action</th>
+<th>Action</th>
 </tr>
-</thead>
-<tbody id="eventTable"></tbody>
 </table>
-
-</div>
 
 <script>
 
-/* ---------------- STORAGE ---------------- */
+/* STORAGE */
+function getEvents(){return JSON.parse(localStorage.getItem("events")||"[]");}
+function saveEvents(e){localStorage.setItem("events",JSON.stringify(e));}
+function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}");}
 
-function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}")}
-function saveUsers(u){localStorage.setItem("users",JSON.stringify(u))}
-function getEvents(){return JSON.parse(localStorage.getItem("events")||"[]")}
-function saveEvents(e){localStorage.setItem("events",JSON.stringify(e))}
-
-/* ---------------- HARD SUPER ADMIN ---------------- */
-
-const SUPER_ADMIN="AdminOne";
-const SUPER_PASS="CompleteAccess123";
-
-/* INITIALIZE USERS */
-
+/* DEFAULT ADMIN (SUPER ADMIN HARD CODED) */
 if(!localStorage.getItem("users")){
-saveUsers({
-AdminOne:{password:SUPER_PASS,role:"superadmin",active:true},
-AdminTwo:{password:"admin456",role:"admin",active:true}
-});
+localStorage.setItem("users",JSON.stringify({
+superadmin:{password:"super123",role:"superadmin",active:true},
+admin2:{password:"admin456",role:"admin",active:true}
+}));
 }
 
 let currentUser=null;
 
-/* ---------------- AUTH ---------------- */
-
-function showLogin(){
-const u=prompt("Username");
-const p=prompt("Password");
-const users=getUsers();
-if(users[u] && users[u].password===p && users[u].active){
-currentUser={username:u,role:users[u].role};
-postLogin();
-}else{
-alert("Invalid credentials");
-}
-}
-
-function postLogin(){
-publicNav.classList.add("hidden");
-userNav.classList.remove("hidden");
-welcome.innerText="Welcome: "+currentUser.username+" ("+currentUser.role+")";
-
-if(currentUser.role==="admin"||currentUser.role==="superadmin"){
-adminPanelBtn.classList.remove("hidden");
-adminCol.classList.remove("hidden");
-}
-
-if(currentUser.role==="pastor"){
-requestBtn.classList.remove("hidden");
-}
-
-loadEvents();
-}
-
-function logout(){
-currentUser=null;
-location.reload();
-}
-
-/* ---------------- EVENTS ---------------- */
-
-function requestEvent(){
-const pass=prompt("Enter Pastor Password:");
-const users=getUsers();
-if(!users[currentUser.username] || users[currentUser.username].password!==pass){
-alert("Incorrect password");
-return;
-}
-
-const date=prompt("Event Date");
-const name=prompt("Event Name");
-const details=prompt("Details");
-const host=prompt("Host");
-
-let events=getEvents();
-events.push({
-id:Date.now(),
-date,name,details,host,
-status:"Pending"
-});
-saveEvents(events);
-loadEvents();
-alert("Submitted for approval");
-}
-
+/* LOAD EVENTS */
 function loadEvents(){
-eventTable.innerHTML="";
-getEvents().forEach(e=>{
-if(e.status==="Approved" || (currentUser && (currentUser.role==="admin"||currentUser.role==="superadmin"))){
-eventTable.innerHTML+=`
+const table=document.getElementById("calendarTable");
+table.innerHTML=`<tr>
+<th>Date</th><th>Event</th><th>Details</th><th>Host</th><th>Action</th>
+</tr>`;
+
+getEvents().filter(e=>e.status==="approved").forEach(e=>{
+table.innerHTML+=`
 <tr>
 <td>${e.date}</td>
-<td>${e.name}</td>
+<td>${e.title}</td>
 <td>${e.details}</td>
 <td>${e.host}</td>
-<td>${e.status}</td>
-${(currentUser && (currentUser.role==="admin"||currentUser.role==="superadmin"))?
-`<td>
-<button class="btn" onclick="approveEvent(${e.id})">Approve</button>
-<button class="btn" onclick="editEvent(${e.id})">Edit</button>
-<button class="btn btn-danger" onclick="deleteEvent(${e.id})">Delete</button>
-</td>`:""}
+<td>${currentUser && (currentUser.role==="admin"||currentUser.role==="superadmin")
+? `<button class="btn btn-danger" onclick="removeEvent(${e.id})">Remove</button>`
+: `-`}
+</td>
 </tr>`;
-}
 });
 }
 
-function approveEvent(id){
-let events=getEvents();
-events=events.map(e=>e.id===id?{...e,status:"Approved"}:e);
-saveEvents(events);
-loadEvents();
-}
-
-function editEvent(id){
-let events=getEvents();
-let e=events.find(x=>x.id===id);
-e.date=prompt("Date",e.date);
-e.name=prompt("Name",e.name);
-e.details=prompt("Details",e.details);
-e.host=prompt("Host",e.host);
-saveEvents(events);
-loadEvents();
-}
-
-function deleteEvent(id){
-if(!confirm("Delete event permanently?"))return;
+function removeEvent(id){
+if(!confirm("Remove event?")) return;
 let events=getEvents().filter(e=>e.id!==id);
 saveEvents(events);
 loadEvents();
 }
 
-/* ---------------- ADMIN PANEL ---------------- */
+/* REQUEST EVENT */
+function openRequest(){
+const users=getUsers();
+const username=prompt("Enter Username:");
+if(!users[username] || !users[username].active){
+alert("Invalid user");return;
+}
+if(users[username].role!=="pastor"){
+alert("Only Pastors / Coordinators allowed");return;
+}
+const pass=prompt("Enter Password:");
+if(pass!==users[username].password){alert("Incorrect");return;}
 
-function openAdmin(){
-let choice=prompt("1:Add User\n2:Manage Users");
-if(choice==="1") addUser();
-if(choice==="2") manageUsers();
-}
+const title=prompt("Event Title:");
+const date=prompt("Date:");
+const details=prompt("Details:");
+const host=prompt("Host:");
 
-function addUser(){
-const u=prompt("Username");
-const p=prompt("Password");
-const r=prompt("Role (admin/member/pastor)");
-let users=getUsers();
-users[u]={password:p,role:r,active:true};
-saveUsers(users);
-alert("User Added");
-}
-
-function manageUsers(){
-let users=getUsers();
-let list=Object.keys(users).join("\n");
-let u=prompt("Users:\n"+list+"\n\nEnter username to manage:");
-if(!users[u])return;
-
-if(u===SUPER_ADMIN){
-alert("Super Admin cannot be modified.");
-return;
-}
-
-let action=prompt("1:Reset Password\n2:Disable/Enable\n3:Delete");
-if(action==="1"){
-users[u].password=prompt("New Password");
-}
-if(action==="2"){
-users[u].active=!users[u].active;
-}
-if(action==="3"){
-delete users[u];
-}
-saveUsers(users);
-alert("Updated");
+let events=getEvents();
+events.push({
+id:Date.now(),
+title,date,details,host,
+status:"pending"
+});
+saveEvents(events);
+alert("Event submitted for admin approval.");
 }
 
-/* INITIAL LOAD */
+/* LOGIN CHECK */
+const u=prompt("Login for admin controls? (Leave blank for public)");
+if(u){
+const users=getUsers();
+if(users[u]){
+const p=prompt("Password:");
+if(p===users[u].password && users[u].active){
+currentUser=users[u];
+}
+}
+}
+
 loadEvents();
-
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
