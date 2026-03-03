@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Members Area</title>
+
 <style>
 body{font-family:Arial;background:#002147;color:#fff;padding:40px;}
 .container{max-width:1100px;margin:auto;background:#1a1a1a;padding:30px;border-radius:12px;}
@@ -40,7 +41,7 @@ input,select{width:100%;padding:8px;margin:6px 0;}
 <input id="mTitle" placeholder="Title">
 <input id="mPhoto" type="file">
 
-<h4>Visibility Controls</h4>
+<h4>Visibility</h4>
 <label><input type="checkbox" id="vName" checked> Name</label>
 <label><input type="checkbox" id="vSurname" checked> Surname</label>
 <label><input type="checkbox" id="vNumber" checked> Number</label>
@@ -85,22 +86,27 @@ function saveMembers(m){localStorage.setItem("members",JSON.stringify(m));}
 function getEvents(){return JSON.parse(localStorage.getItem("events")||"[]");}
 function saveEvents(e){localStorage.setItem("events",JSON.stringify(e));}
 
-/* HARD SUPERADMIN */
-if(!localStorage.getItem("users")){
-saveUsers({
-superadmin:{password:"super123",role:"superadmin",active:true},
-admin2:{password:"admin456",role:"admin",active:true}
-});
+/* FORCE ADMINS */
+let users=getUsers();
+if(!users.superadmin){
+users.superadmin={password:"super123",role:"superadmin",active:true};
 }
+if(!users.admin2){
+users.admin2={password:"admin456",role:"admin",active:true};
+}
+saveUsers(users);
 
 let currentUser=null;
 let editMemberId=null;
 
 /* LOGIN */
 function login(){
-const users=getUsers();
-if(users[username.value] && users[username.value].password===password.value && users[username.value].active){
-currentUser={name:username.value,...users[username.value]};
+let users=getUsers();
+let u=username.value.trim();
+let p=password.value.trim();
+
+if(users[u] && users[u].password===p && users[u].active){
+currentUser={name:u,...users[u]};
 loginBox.classList.add("hidden");
 panel.classList.remove("hidden");
 
@@ -110,7 +116,7 @@ loadUsers();
 loadPending();
 }
 loadMembers();
-}else alert("Invalid");
+}else alert("Invalid credentials");
 }
 
 function logout(){
@@ -119,9 +125,9 @@ panel.classList.add("hidden");
 loginBox.classList.remove("hidden");
 }
 
-/* USERS */
+/* USER MANAGEMENT */
 function saveUser(){
-if(currentUser.role!=="admin"&&currentUser.role!=="superadmin")return;
+if(currentUser.role!=="admin"&&currentUser.role!=="superadmin") return;
 
 let users=getUsers();
 users[uName.value]={password:uPass.value,role:uRole.value,active:true};
@@ -140,7 +146,7 @@ html+=`
 ${u} (${users[u].role}) ${users[u].active?"Active":"Disabled"}
 <button class="btn" onclick="resetPass('${u}')">Reset</button>
 <button class="btn" onclick="toggleUser('${u}')">${users[u].active?"Disable":"Enable"}</button>
-${u!=="superadmin" ? `<button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>`:""}
+${u!=="superadmin"?`<button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>`:""}
 </div>`;
 });
 userList.innerHTML=html;
@@ -168,7 +174,7 @@ saveUsers(users);
 loadUsers();
 }
 
-/* MEMBERS */
+/* MEMBER MANAGEMENT */
 function saveMember(){
 let members=getMembers();
 let data={
@@ -209,7 +215,7 @@ loadMembers();
 function loadMembers(){
 membersGrid.innerHTML="";
 getMembers().forEach(m=>{
-let show=currentUser.role==="admin"||currentUser.role==="superadmin"
+let show=(currentUser.role==="admin"||currentUser.role==="superadmin")
 ? {name:true,surname:true,number:true,title:true,photo:true}
 : m.visibility;
 
@@ -227,26 +233,6 @@ ${currentUser.role==="admin"||currentUser.role==="superadmin"
 <button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`:""}
 </div>`;
 });
-}
-
-function editMember(id){
-let m=getMembers().find(x=>x.id===id);
-editMemberId=id;
-mName.value=m.name;
-mSurname.value=m.surname;
-mNumber.value=m.number;
-mTitle.value=m.title;
-vName.checked=m.visibility.name;
-vSurname.checked=m.visibility.surname;
-vNumber.checked=m.visibility.number;
-vTitle.checked=m.visibility.title;
-vPhoto.checked=m.visibility.photo;
-}
-
-function deleteMember(id){
-if(!confirm("Delete?"))return;
-saveMembers(getMembers().filter(m=>m.id!==id));
-loadMembers();
 }
 
 /* EVENTS APPROVAL */
@@ -278,4 +264,3 @@ loadPending();
 </script>
 </body>
 </html>
-
