@@ -53,15 +53,26 @@ function saveEvents(e){localStorage.setItem("events",JSON.stringify(e));}
 function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}");}
 
 /* DEFAULT ADMIN (SUPER ADMIN HARD CODED) */
-if(!localStorage.getItem("users")){
-localStorage.setItem("users",JSON.stringify({
-superadmin:{password:"super123",role:"superadmin",active:true},
-admin2:{password:"admin456",role:"admin",active:true}
-}));
+/* FORCE DEFAULT USERS IF MISSING SUPERADMIN */
+let users = JSON.parse(localStorage.getItem("users") || "{}");
+
+if(!users.superadmin){
+    users.superadmin = {
+        password: "super123",
+        role: "superadmin",
+        active: true
+    };
 }
 
-let currentUser=null;
+if(!users.admin2){
+    users.admin2 = {
+        password: "admin456",
+        role: "admin",
+        active: true
+    };
+}
 
+localStorage.setItem("users", JSON.stringify(users));
 /* LOAD EVENTS */
 function loadEvents(){
 const table=document.getElementById("calendarTable");
@@ -138,3 +149,4 @@ loadEvents();
 </script>
 </body>
 </html>
+
