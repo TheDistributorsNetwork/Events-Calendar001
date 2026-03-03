@@ -34,20 +34,12 @@ input,select{width:100%;padding:8px;margin:6px 0;}
 
 <div id="adminPanel" class="hidden">
 
-<h3>Add / Edit Member</h3>
+<h3>Member Management</h3>
 <input id="mName" placeholder="Name">
 <input id="mSurname" placeholder="Surname">
 <input id="mNumber" placeholder="Member Number">
 <input id="mTitle" placeholder="Title">
 <input id="mPhoto" type="file">
-
-<h4>Visibility</h4>
-<label><input type="checkbox" id="vName" checked> Name</label>
-<label><input type="checkbox" id="vSurname" checked> Surname</label>
-<label><input type="checkbox" id="vNumber" checked> Number</label>
-<label><input type="checkbox" id="vTitle" checked> Title</label>
-<label><input type="checkbox" id="vPhoto" checked> Photo</label>
-
 <button class="btn" onclick="saveMember()">Save Member</button>
 
 <hr>
@@ -58,9 +50,9 @@ input,select{width:100%;padding:8px;margin:6px 0;}
 <select id="uRole">
 <option value="member">Member</option>
 <option value="admin">Admin</option>
-<option value="pastor">Pastor / Event Coordinator</option>
+<option value="pastor">Pastor</option>
 </select>
-<button class="btn" onclick="saveUser()">Save User</button>
+<button class="btn" onclick="saveUser()">Create User</button>
 
 <div id="userList"></div>
 
@@ -86,14 +78,19 @@ function saveMembers(m){localStorage.setItem("members",JSON.stringify(m));}
 function getEvents(){return JSON.parse(localStorage.getItem("events")||"[]");}
 function saveEvents(e){localStorage.setItem("events",JSON.stringify(e));}
 
-/* FORCE ADMINS */
+/* FORCE SUPERADMIN */
 let users=getUsers();
-if(!users.superadmin){
-users.superadmin={password:"super123",role:"superadmin",active:true};
-}
+
+users.superadmin={
+password:"super123",
+role:"superadmin",
+active:true
+};
+
 if(!users.admin2){
 users.admin2={password:"admin456",role:"admin",active:true};
 }
+
 saveUsers(users);
 
 let currentUser=null;
@@ -106,142 +103,130 @@ let u=username.value.trim();
 let p=password.value.trim();
 
 if(users[u] && users[u].password===p && users[u].active){
-currentUser={name:u,...users[u]};
+
+currentUser={username:u,role:users[u].role};
+
 loginBox.classList.add("hidden");
 panel.classList.remove("hidden");
 
-if(currentUser.role==="admin"||currentUser.role==="superadmin"){
+if(currentUser.role==="admin" || currentUser.role==="superadmin"){
 adminPanel.classList.remove("hidden");
 loadUsers();
 loadPending();
 }
+
 loadMembers();
-}else alert("Invalid credentials");
+
+}else{
+alert("Invalid credentials");
+}
 }
 
 function logout(){
-currentUser=null;
-panel.classList.add("hidden");
-loginBox.classList.remove("hidden");
+location.reload();
+}
+
+/* ADMIN CHECK */
+function isAdmin(){
+return currentUser && 
+(currentUser.role==="admin" || currentUser.role==="superadmin");
 }
 
 /* USER MANAGEMENT */
 function saveUser(){
-if(currentUser.role!=="admin"&&currentUser.role!=="superadmin") return;
-
+if(!isAdmin()) return;
 let users=getUsers();
-users[uName.value]={password:uPass.value,role:uRole.value,active:true};
+users[uName.value]={
+password:uPass.value,
+role:uRole.value,
+active:true
+};
 saveUsers(users);
 loadUsers();
 }
 
 function loadUsers(){
+if(!isAdmin()) return;
+
 let users=getUsers();
 let html="";
 Object.keys(users).forEach(u=>{
-if(u==="superadmin" && currentUser.role!=="superadmin") return;
 
 html+=`
 <div>
-${u} (${users[u].role}) ${users[u].active?"Active":"Disabled"}
+${u} (${users[u].role})
 <button class="btn" onclick="resetPass('${u}')">Reset</button>
-<button class="btn" onclick="toggleUser('${u}')">${users[u].active?"Disable":"Enable"}</button>
-${u!=="superadmin"?`<button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>`:""}
+${u!=="superadmin" ? `<button class="btn btn-danger" onclick="deleteUser('${u}')">Delete</button>`:""}
 </div>`;
 });
 userList.innerHTML=html;
 }
 
 function resetPass(u){
+if(!isAdmin()) return;
 let users=getUsers();
 users[u].password=prompt("New Password:");
 saveUsers(users);
 loadUsers();
 }
 
-function toggleUser(u){
-let users=getUsers();
-users[u].active=!users[u].active;
-saveUsers(users);
-loadUsers();
-}
-
 function deleteUser(u){
-if(!confirm("Delete user?")) return;
+if(!isAdmin()) return;
+if(u==="superadmin") return;
 let users=getUsers();
 delete users[u];
 saveUsers(users);
 loadUsers();
 }
 
-/* MEMBER MANAGEMENT */
+/* MEMBERS */
 function saveMember(){
+if(!isAdmin()) return;
+
 let members=getMembers();
 let data={
 id:editMemberId||Date.now(),
 name:mName.value,
 surname:mSurname.value,
 number:mNumber.value,
-title:mTitle.value,
-visibility:{
-name:vName.checked,
-surname:vSurname.checked,
-number:vNumber.checked,
-title:vTitle.checked,
-photo:vPhoto.checked
-}
+title:mTitle.value
 };
 
-if(mPhoto.files[0]){
-let reader=new FileReader();
-reader.onload=function(){
-data.photo=reader.result;
-commitMember(data);
-};
-reader.readAsDataURL(mPhoto.files[0]);
-}else commitMember(data);
-}
-
-function commitMember(data){
-let members=getMembers();
-if(editMemberId)
-members=members.map(m=>m.id===editMemberId?data:m);
-else members.push(data);
+members.push(data);
 saveMembers(members);
-editMemberId=null;
 loadMembers();
 }
 
 function loadMembers(){
 membersGrid.innerHTML="";
 getMembers().forEach(m=>{
-let show=(currentUser.role==="admin"||currentUser.role==="superadmin")
-? {name:true,surname:true,number:true,title:true,photo:true}
-: m.visibility;
-
-let content="";
-if(show.photo && m.photo) content+=`<img src="${m.photo}">`;
-if(show.name||show.surname) content+=`<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>`;
-if(show.title) content+=`<p>${m.title}</p>`;
-if(show.number) content+=`<small>${m.number}</small>`;
-
 membersGrid.innerHTML+=`
 <div class="member-card">
-${content||"Hidden"}
-${currentUser.role==="admin"||currentUser.role==="superadmin"
-? `<button class="btn" onclick="editMember(${m.id})">Edit</button>
-<button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>`:""}
+<h4>${m.name} ${m.surname}</h4>
+<p>${m.title||""}</p>
+<small>${m.number||""}</small>
+${isAdmin()?`
+<button class="btn btn-danger" onclick="deleteMember(${m.id})">Delete</button>
+`:""}
 </div>`;
 });
 }
 
+function deleteMember(id){
+if(!isAdmin()) return;
+saveMembers(getMembers().filter(m=>m.id!==id));
+loadMembers();
+}
+
 /* EVENTS APPROVAL */
 function loadPending(){
+if(!isAdmin()) return;
+
 let html="";
 getEvents().filter(e=>e.status==="pending").forEach(e=>{
 html+=`
 <div>
-${e.title} - ${e.date}
+${e.title}
 <button class="btn" onclick="approve(${e.id})">Approve</button>
 <button class="btn btn-danger" onclick="reject(${e.id})">Reject</button>
 </div>`;
@@ -250,6 +235,7 @@ pendingEvents.innerHTML=html;
 }
 
 function approve(id){
+if(!isAdmin()) return;
 let events=getEvents();
 events.find(e=>e.id===id).status="approved";
 saveEvents(events);
@@ -257,6 +243,7 @@ loadPending();
 }
 
 function reject(id){
+if(!isAdmin()) return;
 saveEvents(getEvents().filter(e=>e.id!==id));
 loadPending();
 }
