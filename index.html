@@ -6,30 +6,29 @@
 
 <style>
 body{font-family:Arial;margin:0;padding:40px;background:#002147;color:#fff;}
-header{text-align:center;margin-bottom:30px;position:relative;}
-.version{font-size:.8em;color:#aaa;font-style:italic;display:block;margin-bottom:8px;}
-header h1{color:#FFD700;margin:0;}
-header h2{color:#FFD700;margin:0;font-size:1em;}
+header{text-align:center;margin-bottom:30px;}
+.version{font-size:.8em;color:#aaa;font-style:italic;}
+h1{color:#FFD700;margin:0;}
+h2{color:#FFD700;margin:0;font-size:1em;}
 table{width:90%;margin:auto;border-collapse:collapse;background:#1a1a1a;}
 th,td{border:1px solid #333;padding:12px;}
 th{background:#800000;color:#FFD700;}
 tr:nth-child(even){background:#262626;}
-.btn{background:#FFD700;color:#000;padding:10px 18px;border-radius:6px;text-decoration:none;font-weight:bold;cursor:pointer;border:none;margin:5px;}
+.btn{background:#FFD700;color:#000;padding:10px 18px;border-radius:6px;font-weight:bold;cursor:pointer;border:none;margin:5px;}
 .btn-danger{background:#800000;color:#fff;}
-.hidden{display:none;}
 </style>
 </head>
 
 <body>
 
 <header>
-<span class="version">Version 2.0PRI</span>
+<span class="version">Version 2.1PRI</span>
 <h1>Message Believer's Network Calendar</h1>
 <h2>By The Distributor</h2>
 </header>
 
 <div style="text-align:center;">
-<button class="btn" onclick="openRequest()">Request Event</button>
+<button class="btn" onclick="requestEvent()">Request Event</button>
 <a href="members.html" class="btn">Members</a>
 </div>
 
@@ -41,43 +40,50 @@ tr:nth-child(even){background:#262626;}
 <th>Event</th>
 <th>Details</th>
 <th>Host</th>
-<th>Action</th>
+<th>Admin</th>
 </tr>
 </table>
 
 <script>
 
-/* STORAGE */
+/* STORAGE HELPERS */
+function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}");}
+function saveUsers(u){localStorage.setItem("users",JSON.stringify(u));}
 function getEvents(){return JSON.parse(localStorage.getItem("events")||"[]");}
 function saveEvents(e){localStorage.setItem("events",JSON.stringify(e));}
-function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}");}
 
-/* DEFAULT ADMIN (SUPER ADMIN HARD CODED) */
-/* FORCE DEFAULT USERS IF MISSING SUPERADMIN */
-let users = JSON.parse(localStorage.getItem("users") || "{}");
+/* FORCE DEFAULT ADMINS */
+let users=getUsers();
 
 if(!users.superadmin){
-    users.superadmin = {
-        password: "super123",
-        role: "superadmin",
-        active: true
-    };
+users.superadmin={password:"super123",role:"superadmin",active:true};
 }
-
 if(!users.admin2){
-    users.admin2 = {
-        password: "admin456",
-        role: "admin",
-        active: true
-    };
+users.admin2={password:"admin456",role:"admin",active:true};
+}
+saveUsers(users);
+
+let currentUser=null;
+
+/* OPTIONAL ADMIN LOGIN */
+const loginUser=prompt("Admin login? Leave blank for public");
+if(loginUser && users[loginUser]){
+const pass=prompt("Password:");
+if(pass===users[loginUser].password && users[loginUser].active){
+currentUser={name:loginUser,...users[loginUser]};
+}
 }
 
-localStorage.setItem("users", JSON.stringify(users));
 /* LOAD EVENTS */
 function loadEvents(){
 const table=document.getElementById("calendarTable");
-table.innerHTML=`<tr>
-<th>Date</th><th>Event</th><th>Details</th><th>Host</th><th>Action</th>
+table.innerHTML=`
+<tr>
+<th>Date</th>
+<th>Event</th>
+<th>Details</th>
+<th>Host</th>
+<th>Admin</th>
 </tr>`;
 
 getEvents().filter(e=>e.status==="approved").forEach(e=>{
@@ -87,14 +93,16 @@ table.innerHTML+=`
 <td>${e.title}</td>
 <td>${e.details}</td>
 <td>${e.host}</td>
-<td>${currentUser && (currentUser.role==="admin"||currentUser.role==="superadmin")
+<td>
+${currentUser && (currentUser.role==="admin"||currentUser.role==="superadmin")
 ? `<button class="btn btn-danger" onclick="removeEvent(${e.id})">Remove</button>`
-: `-`}
+: "-"}
 </td>
 </tr>`;
 });
 }
 
+/* REMOVE EVENT */
 function removeEvent(id){
 if(!confirm("Remove event?")) return;
 let events=getEvents().filter(e=>e.id!==id);
@@ -102,23 +110,19 @@ saveEvents(events);
 loadEvents();
 }
 
-/* REQUEST EVENT */
-function openRequest(){
+/* REQUEST EVENT (PASTOR ONLY) */
+function requestEvent(){
 const users=getUsers();
-const username=prompt("Enter Username:");
-if(!users[username] || !users[username].active){
-alert("Invalid user");return;
-}
-if(users[username].role!=="pastor"){
-alert("Only Pastors / Coordinators allowed");return;
-}
-const pass=prompt("Enter Password:");
-if(pass!==users[username].password){alert("Incorrect");return;}
+const u=prompt("Username:");
+if(!users[u] || !users[u].active){alert("Invalid user");return;}
+if(users[u].role!=="pastor"){alert("Only Pastors allowed");return;}
+const p=prompt("Password:");
+if(p!==users[u].password){alert("Incorrect password");return;}
 
 const title=prompt("Event Title:");
 const date=prompt("Date:");
 const details=prompt("Details:");
-const host=prompt("Host:");
+const host=prompt("Host Church:");
 
 let events=getEvents();
 events.push({
@@ -127,26 +131,10 @@ title,date,details,host,
 status:"pending"
 });
 saveEvents(events);
-alert("Event submitted for admin approval.");
-}
-
-/* LOGIN CHECK */
-const u=prompt("Login for admin controls? (Leave blank for public)");
-if(u){
-const users=getUsers();
-if(users[u]){
-const p=prompt("Password:");
-if(p===users[u].password && users[u].active){
-currentUser=users[u];
-}
-}
+alert("Submitted for approval.");
 }
 
 loadEvents();
 </script>
 </body>
 </html>
-</script>
-</body>
-</html>
-
