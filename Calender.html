@@ -1,204 +1,513 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Events Calendar</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 40px;
-      background-color: #002147;
-      color: #fff;
-    }
+<meta charset="UTF-8">
+<title>Members Area</title>
 
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-      position: relative;
-    }
+<style>
 
-    .version {
-      font-size: 0.8em;
-      color: #aaa;
-      font-style: italic;
-      margin-bottom: 8px;
-      display: block;
-    }
+body{
+font-family:Arial;
+margin:0;
+padding:40px;
+background:#002147;
+color:white;
+}
 
-    header img.logo-left {
-      width: 120px;
-      position: absolute;
-      left: 0;
-      top: 25px;
-    }
-    header img.logo-right {
-      width: 120px;
-      position: absolute;
-      right: 0;
-      top: 25px;
-    }
-    header img.logo-center {
-      width: 160px;
-      display: block;
-      margin: 25px auto 15px auto;
-    }
-    header h1 {
-      color: #FFD700;
-      font-size: 2em;
-      margin: 0;
-    }
-    header h2 {
-      color: #FFD700;
-      font-size: 1em;
-      margin: 0;
-    }
+header{
+text-align:center;
+margin-bottom:30px;
+}
 
-    table {
-      width: 90%;
-      margin: 0 auto;
-      border-collapse: collapse;
-      background-color: #1a1a1a;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-    }
-    th, td {
-      border: 1px solid #333;
-      padding: 14px;
-      text-align: left;
-    }
-    th {
-      background-color: #800000;
-      color: #FFD700;
-      text-transform: uppercase;
-    }
-    tr:nth-child(even) {
-      background-color: #262626;
-    }
-    tr:nth-child(odd) {
-      background-color: #1a1a1a;
-    }
-    a {
-      color: #FFD700;
-      font-weight: bold;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-      color: #fff;
-    }
+h1,h2,h3{
+color:#FFD700;
+}
 
-    .request-form {
-      text-align: center;
-      margin-top: 30px;
-    }
-    .btn {
-      display: inline-block;
-      background-color: #FFD700;
-      color: #000;
-      font-weight: bold;
-      padding: 12px 24px;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: 0.3s;
-      margin: 5px;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background-color: #fff;
-      color: #800000;
-    }
+.btn{
+background:#FFD700;
+color:black;
+font-weight:bold;
+padding:10px 18px;
+border-radius:6px;
+border:none;
+cursor:pointer;
+margin:5px 3px;
+}
 
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #1a1a1a;
-      min-width: 200px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-      border-radius: 6px;
-      z-index: 1;
-      margin-top: 5px;
-    }
-    .dropdown-content a {
-      color: #FFD700;
-      padding: 10px 16px;
-      text-decoration: none;
-      display: block;
-    }
-    .dropdown-content a:hover {
-      background-color: #333;
-      color: #fff;
-    }
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
-  </style>
+.btn-danger{
+background:#800000;
+color:white;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin:6px 0;
+}
+
+#loginStage,#membersStage{
+max-width:1000px;
+margin:auto;
+background:#1a1a1a;
+padding:30px;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,0.6);
+}
+
+.member-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+gap:20px;
+margin-top:25px;
+}
+
+.member-card{
+background:#262626;
+padding:15px;
+border-radius:10px;
+text-align:center;
+}
+
+.member-card img{
+width:100%;
+height:220px;
+object-fit:cover;
+border-radius:8px;
+}
+
+label{
+display:block;
+margin:4px 0;
+}
+
+</style>
 </head>
 
 <body>
-  <header>
-    <span class="version">Version 1.0PRI</span>
-    <img src="logo-left.png" alt="Left Logo" class="logo-left">
-    <img src="logo-right.png" alt="Right Logo" class="logo-right">
-    <img src="logo.png" alt="Center Logo" class="logo-center">
-    <h1>Message Believer's Network Calendar</h1>
-    <h2>By The Distributor</h2>
-  </header>
 
-  <!-- Buttons Section -->
-  <div class="request-form">
-    <p>Request To Add Event?</p>
+<header>
+<h1>Members Area</h1>
+</header>
 
-    <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__jsUs6JUOVFCSUNaSzRFSjVRTUY0VkQ3N0dEWE9YVi4u"
-       target="_blank" class="btn">
-      Request Event
-    </a>
 
-    <!-- MEMBERS BUTTON (ADDED) -->
-    <a href="members.html" class="btn">Members</a>
+<!-- LOGIN -->
 
-    <!-- Live Dropdown -->
-    <div class="dropdown">
-      <span class="btn">Live</span>
-      <div class="dropdown-content">
-        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube (COMING SOON!)</a>
-        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook Live (COMING SOON!)</a>
-        <a href="https://www.podbean.com/user-d5jLLYczpuob" target="_blank">Podbean</a>
-      </div>
-    </div>
+<div id="loginStage">
 
-    <!-- Support Accounts Dropdown -->
-    <div class="dropdown">
-      <span class="btn">Support Accounts</span>
-      <div class="dropdown-content">
-        <a href="#" target="_blank">WhatsApp (COMING SOON!)</a>
-        <a href="https://www.facebook.com/share/1CoqJ13wRi/" target="_blank">Facebook (COMING SOON!)</a>
-        <a href="https://tiktok.com" target="_blank">TikTok (COMING SOON!)</a>
-        <a href="https://youtube.com/@thedistributorsnetwork?si=ZI1aRL5UQ2VDPnNX" target="_blank">YouTube</a>
-      </div>
-    </div>
-  </div>
+<h2>Member Login</h2>
 
-  <!-- Calendar Table -->
-  <table>
-    <tr>
-      <th>Date</th>
-      <th>Event</th>
-      <th>Details</th>
-      <th>Host Church</th>
-      <th>Invitation</th>
-    </tr>
-    <tr>
-      <td>23 November 2025</td>
-      <td>Combined Meeting</td>
-      <td>Combined Fellowship | Open Invite</td>
-      <td>Restoration Tabernacle DBN | Pst Mervin Munsamy</td>
-      <td><a href="#" target="_blank">View Invite</a></td>
-    </tr>
-  </table>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+
+<button class="btn" onclick="login()">Login</button>
+
+</div>
+
+
+
+<!-- MEMBERS AREA -->
+
+<div id="membersStage" style="display:none;">
+
+<button class="btn" onclick="logout()">Log Out</button>
+
+
+
+<!-- ADMIN CONTROLS -->
+
+<div id="adminControls" style="display:none;">
+
+<h3>Add Member</h3>
+
+<input id="mName" placeholder="Name">
+<input id="mSurname" placeholder="Surname">
+<input id="mNumber" placeholder="Member Number">
+<input id="mTitle" placeholder="Title / Function">
+<input id="mPhoto" type="file" accept="image/*">
+
+
+<h4>Field Visibility</h4>
+
+<label><input type="checkbox" id="vName" checked> Show Name</label>
+<label><input type="checkbox" id="vSurname" checked> Show Surname</label>
+<label><input type="checkbox" id="vNumber" checked> Show Number</label>
+<label><input type="checkbox" id="vTitle" checked> Show Title</label>
+<label><input type="checkbox" id="vPhoto" checked> Show Photo</label>
+
+
+<button class="btn" onclick="addMember()">Add Member</button>
+
+
+<hr>
+
+
+<h3>Add Login User</h3>
+
+<input id="uName" placeholder="Username">
+<input id="uPass" placeholder="Password">
+
+<select id="uRole">
+<option value="viewer">Viewer</option>
+<option value="admin">Admin</option>
+</select>
+
+<button class="btn" onclick="addUser()">Add User</button>
+
+
+<h3>Existing Users</h3>
+
+<div id="userList"></div>
+
+<hr>
+
+</div>
+
+
+
+<div class="member-grid" id="memberGrid"></div>
+
+</div>
+
+
+
+<script>
+
+
+/* DEFAULT ADMINS (first load only) */
+
+if(!localStorage.getItem("users"))
+{
+const defaultUsers =
+{
+admin1:{password:"admin123",role:"admin",enabled:true},
+admin2:{password:"admin456",role:"admin",enabled:true}
+};
+
+localStorage.setItem("users",JSON.stringify(defaultUsers));
+}
+
+
+
+/* GLOBAL ROLE */
+
+let role=null;
+
+
+
+/* USER STORAGE */
+
+function getUsers()
+{
+return JSON.parse(localStorage.getItem("users")||"{}");
+}
+
+function saveUsers(users)
+{
+localStorage.setItem("users",JSON.stringify(users));
+}
+
+
+
+/* MEMBER STORAGE */
+
+function getMembers()
+{
+return JSON.parse(localStorage.getItem("members")||"[]");
+}
+
+function saveMembers(m)
+{
+localStorage.setItem("members",JSON.stringify(m));
+}
+
+
+
+/* LOGIN */
+
+function login()
+{
+
+const users=getUsers();
+const u=users[username.value];
+
+if(!u)
+{
+alert("User not found");
+return;
+}
+
+if(!u.enabled)
+{
+alert("User account disabled");
+return;
+}
+
+if(u.password===password.value)
+{
+
+role=u.role;
+
+loginStage.style.display="none";
+membersStage.style.display="block";
+
+adminControls.style.display=(role==="admin")?"block":"none";
+
+loadMembers();
+loadUsers();
+
+}
+else
+{
+alert("Invalid password");
+}
+
+}
+
+
+
+/* LOGOUT */
+
+function logout()
+{
+
+role=null;
+
+membersStage.style.display="none";
+adminControls.style.display="none";
+loginStage.style.display="block";
+
+}
+
+
+
+/* ADD MEMBER */
+
+function addMember()
+{
+
+const photoInput=document.getElementById("mPhoto");
+
+if(!photoInput.files[0])
+{
+alert("Please select photo");
+return;
+}
+
+const reader=new FileReader();
+
+reader.onload=function(){
+
+const members=getMembers();
+
+members.push({
+
+name:mName.value.trim(),
+surname:mSurname.value.trim(),
+number:mNumber.value.trim(),
+title:mTitle.value.trim(),
+photo:reader.result,
+
+visibility:{
+name:vName.checked,
+surname:vSurname.checked,
+number:vNumber.checked,
+title:vTitle.checked,
+photo:vPhoto.checked
+}
+
+});
+
+saveMembers(members);
+
+loadMembers();
+
+mName.value="";
+mSurname.value="";
+mNumber.value="";
+mTitle.value="";
+photoInput.value="";
+
+};
+
+reader.readAsDataURL(photoInput.files[0]);
+
+}
+
+
+
+/* DELETE MEMBER */
+
+function deleteMember(i)
+{
+
+if(!confirm("Remove member?"))return;
+
+const m=getMembers();
+
+m.splice(i,1);
+
+saveMembers(m);
+
+loadMembers();
+
+}
+
+
+
+/* EDIT MEMBER */
+
+function editMember(i)
+{
+
+const members=getMembers();
+const m=members[i];
+
+members[i]={
+...m,
+name:prompt("Name",m.name)||m.name,
+surname:prompt("Surname",m.surname)||m.surname,
+number:prompt("Member Number",m.number)||m.number,
+title:prompt("Title",m.title)||m.title
+};
+
+saveMembers(members);
+
+loadMembers();
+
+}
+
+
+
+/* LOAD MEMBERS */
+
+function loadMembers()
+{
+
+const grid=document.getElementById("memberGrid");
+
+grid.innerHTML="";
+
+getMembers().forEach((m,i)=>{
+
+grid.innerHTML+=`
+
+<div class="member-card">
+
+${m.visibility.photo?`<img src="${m.photo}">`:''}
+
+${m.visibility.name||m.visibility.surname?
+`<h4>${m.visibility.name?m.name:''} ${m.visibility.surname?m.surname:''}</h4>`:''}
+
+${m.visibility.title?`<p>${m.title}</p>`:''}
+
+${m.visibility.number?`<small>Member No: ${m.number}</small>`:''}
+
+${role==="admin"?
+`<div>
+<button class="btn" onclick="editMember(${i})">Edit</button>
+<button class="btn btn-danger" onclick="deleteMember(${i})">Remove</button>
+</div>`:''}
+
+</div>
+
+`;
+
+});
+
+}
+
+
+
+/* ADD USER */
+
+function addUser()
+{
+
+const users=getUsers();
+
+const name=uName.value.trim();
+const pass=uPass.value.trim();
+const role=uRole.value;
+
+if(!name||!pass)
+{
+alert("Enter username and password");
+return;
+}
+
+users[name]={
+password:pass,
+role:role,
+enabled:true
+};
+
+saveUsers(users);
+
+loadUsers();
+
+uName.value="";
+uPass.value="";
+
+}
+
+
+
+/* ENABLE / DISABLE USER */
+
+function toggleUser(name)
+{
+
+const users=getUsers();
+
+users[name].enabled=!users[name].enabled;
+
+saveUsers(users);
+
+loadUsers();
+
+}
+
+
+
+/* LOAD USERS */
+
+function loadUsers()
+{
+
+if(role!=="admin")return;
+
+const users=getUsers();
+
+const list=document.getElementById("userList");
+
+list.innerHTML="";
+
+Object.keys(users).forEach(u=>{
+
+list.innerHTML+=`
+
+<div>
+
+${u} (${users[u].role})
+
+<button class="btn"
+onclick="toggleUser('${u}')">
+
+${users[u].enabled?"Disable":"Enable"}
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+</script>
 
 </body>
 </html>
