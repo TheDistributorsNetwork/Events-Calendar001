@@ -328,11 +328,11 @@ function loadMembers(){
       : m.visibility;
 
     let content="";
-    if(show.photo && m.photo) content+=<img src="${m.photo}">;
+    if(show.photo && m.photo) content+=`<img src="${m.photo}">`;
     if(show.name||show.surname)
-      content+=<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>;
-    if(show.title) content+=<p>${m.title}</p>;
-    if(show.number) content+=<small>${m.number}</small>;
+      content+=`<h4>${show.name?m.name:""} ${show.surname?m.surname:""}</h4>`;
+    if(show.title) content+=`<p>${m.title}</p>`;
+    if(show.number) content+=`<small>${m.number}</small>`;
 
     memberGrid.innerHTML+=`
       <div class="member-card">
