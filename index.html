@@ -15,8 +15,8 @@
 
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: var(--royal-blue); color: var(--text-white); padding-bottom: 50px; }
 
-        /* LANDING PAGE LAYOUT */
-        .image-container { display: flex; justify-content: center; align-items: flex-end; gap: 25px; padding-top: 40px; }
+        /* 1. LANDING PAGE LAYOUT */
+        .image-container { display: flex; justify-content: center; align-items: flex-end; gap: 25px; padding-top: 40px; position: relative; }
         .img-side { width: 130px; height: 130px; border: 3px solid var(--gold); border-radius: 8px; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .img-center { width: 180px; height: 180px; border: 4px solid var(--gold); border-radius: 10px; object-fit: cover; margin-bottom: 25px; z-index: 2; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
 
@@ -33,21 +33,21 @@
 
         /* CONTENT SECTIONS */
         .content-section { width: 95%; max-width: 1200px; margin: 0 auto; }
-        .card-bg { background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; }
+        .card-bg { background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background-color: var(--deep-red); color: var(--gold); padding: 15px; text-align: left; }
         td { background-color: var(--row-grey); color: white; padding: 12px; border: 1px solid #444; }
 
-        /* ADMIN LAYOUT */
+        /* ADMIN GRID */
         .admin-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
         .admin-box { background: #262626; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444; }
         input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; background: #333; color: white; border: 1px solid #555; border-radius: 4px; box-sizing: border-box; }
         
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; padding: 40px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; padding: 40px; overflow-y: auto; }
         .modal-content { background: #1a1a1a; padding: 30px; border-radius: 10px; max-width: 500px; margin: auto; border: 2px solid var(--gold); }
         
-        .hidden { display: none !important; }
+        .hidden { display: none; }
         .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px;}
         .active { background: #28a745; }
         .disabled { background: #dc3545; }
@@ -67,74 +67,79 @@
     </header>
 
     <div class="nav-bar">
-        <!-- Main view stays visible to everyone -->
-        <button class="btn" onclick="toggleSection('calendar')">Events Calendar</button>
+        <button class="btn" onclick="toggleSection('calendar')">Calendar</button>
         <button class="btn" onclick="openRequestForm()">Request To Add Event</button>
-        <button class="btn" onclick="showMembers()">Members Directory</button>
+        <button class="btn" onclick="showMembers()">Members</button>
         <button id="adminBtn" class="btn btn-admin hidden" onclick="toggleSection('admin')">Admin Panel</button>
         <button id="loginBtn" class="btn" style="background: white;" onclick="openLogin()">Login</button>
     </div>
 
     <div class="content-section">
-        <!-- CALENDAR VIEW (PUBLIC - ALWAYS LOADED BY DEFAULT) -->
+        <!-- CALENDAR VIEW (PUBLIC) -->
         <div id="calendar-view" class="card-bg">
-            <h3 style="color:var(--gold); margin-top:0;">Live & Upcoming Approved Events</h3>
+            <h3>Public Events Calendar</h3>
             <table id="eventTable">
-                <thead><tr><th>Date</th><th>Event Type</th><th>Details / Theme</th><th>Host Church</th><th>Invitation</th></tr></thead>
+                <thead><tr><th>Date</th><th>Event</th><th>Details</th><th>Host Church</th><th>Invite</th></tr></thead>
                 <tbody id="eventBody"></tbody>
             </table>
         </div>
 
-        <!-- MEMBERS VIEW (PRIVATE - LOGIN REQUIRED) -->
+        <!-- MEMBERS VIEW -->
         <div id="members-view" class="card-bg hidden">
-            <h3 style="color:var(--gold); margin-top:0;">Message Network Members</h3>
+            <h3>Member Directory</h3>
             <div id="memberGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;"></div>
         </div>
 
-        <!-- ADMIN PANEL (RESTRICTED) -->
+        <!-- ADMIN PANEL -->
         <div id="admin-panel" class="card-bg hidden">
-            <h2 style="color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 10px;">System Control</h2>
+            <h2 style="color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 10px;">Admin Dashboard</h2>
             
             <div class="admin-layout">
                 <div>
                     <div class="admin-box">
-                        <h3>Event Requests (Approval Queue)</h3>
+                        <h3>Event Queue (Pending)</h3>
                         <div id="pendingRequests"></div>
                     </div>
 
                     <div class="admin-box">
-                        <h3>User Accounts</h3>
-                        <div style="background:#1a1a1a; padding:10px; border-radius:5px; margin-bottom:15px;">
-                            <input id="uName" placeholder="Create Username">
-                            <input id="uPass" type="password" placeholder="Set Password">
+                        <h3>Users (Password & Status Only)</h3>
+                        <div style="border-bottom: 1px solid #444; margin-bottom: 10px; padding-bottom: 10px;">
+                            <input id="uName" placeholder="New Username">
+                            <input id="uPass" type="password" placeholder="New Password">
                             <select id="uRole">
                                 <option value="Admin">Admin</option>
                                 <option value="Pastor">Pastor</option>
                                 <option value="Events Coordinator">Events Coordinator</option>
-                                <option value="Member">Member Account</option>
+                                <option value="Member">Member</option>
                             </select>
-                            <button class="btn" style="width:100%; margin-top:5px;" onclick="createUser()">Add System User</button>
+                            <button class="btn" style="width:100%;" onclick="createUser()">Create User</button>
                         </div>
-                        <div id="userList"></div>
+                        <div id="userList" style="font-size:0.85rem;"></div>
                     </div>
                 </div>
 
                 <div>
                     <div class="admin-box">
-                        <h3>Member Profiles</h3>
-                        <div style="background:#1a1a1a; padding:10px; border-radius:5px; margin-bottom:15px;">
-                            <input id="mName" placeholder="Name">
-                            <input id="mSurname" placeholder="Surname">
-                            <input id="mTitle" placeholder="Title">
-                            <input id="mNumber" placeholder="ID Number">
-                            <input id="mPhoto" placeholder="Photo URL">
-                            <button class="btn" style="width:100%; margin-top:5px;" onclick="saveMember()">Register Member</button>
+                        <h3>Member Profiles (Disable Only)</h3>
+                        <input id="mName" placeholder="First Name">
+                        <input id="mSurname" placeholder="Surname">
+                        <input id="mTitle" placeholder="Title">
+                        <input id="mNumber" placeholder="Member ID #">
+                        <input id="mPhoto" placeholder="Photo URL">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; font-size:0.8rem; background:#444; padding:10px; border-radius:5px; margin:10px 0;">
+                            <label><input type="checkbox" id="vName" checked> Name</label>
+                            <label><input type="checkbox" id="vSurname" checked> Surname</label>
+                            <label><input type="checkbox" id="vTitle" checked> Title</label>
+                            <label><input type="checkbox" id="vNumber" checked> ID No.</label>
+                            <label><input type="checkbox" id="vPhoto" checked> Photo</label>
                         </div>
-                        <div id="adminMemberGrid"></div>
+                        <button class="btn" style="width:100%;" onclick="saveMember()">Create Member</button>
+                        <hr color="#444">
+                        <div id="adminMemberGrid" style="margin-top:15px;"></div>
                     </div>
 
                     <div class="admin-box">
-                        <h3>Approved Event Management</h3>
+                        <h3>Event Management</h3>
                         <div id="liveAdminList"></div>
                     </div>
                 </div>
@@ -152,18 +157,18 @@
     </div></div>
 
     <div id="requestModal" class="modal"><div class="modal-content">
-        <h2>Request Event Posting</h2>
+        <h2>Event Request Form</h2>
         <input type="date" id="reqDate">
-        <input id="reqType" placeholder="Event Type (e.g. Youth Rally)">
-        <textarea id="reqDetails" placeholder="Detailed Information"></textarea>
-        <input id="reqChurch" placeholder="Host Church & Pastor Name">
-        <input id="reqImg" placeholder="Link to Flyer/Image">
-        <button class="btn" style="width:100%; margin-top:10px;" onclick="submitRequest()">Submit for Admin Review</button>
+        <input id="reqType" placeholder="Event Type">
+        <textarea id="reqDetails" placeholder="Details"></textarea>
+        <input id="reqChurch" placeholder="Church/Pastor">
+        <input id="reqImg" placeholder="Invitation URL">
+        <button class="btn" style="width:100%; margin-top:10px;" onclick="submitRequest()">Submit for Approval</button>
         <button class="btn" style="width:100%; margin-top:10px; background:grey;" onclick="closeModals()">Cancel</button>
     </div></div>
 
     <script>
-        // DATA STORAGE
+        // DATA INITIALIZATION
         let users = JSON.parse(localStorage.getItem('mb_users')) || [
             { user: 'admin', pass: '123', role: 'Admin', active: true }
         ];
@@ -171,7 +176,7 @@
         let members = JSON.parse(localStorage.getItem('mb_members')) || [];
         let currentUser = null;
 
-        // AUTH FUNCTIONS
+        // AUTH
         function openLogin() { if(currentUser) logout(); else document.getElementById('loginModal').style.display='block'; }
         function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
 
@@ -185,30 +190,12 @@
                 document.getElementById('loginBtn').innerText = "Logout (" + u + ")";
                 if(found.role === 'Admin') document.getElementById('adminBtn').classList.remove('hidden');
                 closeModals(); renderAll();
-            } else { alert("Access denied. Please check your credentials."); }
+            } else { alert("Login failed. Check credentials or account status."); }
         }
 
-        function logout() { currentUser = null; localStorage.removeItem('session'); location.reload(); }
+        function logout() { currentUser = null; location.reload(); }
 
-        // NAVIGATION (Public Access Logic)
-        function toggleSection(sec) {
-            document.getElementById('calendar-view').classList.add('hidden');
-            document.getElementById('members-view').classList.add('hidden');
-            document.getElementById('admin-panel').classList.add('hidden');
-            
-            document.getElementById(sec + '-view').classList.remove('hidden');
-        }
-
-        function showMembers() {
-            if(!currentUser) { 
-                alert("The Member Directory is private. Please login to view."); 
-                openLogin(); 
-            } else {
-                toggleSection('members');
-            }
-        }
-
-        // USER MGMT (REDUCE CAPABILITIES TO PASSWORDS ONLY)
+        // USER MANAGEMENT (RESTRICTED)
         function createUser() {
             const newUser = {
                 user: document.getElementById('uName').value,
@@ -221,33 +208,32 @@
         }
 
         function changeUserPass(username) {
-            const p = prompt("Reset password for user: " + username);
-            if(p) { 
-                users = users.map(u => u.user === username ? {...u, pass: p} : u); 
-                saveData(); renderAll(); 
-            }
+            const p = prompt("Enter new password for: " + username);
+            if(p) { users = users.map(u => u.user === username ? {...u, pass: p} : u); saveData(); renderAll(); }
         }
 
         function toggleUser(username) {
-            if(username === 'admin') return;
+            if(username === 'admin' && currentUser.user === 'admin') { alert("Cannot disable primary admin."); return; }
             users = users.map(u => u.user === username ? {...u, active: !u.active} : u);
             saveData(); renderAll();
         }
 
-        // MEMBER MGMT (REDUCE CAPABILITIES TO STATUS ONLY)
+        // MEMBER MANAGEMENT (RESTRICTED)
         function saveMember() {
             const m = {
                 id: Date.now(),
-                name: document.getElementById('mName').value, 
-                surname: document.getElementById('mSurname').value,
-                title: document.getElementById('mTitle').value, 
-                number: document.getElementById('mNumber').value,
+                name: document.getElementById('mName').value, surname: document.getElementById('mSurname').value,
+                title: document.getElementById('mTitle').value, number: document.getElementById('mNumber').value,
                 photo: document.getElementById('mPhoto').value || 'https://via.placeholder.com/150',
                 active: true,
-                visibility: { name: true, surname: true, title: true, number: true, photo: true }
+                visibility: {
+                    name: document.getElementById('vName').checked, surname: document.getElementById('vSurname').checked,
+                    title: document.getElementById('vTitle').checked, number: document.getElementById('vNumber').checked,
+                    photo: document.getElementById('vPhoto').checked
+                }
             };
             members.push(m); saveData(); renderAll();
-            alert("Member data saved.");
+            alert("Member profile created.");
         }
 
         function toggleMember(id) {
@@ -255,12 +241,11 @@
             saveData(); renderAll();
         }
 
-        // EVENT LOGIC
+        // EVENT MANAGEMENT
         function openRequestForm() {
-            if(!currentUser || (currentUser.role === 'Member')) {
-                alert("Restricted: Only Church Officials can request event postings.");
-                openLogin();
-                return;
+            const allowed = ['Admin', 'Pastor', 'Events Coordinator'];
+            if(!currentUser || !allowed.includes(currentUser.role)) {
+                alert("Restricted: Only Pastors or Coordinators may request events."); return;
             }
             document.getElementById('requestModal').style.display = 'block';
         }
@@ -272,13 +257,12 @@
                 church: document.getElementById('reqChurch').value, img: document.getElementById('reqImg').value || 'https://via.placeholder.com/300',
                 status: 'pending'
             };
-            if(!e.date || !e.type) return alert("Date and Type are required.");
             events.push(e); saveData(); closeModals(); renderAll();
-            alert("Request submitted successfully.");
+            alert("Request sent to admin.");
         }
 
         function approveEvent(id) { events = events.map(e => e.id === id ? {...e, status: 'approved'} : e); saveData(); renderAll(); }
-        function deleteEvent(id) { if(confirm("Confirm deletion?")) { events = events.filter(e => e.id !== id); saveData(); renderAll(); } }
+        function deleteEvent(id) { if(confirm("Delete event?")) { events = events.filter(e => e.id !== id); saveData(); renderAll(); } }
 
         function saveData() {
             localStorage.setItem('mb_users', JSON.stringify(users));
@@ -286,63 +270,72 @@
             localStorage.setItem('mb_members', JSON.stringify(members));
         }
 
-        // GLOBAL RENDER
+        // RENDER
         function renderAll() {
-            // PUBLIC: Calendar View
+            // 1. Calendar is PUBLIC (Filter approved only)
             document.getElementById('eventBody').innerHTML = events.filter(e => e.status === 'approved').map(e => `
                 <tr><td>${e.date}</td><td><strong>${e.type}</strong></td><td>${e.details}</td><td>${e.church}</td>
-                <td><button class="btn" style="padding:2px 5px;" onclick="window.open('${e.img}')">View Invite</button></td></tr>
-            `).join('') || "<tr><td colspan='5' align='center'>No scheduled events found.</td></tr>";
+                <td><button class="btn" style="padding:2px 5px;" onclick="window.open('${e.img}')">View</button></td></tr>
+            `).join('') || "<tr><td colspan='5' align='center'>No active events.</td></tr>";
 
-            // PRIVATE: Member Grid (Hides Disabled)
-            document.getElementById('memberGrid').innerHTML = members.filter(m => m.active).map(m => `
-                <div class="card-bg" style="text-align:center;">
-                    <img src="${m.photo}" style="width:100%; height:150px; object-fit:cover; border-radius:5px;">
-                    <h4 style="color:var(--gold)">${m.title||''} ${m.name} ${m.surname}</h4>
-                    <p style="font-size:0.7rem; color:#aaa;">ID: ${m.number}</p>
-                </div>
-            `).join('') || "<p>Member directory is empty.</p>";
+            // 2. Member Grid (Public view hides inactive)
+            document.getElementById('memberGrid').innerHTML = members.filter(m => m.active).map(m => {
+                const v = currentUser?.role === 'Admin' ? {name:true,surname:true,title:true,number:true,photo:true} : m.visibility;
+                return `
+                    <div class="card-bg" style="text-align:center;">
+                        ${v.photo ? `<img src="${m.photo}" style="width:100%; height:150px; object-fit:cover; border-radius:5px;">` : ''}
+                        <h4 style="color:var(--gold)">${v.title||''} ${v.name||''} ${v.surname||''}</h4>
+                        ${v.number ? `<p style="font-size:0.7rem; color:#aaa;">Member No: ${m.number}</p>` : ''}
+                    </div>
+                `;
+            }).join('') || "<p>No active member profiles.</p>";
 
-            // ADMIN CONTROLS
             if(currentUser?.role === 'Admin') {
-                // User Passwords
+                // Admin: User Passwords & Toggle
                 document.getElementById('userList').innerHTML = users.map(u => `
-                    <div style="background:#333; padding:8px; margin-bottom:5px; border-radius:4px; display:flex; justify-content:space-between; font-size:0.8rem;">
-                        <span>${u.user} <span class="status-badge ${u.active?'active':'disabled'}">${u.active?'On':'Off'}</span></span>
+                    <div style="background:#444; padding:8px; margin-bottom:5px; border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
+                        <span><strong>${u.user}</strong> [${u.role}] <span class="status-badge ${u.active?'active':'disabled'}">${u.active?'On':'Off'}</span></span>
                         <div>
-                            <button onclick="changeUserPass('${u.user}')">Pass</button>
-                            <button onclick="toggleUser('${u.user}')">Toggle</button>
+                            <button onclick="changeUserPass('${u.user}')" style="font-size:0.6rem;">Pass</button>
+                            <button onclick="toggleUser('${u.user}')" style="font-size:0.6rem;">Toggle</button>
                         </div>
                     </div>
                 `).join('');
 
-                // Member Status Toggles
+                // Admin: Approvals
+                document.getElementById('pendingRequests').innerHTML = events.filter(e => e.status === 'pending').map(e => `
+                    <div style="padding:8px; border-bottom:1px solid #555; display:flex; justify-content:space-between;">
+                        <span>${e.date}: ${e.type}</span>
+                        <button class="btn" style="font-size:0.6rem; padding:2px 10px;" onclick="approveEvent(${e.id})">Approve</button>
+                    </div>
+                `).join('') || "Queue empty.";
+
+                // Admin: Member Toggle Only
                 document.getElementById('adminMemberGrid').innerHTML = members.map(m => `
-                    <div style="background:#333; padding:8px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
-                        <span>${m.name} ${m.surname} <span class="status-badge ${m.active?'active':'disabled'}">${m.active?'Visible':'Disabled'}</span></span>
-                        <button onclick="toggleMember(${m.id})">${m.active?'Disable':'Enable'}</button>
+                    <div style="padding:8px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center;">
+                        <span>${m.name} ${m.surname} <span class="status-badge ${m.active?'active':'disabled'}">${m.active?'Visible':'Hidden'}</span></span>
+                        <button class="btn" style="padding:2px 8px; font-size:0.6rem;" onclick="toggleMember(${m.id})">${m.active?'Disable':'Enable'}</button>
                     </div>
                 `).join('');
 
-                // Queue
-                document.getElementById('pendingRequests').innerHTML = events.filter(e => e.status === 'pending').map(e => `
-                    <div style="background:#333; padding:8px; margin-bottom:5px; display:flex; justify-content:space-between; font-size:0.8rem;">
-                        <span>${e.date}: ${e.type}</span>
-                        <button onclick="approveEvent(${e.id})">Approve</button>
-                    </div>
-                `).join('') || "<p style='font-size:0.8rem;'>No pending items.</p>";
-
-                // Event Cleanup
+                // Admin: Cleanup
                 document.getElementById('liveAdminList').innerHTML = events.filter(e => e.status === 'approved').map(e => `
-                    <div style="background:#333; padding:5px; border-bottom:1px solid #555; display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <div style="padding:5px; border-bottom:1px solid #555; display:flex; justify-content:space-between;">
                         <span>${e.date}: ${e.type}</span>
-                        <button class="btn-danger" style="padding:2px 8px;" onclick="deleteEvent(${e.id})">Del</button>
+                        <button class="btn-danger" style="font-size:0.6rem; padding:2px 10px;" onclick="deleteEvent(${e.id})">Delete</button>
                     </div>
                 `).join('');
             }
         }
 
-        // Boot
+        function toggleSection(sec) {
+            document.querySelectorAll('.card-bg').forEach(c => c.classList.add('hidden'));
+            document.getElementById(sec + '-view')?.classList.remove('hidden');
+            if(sec === 'admin') document.getElementById('admin-panel').classList.remove('hidden');
+        }
+
+        function showMembers() { if(!currentUser) { alert("Members directory requires login."); openLogin(); } else toggleSection('members'); }
+
         window.onload = renderAll;
     </script>
 </body>
